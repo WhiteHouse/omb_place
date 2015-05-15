@@ -1,0 +1,170 @@
+{
+  "climate_champions": {
+    "label": "Climate Action Champions",
+    "geojson": "data/geojson/climate_action_champions.geo.json",
+    "topojson": "data/topojson/climate_action_champions.topo.json",
+    "style": {
+      "color": "#F7B6D2",
+      "weight": 2,
+      "fillOpacity": 0.6,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "innovation_nation": {
+    "label": "Innovation Nation",
+    "geojson": "data/geojson/innovation_nation.geo.json",
+    "topojson": "data/topojson/innovation_nation.topo.json",
+    "style": {
+      "color": "#D62728",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "manufacturing_communities": {
+    "label": "Investing in Manufacturing Communities Partnership",
+    "geojson": "data/geojson/investing_in_manufacturing_communities_partnership.geo.json",
+    "topojson": "data/topojson/investing_in_manufacturing_communities_partnership.topo.json",
+    "style": {
+      "color": "#FF7F0E",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "mayors_challenge": {
+    "label": "Mayor's Challenge to End Veterans' Homelessness",
+    "geojson": "data/geojson/mayors_challenge_to_end_veterans_homelessness.geo.json",
+    "topojson": "data/topojson/mayors_challenge_to_end_veterans_homelessness.topo.json",
+    "style": {
+      "color": "#DBDB8D",
+      "weight": 2,
+      "fillOpacity": 0.8,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "my_brothers_keeper": {
+    "label": "My Brother's Keeper Community Challenge",
+    "geojson": "data/geojson/my_brothers_keeper_community_challenge.geo.json",
+    "topojson": "data/topojson/my_brothers_keeper_community_challenge.topo.json",
+    "style": {
+      "color": "#17BECF",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "neighborhood_revitalization": {
+    "label": "Neighborhood Revitalization Initiative",
+    "geojson": "data/geojson/neighborhood_revitalization_initiative.geo.json",
+    "topojson": "data/topojson/neighborhood_revitalization_initiative.topo.json",
+    "style": {
+      "color": "#98DF89",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "partnership_sustainable_communities": {
+    "label": "Partnership for Sustainable Communities",
+    "geojson": "data/geojson/partnership_for_sustainable_communities.geo.json",
+    "topojson": "data/topojson/partnership_for_sustainable_communities.topo.json",
+    "style": {
+      "color": "#8C564B",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "pay_for_success": {
+    "label": "Pay for Success",
+    "geojson": "data/geojson/pay_for_success.geo.json",
+    "topojson": "data/topojson/pay_for_success.topo.json",
+    "style": {
+      "color": "#C49C94",
+      "weight": 2,
+      "fillOpacity": 0.6,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "persistent_poverty": {
+    "label": "Persistent Poverty",
+    "geojson": "data/geojson/persistent_poverty.geo.json",
+    "topojson": "data/topojson/persistent_poverty.topo.json",
+    "style": {
+      "color": "#7F7F7F",
+      "weight": 2,
+      "fillOpacity": 0.6,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "promise_zones": {
+    "label": "Promise Zones",
+    "geojson": "data/geojson/promise_zones.geo.json",
+    "topojson": "data/topojson/promise_zones.topo.json",
+    "style": {
+      "color": "#9467BD",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "rebuild_by_design": {
+    "label": "Rebuild by Design",
+    "geojson": "data/geojson/rebuild_by_design.geo.json",
+    "topojson": "data/topojson/rebuild_by_design.topo.json",
+    "style": {
+      "color": "#E377C2",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "strike_force": {
+    "label": "Strike Force",
+    "geojson": "data/geojson/strike_force.geo.json",
+    "topojson": "data/topojson/strike_force.topo.json",
+    "style": {
+      "color": "#669900",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "strong_cities_strong_communities": {
+    "label": "Strong Cities Strong Communities",
+    "geojson": "data/geojson/strong_cities_strong_communities.geo.json",
+    "topojson": "data/topojson/strong_cities_strong_communities.topo.json",
+    "style": {
+      "color": "#2077B4",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  },
+  "techhire": {
+    "label": "TechHire",
+    "geojson": "data/geojson/techhire.geo.json",
+    "topojson": "data/topojson/techhire.topo.json",
+    "style": {
+      "color": "#D62728",
+      "weight": 2,
+      "fillOpacity": 0.4,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    }
+  }
+}
