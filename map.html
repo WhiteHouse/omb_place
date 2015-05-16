@@ -32,6 +32,19 @@
         .colorbox-popup {
             margin-right: 4px;
         }
+        button {
+            border: none;
+            border-radius: 5px;
+            padding: 3px 5px;
+            font-weight: bold;
+            color: white;
+        }
+        button.select-all-overlays {
+            background-color: #2e8b57;
+        }
+        button.unselect-all-overlays {
+            background-color: #dc143c;
+        }
     </style>
 </head>
 <body id="map_sample" onload="">
@@ -119,7 +132,7 @@
                 var rgb_color = hexToRgb(data_obj[loc_key].style.color);
                 var colorBoxDiv = "<div class=\"colorbox colorbox-legend colorbox-"+loc_key+"\"></div>";
                 var styledLabel = $("<span>");
-                styledLabel.css("color", data_obj[loc_key]["style"]["color"]);
+                //styledLabel.css("color", data_obj[loc_key]["style"]["color"]);
                 styledLabel.css("font-weight","bold");
                 styledLabel.text(data_obj[loc_key]["label"]);
                 layerControl.addOverlay( data_obj[loc_key]["layer_data"], colorBoxDiv+styledLabel.prop("outerHTML") );
@@ -152,6 +165,18 @@
         } : null;
     }
 
+    function addAllLayers() {
+        for (var k in data_obj) {
+            data_obj[k]["layer_data"].addTo(map);
+        }
+    }
+
+    function removeAllLayers() {
+        for (var k in data_obj) {
+            map.removeLayer(data_obj[k]["layer_data"]);
+        }
+    }
+
     // Generate base map
     var mapboxUrl = 'https://api.tiles.mapbox.com/v4/theroadside.d06c54ca/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoidGhlcm9hZHNpZGUiLCJhIjoiV2RSTlEzUSJ9.dbufC1tQFHIr0g3a6b6sTA#4';
     var attributionText = 'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://mapbox.com">Mapbox</a>';
@@ -174,6 +199,12 @@
     // For accessibility
     $("a.leaflet-control-layers-toggle")
             .append("<span style=\"display: inline-block; padding-left: 100px;\">Map Layers</span>");
+    // Add check all and uncheck all buttons to overlays selection
+    var buttonsDiv = $("<div></div>").addClass("bulk-select-overlays");
+    var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
+    var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
+    buttonsDiv.html(selectAllButton+unselectAllButton);
+    $("div.leaflet-control-layers-overlays").before(buttonsDiv);
 
     // Create locate control and add to bottom right
     L.control.locate({
