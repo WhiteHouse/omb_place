@@ -46,6 +46,7 @@
             border: none;
             border-radius: 5px;
             padding: 3px 5px;
+            margin: 3px 5px 3px 0;
             font-weight: bold;
             color: white;
         }
@@ -78,21 +79,21 @@
     var data_obj;
 
     function load_map_data (data_format) {
-        console.log(data_format);
+        //console.log(data_format);
         $.getJSON('data/datasets.json', function(datasets) {
             data_obj = datasets;
             // Load each program and add it as an overlay layer to control
             switch (data_format) {
                 case "geojson":
                     for (var k in data_obj) {
-                        console.log(k);
+                        //console.log(k);
                         if (data_obj.hasOwnProperty(k)) {
                             load_geojson_location_data(k);
                         }
                     }
                     break;
                 case "topojson":
-                    console.log(k);
+                    //console.log(k);
                     for (var k in data_obj) {
                         if (data_obj.hasOwnProperty(k)) {
                             load_topojson_location_data(k);
@@ -102,11 +103,11 @@
                 default: // load nothing
                     break;
             }
-        }, function(e) { console.log(e); map.spin(false); });
+        }, function(e) { map.spin(false); console.log(e); });
     }
 
     function load_geojson_location_data (loc_key) {
-        console.log(loc_key);
+        //console.log(loc_key);
         if (!data_obj[loc_key].hasOwnProperty("layer_data") || data_obj[loc_key][layer_data] === undefined) {
             map.spin(true);
             $.getJSON(data_obj[loc_key]["geojson"], function(data) {
@@ -121,12 +122,12 @@
                 layerControl.addOverlay( data_obj[loc_key]["layer_data"], data_obj[loc_key]["label"] );
                 data_obj[loc_key]["layer_data"].addTo(map);
                 map.spin(false);
-            }, function(e) { console.log(e); map.spin(false); });
+            }, function(e) { map.spin(false); console.log(e); });
         };
     };
 
     function load_topojson_location_data (loc_key) {
-        console.log(loc_key);
+        //console.log(loc_key);
         var popupTemplate = "<div class=\"colorbox colorbox-popup colorbox-"+loc_key+"\"></div><strong>{InitiativeTitle}</strong><p>{LocationDisplay}</p>";
         if (!data_obj[loc_key].hasOwnProperty("layer_data") || data_obj[loc_key][layer_data] === undefined) {
             map.spin(true);
@@ -158,10 +159,10 @@
                         +rgb_color.r+","+rgb_color.g+","+rgb_color.b+","
                         +data_obj[loc_key]["style"]["opacity"]+"); }";
                 var colorBoxStyles = $("style#colorboxes");
-                console.log(colorBoxStyles.prop("outerHTML"));
+                //console.log(colorBoxStyles.prop("outerHTML"));
                 colorBoxStyles.append(cssString);
                 map.spin(false);
-            }, function(e) { console.log(e); map.spin(false); });
+            }, function(e) { map.spin(false); console.log(e); });
         };
     };
 
@@ -237,7 +238,7 @@
     $("div.leaflet-control-container div.leaflet-top.leaflet-center")
             .prepend(
                 $("<div></div>").addClass("browser-version-alert")
-                        .text("You are using an old version of Internet Explorer, which is slow and doesn't support some features of this map. For an improved experience, please upgrade to a modern browser (evergreen browsers or IE 9+).")
+                        .text("You are using an old version of Internet Explorer that is slow and may not be able to load this map. If you are having difficulties, please switch to a modern browser (evergreen browsers or IE 9+).")
             );
     load_map_data("geojson");
 </script>
