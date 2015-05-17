@@ -1,0 +1,78 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+}
+
+/* Alterations to the Map Layers Control */
+a.leaflet-control-layers-toggle {
+    background-position: 10px 50%;
+    width: auto;
+}
+a.leaflet-control-layers-toggle span {
+    display: inline-block;
+    padding-left: 46px;
+    padding-right: 10px;
+    color: black;
+    font-weight: bold;
+    font-size: 1.1em;
+    vertical-align: middle;
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+button {
+    border: none;
+    border-radius: 5px;
+    padding: 3px 5px;
+    margin: 3px 5px 3px 0;
+    font-weight: bold;
+    color: white;
+}
+button.select-all-overlays {
+    background-color: #2e8b57;
+}
+button.unselect-all-overlays {
+    background-color: #dc143c;
+}
+
+/* Alterations to the Locate Control */
+div.leaflet-control-locate a.leaflet-bar-part-single {
+    width: auto;
+}
+div.leaflet-control-locate a.leaflet-bar-part-single span {
+    display: inline-block;
+    padding-left: 0px;
+    padding-right: 5px;
+    margin-top: -9px;
+    height: 100%;
+    color: black;
+    font-weight: bold;
+    font-size: 0.8em;
+    text-align: left;
+    vertical-align: middle;
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
+    padding: 5px 5px 5px 5px;
+    line-height: 26px;
+    margin-top: 0;
+}
+
+/* Browser version issues alert message */
+.browser-version-alert {
+    background: white;
+    border-radius: 5px;
+    padding: 8px;
+    font-weight: bold;
+    color: darkred;
+    text-align: center;
+}
