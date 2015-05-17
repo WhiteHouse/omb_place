@@ -10,6 +10,16 @@
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Locate.min.css"/>
     <!--[if lt IE 9]>
         <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Locate.ie.min.css"/>
+        <style>
+            .browser-version-alert {
+                background: white;
+                border-radius: 5px;
+                padding: 8px;
+                font-weight: bold;
+                color: darkred;
+                text-align: center;
+            }
+        </style>
     <![endif]-->
     <style id="colorboxes">
         body {
@@ -224,6 +234,11 @@
 <!--[if lt IE 9]>
 <script>
     // Load data into layers: IE 8
+    $("div.leaflet-control-container div.leaflet-top.leaflet-center")
+            .prepend(
+                $("<div></div>").addClass("browser-version-alert")
+                        .text("You are using an old version of Internet Explorer, which is slow and doesn't support some features of this map. For an improved experience, please upgrade to a modern browser (evergreen browsers or IE 9+).")
+            );
     load_map_data("geojson");
 </script>
 <![endif]-->
