@@ -51,11 +51,13 @@
 <div id="map"></div>
 <script src="assets/jquery-1.11.2/jquery.min.js" charset="utf-8"></script>
 <script src="assets/spin-2.1.0/spin.min.js" charset="utf-8"></script>
+<!--[if (!IE)|(gte IE 9)]>-->
 <script src="assets/topojson-1.0/topojson.v1.min.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/L.TopoJSON.js" charset="utf-8"></script>
+<!--<![endif]-->
 <script src="assets/leaflet-0.7.3/js/leaflet.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/leaflet.spin.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/leaflet.geojsoncss.min.js" charset="utf-8"></script>
-<script src="assets/leaflet-0.7.3/js/L.TopoJSON.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/l.control.geosearch.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/l.geosearch.provider.openstreetmap.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/L.Control.Locate.min.js" charset="utf-8"></script>
@@ -213,9 +215,20 @@
     }).addTo(map);
     // For accessibility
     $("a.leaflet-bar-part.leaflet-bar-part-single[title=\"Show me where I am\"]").append("My Location");
+</script>
 
-    // Load data into layers
+
+<!--[if lt IE 9]>
+<script>
+    // Load data into layers -- IE 8
+    load_map_data("geojson");
+</script>
+<![endif]-->
+<!--[if (!IE)|(gte IE 9)]>-->
+<script>
+    // Load data into layers -- IE 9+ and non-IE
     load_map_data("topojson");
 </script>
+<!--<![endif]-->
 
 </body></html>
