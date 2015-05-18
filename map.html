@@ -15,9 +15,12 @@
     <link rel="stylesheet" href="assets/font-awesome-4.2.0/font-awesome.min.css"/>
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/leaflet.css"/>
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/l.geosearch.css"/>
+    <!--
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Locate.min.css"/>
+    -->
     <!--[if lt IE 9]>
-        <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Locate.ie.min.css"/>
+    <!--
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Locate.ie.min.css"/>
     <![endif]-->
     <link rel="stylesheet" href="assets/main.css"/>
     <style id="colorboxes">
@@ -55,7 +58,9 @@
 <script src="assets/leaflet-0.7.3/js/leaflet.geojsoncss.min.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/l.control.geosearch.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/l.geosearch.provider.openstreetmap.js" charset="utf-8"></script>
+<!--
 <script src="assets/leaflet-0.7.3/js/L.Control.Locate.min.js" charset="utf-8"></script>
+-->
 <script>
     var data_obj;
 
@@ -218,6 +223,7 @@
     $("div.leaflet-control-layers-overlays").before(buttonsDiv);
 
     // Create locate control and add to bottom right
+    /*
     L.control.locate({
         position: "bottomright",
         locateOptions: { maxZoom: 8 }
@@ -226,6 +232,7 @@
     $("div.leaflet-control-locate a.leaflet-bar-part.leaflet-bar-part-single")
             .prop("title", "Find My Location")
             .append("<span>Find My Location</span>");
+    */
 </script>
 
 
