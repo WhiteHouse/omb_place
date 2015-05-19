@@ -50,6 +50,7 @@
 	<!--<script type="text/javascript" src="http://leafletjs.com/examples/us-states.js"></script>-->
     <!--data is coming from the us-states.js file...-->
     <script type="text/javascript" src="./data/us-states.js"></script>
+    <!--<script type="text/javascript" src="./data/us-states2.js"></script>-->
 	<script type="text/javascript">
 
 		
@@ -57,11 +58,13 @@
         var map = L.map('map').setView([38.90, -77.04], 6); 
         //var map = L.map('map').setView([37.8, -96], 4);
 
-		var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
-			attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
-			key: 'BC9A493B41014CAABB98F0471D759707',
-			styleId: 22677
-		}).addTo(map);
+		var mapboxUrl = 'https://api.tiles.mapbox.com/v4/theroadside.d06c54ca/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoidGhlcm9hZHNpZGUiLCJhIjoiV2RSTlEzUSJ9.dbufC1tQFHIr0g3a6b6sTA#4';
+        var attributionText = 'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://mapbox.com">Mapbox</a>';
+        
+        var mapboxLayer = L.tileLayer(mapboxUrl, {
+			attribution: attributionText,
+            maxZoom: 18
+        }).addTo(map);
 
 
 		// control that shows state info on hover
@@ -84,10 +87,10 @@
 
 		// get color depending on population density value. Colors assigned by ColorBrewer
 		function getColor(d) {
-			return d > 1000 ? '#0868ac' :
-			       d > 500  ? '#43a2ca' :
-			       d > 200  ? '#7bccc4' :
-			       d > 100  ? '#bae4bc' :
+			return d > 328 ? '#0868ac' :
+			       d > 50  ? '#43a2ca' :
+			       d > 25  ? '#7bccc4' :
+			       d > 10  ? '#bae4bc' :
 			                  '#f0f9e8';
 		}
 
@@ -152,7 +155,7 @@
 
 			var div = L.DomUtil.create('div', 'info legend'),
 				//grades = [0, 10, 20, 50, 100, 200, 500, 1000],
-                grades = [0, 100, 200, 500, 1000],
+                grades = [0, 10, 25, 50, 328],
 				labels = [],
 				from, to;
 
