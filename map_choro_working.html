@@ -4,15 +4,14 @@
   <title>Initiative Count by State - Thematic Map</title>
 	<meta charset="utf-8" />
 
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
 	<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" />
 	<!--[if lte IE 8]><link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.ie.css" /><![endif]-->
 
 	<style>
-		#map {
-			width:100%;
-			height: 500px;
+		html, body, #map {
+			height: 100%;
 		}
 
 		.info {
@@ -87,7 +86,7 @@
 
 		// get color depending on population density value. Colors assigned by ColorBrewer
 		function getColor(d) {
-			return d > 328 ? '#0868ac' :
+			return d > 300 ? '#0868ac' :
 			       d > 50  ? '#43a2ca' :
 			       d > 25  ? '#7bccc4' :
 			       d > 10  ? '#bae4bc' :
@@ -155,7 +154,7 @@
 
 			var div = L.DomUtil.create('div', 'info legend'),
 				//grades = [0, 10, 20, 50, 100, 200, 500, 1000],
-                grades = [0, 10, 25, 50, 328],
+                grades = [0, 10, 25, 50, 300],
 				labels = [],
 				from, to;
 
