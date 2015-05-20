@@ -65,6 +65,9 @@
 <script>
     var data_obj;
 
+    // Shim Object with values method
+    //Object.values = function(obj) { Object.keys(obj).map(function (key) { return obj[key]; });
+
     function load_map_data (data_format) {
         //console.log(data_format);
         $.getJSON('data/datasets.json', function(datasets) {
@@ -130,6 +133,7 @@
     function load_topojson_location_data (loc_key) {
         //console.log(loc_key);
         var popupTemplate = "<div class=\"colorbox colorbox-popup colorbox-"+loc_key+"\"></div><strong>{InitiativeTitle}</strong><p>{LocationDisplay}</p>";
+        //var choroTemplate = "<div class=\"colorbox colorbox-popup colorbox-"+loc_key+"\"></div><strong>State: {name}</strong><p><strong>{density}</strong> programs</p>";
         if (!data_obj[loc_key].hasOwnProperty("layer_data") || data_obj[loc_key][layer_data] === undefined) {
             map.spin(true);
             var layer;
@@ -137,31 +141,73 @@
                 var layerGroup = L.layerGroup();
                 var newLayer = new L.TopoJSON();
                 newLayer.addData(data);
-                newLayer.setStyle(data_obj[loc_key]["style"]);
-                for (layer in newLayer._layers) {
-                    if (newLayer._layers.hasOwnProperty(layer)) {
-                        newLayer._layers[layer].bindPopup(L.Util.template(popupTemplate,
-                                newLayer._layers[layer].feature.properties));
+                if (data_obj[loc_key]["type"] === "regions") {
+                    newLayer.setStyle(data_obj[loc_key]["style"]);
+                    for (layer in newLayer._layers) {
+                        if (newLayer._layers.hasOwnProperty(layer)) {
+                            newLayer._layers[layer].bindPopup(L.Util.template(popupTemplate,
+                                    newLayer._layers[layer].feature.properties));
+                        }
                     }
+                    layerGroup.addLayer(newLayer);
+                    data_obj[loc_key]["layer_data"] = layerGroup;
+                    var rgb_color = hexToRgb(data_obj[loc_key].style.color);
+                    var colorBoxDiv = "<div class=\"colorbox colorbox-legend colorbox-" + loc_key + "\"></div>";
+                    var styledLabel = $("<span>");
+                    styledLabel.css("font-weight", "bold");
+                    styledLabel.text(data_obj[loc_key]["label"]);
+                    layerControl.addOverlay(data_obj[loc_key]["layer_data"], colorBoxDiv + styledLabel.prop("outerHTML"));
+                    //data_obj[loc_key]["layer_data"].addTo(map);
+                    var cssString = ".colorbox-" + loc_key + " { background-color: rgba("
+                            + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
+                            + data_obj[loc_key]["style"]["fillOpacity"] + "); border-color: rgba("
+                            + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
+                            + data_obj[loc_key]["style"]["opacity"] + "); }";
+                    var colorBoxStyles = $("style#colorboxes");
+                    colorBoxStyles.append(cssString);
+                } else if (data_obj[loc_key]["type"] === "choropleth") {
+                    newLayer.setStyle(data_obj[loc_key]["style"]);
+                    for (layer in newLayer._layers) {
+                        if (newLayer._layers.hasOwnProperty(layer)) {
+                            var theLayer = newLayer._layers[layer];
+                            var layerProps = theLayer.feature.properties;
+                            var theColor = getColor(loc_key, layerProps.density);
+                            var choroTemplate = "<div class=\"colorbox colorbox-popup\" "+
+                                    "style=\"border: 1px solid "+theColor+
+                                    "; background-color: "+theColor+
+                                    ";\"></div><strong>State: {name}</strong><p><strong>{density}</strong> programs</p>";
+                            layerProps.density = parseInt(layerProps.density, 10);
+                            theLayer.setStyle({
+                                "color": theColor
+                            });
+                            theLayer.bindPopup(L.Util.template(choroTemplate, layerProps));
+                        }
+                    }
+                    layerGroup.addLayer(newLayer);
+                    data_obj[loc_key]["layer_data"] = layerGroup;
+                    /*
+                    var colorBoxDiv = "<div class=\"colorbox colorbox-legend\"></div>";
+                    var aDiv;
+                    var gradientBox = $(colorBoxDiv);
+                    data_obj[loc_key]["colors"].forEach(function (col) {
+                        aDiv = $("<div></div>")
+                                .css("background-color", col)
+                                .css("display", "inline-block")
+                                .css("height", "100%")
+                                .width(gradientBox.width() / data_obj[loc_key]["colors"].length);
+                        gradientBox.append(aDiv);
+                    });
+                    */
+                    var styledLabel = $("<span>");
+                    styledLabel.css("font-weight", "bold");
+                    styledLabel.text(data_obj[loc_key]["label"]);
+                    layerControl.addOverlay(data_obj[loc_key]["layer_data"],
+                            //gradientBox.prop("outerHTML") +
+                                styledLabel.prop("outerHTML"));
+                    data_obj[loc_key]["layer_data"].addTo(map);
+                    choroplethLegend.addTo(map);
+                    choroplethLegend.update(loc_key);
                 }
-                layerGroup.addLayer(newLayer);
-                data_obj[loc_key]["layer_data"] = layerGroup;
-                var rgb_color = hexToRgb(data_obj[loc_key].style.color);
-                var colorBoxDiv = "<div class=\"colorbox colorbox-legend colorbox-"+loc_key+"\"></div>";
-                var styledLabel = $("<span>");
-                //styledLabel.css("color", data_obj[loc_key]["style"]["color"]);
-                styledLabel.css("font-weight","bold");
-                styledLabel.text(data_obj[loc_key]["label"]);
-                layerControl.addOverlay( data_obj[loc_key]["layer_data"], colorBoxDiv+styledLabel.prop("outerHTML") );
-                data_obj[loc_key]["layer_data"].addTo(map);
-                var cssString = ".colorbox-"+loc_key+" { background-color: rgba("
-                        +rgb_color.r+","+rgb_color.g+","+rgb_color.b+","
-                        +data_obj[loc_key]["style"]["fillOpacity"]+"); border-color: rgba("
-                        +rgb_color.r+","+rgb_color.g+","+rgb_color.b+","
-                        +data_obj[loc_key]["style"]["opacity"]+"); }";
-                var colorBoxStyles = $("style#colorboxes");
-                //console.log(colorBoxStyles.prop("outerHTML"));
-                colorBoxStyles.append(cssString);
                 map.spin(false);
             }, function(e) { map.spin(false); console.log(e); });
         };
@@ -182,6 +228,33 @@
         } : null;
     }
 
+    function getColor(dataset, d) {
+        var col = data_obj[dataset]["colors"];
+        var thr = data_obj[dataset]["thresholds"];
+        //console.log("In getColor('"+dataset+"',"+d+")...");
+        //console.log(col);
+        //console.log(thr);
+        var cmap = {};
+        for (var i = 0; i < col.length; i++) {
+            if (i < thr.length) {
+                cmap[thr[i].toString()] = col[i];
+            } else {
+                cmap["default"] = col[i];
+            }
+        }
+        //console.log(cmap);
+        sorted_thr = thr.sort( function(a,b) { return b-a; } );
+        for (var t in sorted_thr) {
+            //console.log("d = "+d+", t = "+sorted_thr[t]+", d > t = "+(d > sorted_thr[t]).toString());
+            if (d > sorted_thr[t]) {
+                var k = sorted_thr[t].toString();
+                if (cmap.hasOwnProperty(k)) { /*console.log( "Returning "+cmap[k]);*/ return cmap[k]; }
+            }
+        }
+        //console.log("Returning "+cmap["default"]);
+        return cmap["default"];
+    }
+
     function addAllLayers() {
         for (var k in data_obj) {
             data_obj[k]["layer_data"].addTo(map);
@@ -191,6 +264,32 @@
     function removeAllLayers() {
         for (var k in data_obj) {
             map.removeLayer(data_obj[k]["layer_data"]);
+        }
+    }
+
+    function zoomLevelChanged() {
+        var currZoom = map.getZoom();
+        for (var dataset in data_obj) {
+            if (data_obj.hasOwnProperty(dataset)) {
+                var ds = data_obj[dataset];
+                if (currZoom <= 5) {
+                    if (ds.type == "choropleth") {
+                        ds.layer_data.addTo(map);
+                        map.removeControl(choroplethLegend);
+                        choroplethLegend.addTo(map);
+                        choroplethLegend.update(dataset);
+                    } else {
+                        map.removeLayer(ds.layer_data);
+                    }
+                } else {
+                    if (ds.type != "choropleth") {
+                        ds.layer_data.addTo(map);
+                    } else {
+                        map.removeLayer(ds.layer_data);
+                        map.removeControl(choroplethLegend);
+                    }
+                }
+            }
         }
     }
 
@@ -209,6 +308,39 @@
         base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
     } }
     var map = L.map('map').setView([39.363415, -95.999397], 5);
+    map.on("zoomend", zoomLevelChanged);
+
+    // Add the legend for choropleth layers
+    var choroplethLegend = L.control({"position":"bottomleft"});
+    choroplethLegend.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'choropleth-legend');
+        this.update();
+        return this._div;
+    };
+    choroplethLegend.update = function (layer_name) {
+        layer_name = layer_name || "state_summary";
+        this._div.innerHTML = "<strong>Legend</strong>";
+        console.log(data_obj[layer_name]);
+        var colors = data_obj[layer_name]["colors"];
+        var thresholds = data_obj[layer_name]["thresholds"];
+        for (var i in thresholds) {
+            console.log("i = "+ i.toString());
+            if (i == 0) {
+                this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
+                        +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
+                        +thresholds[i]+"+</span></div>";
+            } else {
+                this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
+                        +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
+                        +(thresholds[i])+" - "+(thresholds[i-1]-1)+"</span></div>";
+            }
+        }
+        this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
+                +colors[colors.length-1]+";border-color:"+colors[colors.length-1]+";\"></div>"
+                +"<span>0 - "+(thresholds[thresholds.length-1])+"</span></div>";
+        console.log(thresholds);
+        console.log(this._div.innerHTML);
+    };
 
     // Create a location search control and add to top right of map
     new L.Control.GeoSearch({

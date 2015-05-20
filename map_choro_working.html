@@ -6,7 +6,7 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-	<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" />
+	<link rel="stylesheet" href="assets/leaflet-0.7.3/css/leaflet.css" />
 	<!--[if lte IE 8]><link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.ie.css" /><![endif]-->
 
 	<style>
@@ -45,8 +45,7 @@
     
 	<div id="map"></div>
 
-	<script src="http://leafletjs.com/dist/leaflet.js"></script>
-	<!--<script type="text/javascript" src="http://leafletjs.com/examples/us-states.js"></script>-->
+	<script src="assets/leaflet-0.7.3/js/leaflet.js"></script>
     <!--data is coming from the us-states.js file...-->
     <script type="text/javascript" src="./data/us-states.js"></script>
     <!--<script type="text/javascript" src="./data/us-states2.js"></script>-->
@@ -90,7 +89,7 @@
 			       d > 50  ? '#43a2ca' :
 			       d > 25  ? '#7bccc4' :
 			       d > 10  ? '#bae4bc' :
-			                  '#f0f9e8';
+						     '#f0f9e8' ;
 		}
 
 		function style(feature) {

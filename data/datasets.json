@@ -1,5 +1,6 @@
 {
   "climate_champions": {
+    "type": "regions",
     "label": "Climate Action Champions",
     "geojson": "data/geojson/climate_action_champions.geo.json",
     "topojson": "data/topojson/climate_action_champions.topo.json",
@@ -12,6 +13,7 @@
     }
   },
   "innovation_nation": {
+    "type": "regions",
     "label": "Innovation Nation",
     "geojson": "data/geojson/innovation_nation.geo.json",
     "topojson": "data/topojson/innovation_nation.topo.json",
@@ -24,6 +26,7 @@
     }
   },
   "manufacturing_communities": {
+    "type": "regions",
     "label": "Investing in Manufacturing Communities Partnership",
     "geojson": "data/geojson/investing_in_manufacturing_communities_partnership.geo.json",
     "topojson": "data/topojson/investing_in_manufacturing_communities_partnership.topo.json",
@@ -36,6 +39,7 @@
     }
   },
   "mayors_challenge": {
+    "type": "regions",
     "label": "Mayor's Challenge to End Veterans' Homelessness",
     "geojson": "data/geojson/mayors_challenge_to_end_veterans_homelessness.geo.json",
     "topojson": "data/topojson/mayors_challenge_to_end_veterans_homelessness.topo.json",
@@ -48,6 +52,7 @@
     }
   },
   "my_brothers_keeper": {
+    "type": "regions",
     "label": "My Brother's Keeper Community Challenge",
     "geojson": "data/geojson/my_brothers_keeper_community_challenge.geo.json",
     "topojson": "data/topojson/my_brothers_keeper_community_challenge.topo.json",
@@ -60,6 +65,7 @@
     }
   },
   "neighborhood_revitalization": {
+    "type": "regions",
     "label": "Neighborhood Revitalization Initiative",
     "geojson": "data/geojson/neighborhood_revitalization_initiative.geo.json",
     "topojson": "data/topojson/neighborhood_revitalization_initiative.topo.json",
@@ -72,6 +78,7 @@
     }
   },
   "partnership_sustainable_communities": {
+    "type": "regions",
     "label": "Partnership for Sustainable Communities",
     "geojson": "data/geojson/partnership_for_sustainable_communities.geo.json",
     "topojson": "data/topojson/partnership_for_sustainable_communities.topo.json",
@@ -84,10 +91,12 @@
     }
   },
   "pay_for_success": {
+    "type": "regions",
     "label": "Pay for Success",
     "geojson": "data/geojson/pay_for_success.geo.json",
     "topojson": "data/topojson/pay_for_success.topo.json",
     "style": {
+      "type": "regions",
       "color": "#C49C94",
       "weight": 2,
       "fillOpacity": 0.6,
@@ -96,6 +105,7 @@
     }
   },
   "persistent_poverty": {
+    "type": "regions",
     "label": "Persistent Poverty",
     "geojson": "data/geojson/persistent_poverty.geo.json",
     "topojson": "data/topojson/persistent_poverty.topo.json",
@@ -108,6 +118,7 @@
     }
   },
   "promise_zones": {
+    "type": "regions",
     "label": "Promise Zones",
     "geojson": "data/geojson/promise_zones.geo.json",
     "topojson": "data/topojson/promise_zones.topo.json",
@@ -120,6 +131,7 @@
     }
   },
   "rebuild_by_design": {
+    "type": "regions",
     "label": "Rebuild by Design",
     "geojson": "data/geojson/rebuild_by_design.geo.json",
     "topojson": "data/topojson/rebuild_by_design.topo.json",
@@ -132,6 +144,7 @@
     }
   },
   "strike_force": {
+    "type": "regions",
     "label": "Strike Force",
     "geojson": "data/geojson/strike_force.geo.json",
     "topojson": "data/topojson/strike_force.topo.json",
@@ -144,6 +157,7 @@
     }
   },
   "strong_cities_strong_communities": {
+    "type": "regions",
     "label": "Strong Cities Strong Communities",
     "geojson": "data/geojson/strong_cities_strong_communities.geo.json",
     "topojson": "data/topojson/strong_cities_strong_communities.topo.json",
@@ -156,6 +170,7 @@
     }
   },
   "techhire": {
+    "type": "regions",
     "label": "TechHire",
     "geojson": "data/geojson/techhire.geo.json",
     "topojson": "data/topojson/techhire.topo.json",
@@ -166,5 +181,25 @@
       "opacity": 1,
       "dashArray": "3, 5"
     }
+  },
+  "state_summary": {
+    "type": "choropleth",
+    "label": "Summary: Number of Programs by State",
+    "geojson": "data/geojson/stateSummary.geo.json",
+    "topojson": "data/topojson/stateSummary.topo.json",
+    "style": {
+      "weight": 2,
+      "fillOpacity": 0.7,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    },
+    "highlight": {
+      "weight": 3,
+      "fillOpacity": 1,
+      "opacity": 1,
+      "dashArray": ""
+    },
+    "colors": ["#201BFF","#2463E8","#34BBFF","#24E8E6","#27FFAD"],
+    "thresholds": [300, 100, 50, 20]
   }
 }
