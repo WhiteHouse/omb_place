@@ -205,6 +205,9 @@
         "Base Map Layer: Open Street Map": osm,
         "Base Map Layer: Stamen Watercolor": stamenwc
     };
+    for (bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
+        base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
+    } }
     var map = L.map('map').setView([39.363415, -95.999397], 5);
 
     // Create a location search control and add to top right of map
