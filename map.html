@@ -446,6 +446,51 @@
             .prop("title", "Find My Location")
             .append("<span>Find My Location</span>");
     */
+
+    function handleClick(e) {
+        var p = e.latlng;
+        var popupString = "";
+        console.log("Map clicked: { lat: "+p.lat+", lng: "+p.lng+" }");
+        var marker = L.marker(p);
+        marker.addTo(map);
+        for (var dataset in data_obj) {
+            if (data_obj.hasOwnProperty(dataset)) {
+                console.log("  Reviewing dataset: " + data_obj[dataset]["label"]);
+                var colorBoxDiv = "<div class=\"colorbox colorbox-popup colorbox-" + dataset + "\"></div>";
+                var layerData = data_obj[dataset]["layer_data"];
+                layerData.eachLayer( function (layer) {
+                    console.log("--> Layer:");
+                    console.log(layer);
+                    console.log("Is layer a Polygon? "+(layer instanceof L.Polygon));
+                    layer.eachLayer( function (sublayer) {
+                        console.log("    --> Sublayer:");
+                        console.log(sublayer);
+                        console.log("Is sublayer a Polygon? "+(sublayer instanceof L.Polygon));
+                        var sublayers = leafletPip.pointInLayer(p, sublayer.toGeoJSON());
+                        console.log("        --> leafletPip.pointInLayer(p, sublayer) results:");
+                        console.log(sublayers);
+                        if (sublayers && sublayers.length > 0) {
+                            popupString += colorBoxDiv + "<strong>" + data_obj[dataset]["label"] + "</strong>";
+                            for (var s in sublayers) {
+                                if (sublayers.hasOwnProperty(s)) {
+                                    console.log((sublayers[s] instanceof L.MultiPolygon).toString() + " || " +
+                                            (sublayers[s] instanceof L.Polygon).toString() + " = " +
+                                            (sublayers[s] instanceof L.MultiPolygon || sublayers[s] instanceof L.Polygon).toString());
+                                    console.log(" ** Found polygon: " + s.properties.InitiativeTitle + " (" + s.properties.LocationDisplay + ")");
+                                    popupString += "<p>" + s.properties.InitiativeTitle + " (" + s.properties.LocationDisplay + ")</p>";
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+        }
+        if (!popupString) { popupString = "No layers found."; }
+        marker.bindPopup(popupString);
+    }
+
+    map.on('click', handleClick);
+
 </script>
 
 
