@@ -99,6 +99,39 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     float: none;
 }
 
+/* Custom choropleth display control */
+.leaflet-control.choropleth-display {
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 5px 0px;
+    clear: both;
+    display: block;
+    float: right;
+    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 18px;
+    background: rgba(255, 255, 255, 0.7);
+    margin: 10px;
+    padding: 10px;
+    color: #333;
+    min-width: 100px;
+    vertical-align: top;
+}
+.leaflet-control.choropleth-display strong {
+    font-weight: bold;
+    font-size: 14px;
+    float: none;
+}
+.leaflet-control.choropleth-display>div {
+    width: 100%;
+    float: none;
+    vertical-align: top;
+}
+.leaflet-control.choropleth-display div.colorbox {
+    padding-right: 10px;
+    float: none;
+}
+
 
 /* Browser version issues alert message */
 .browser-version-alert {

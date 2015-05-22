@@ -10,7 +10,8 @@
       "fillOpacity": 0.6,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 2
   },
   "innovation_nation": {
     "type": "regions",
@@ -23,7 +24,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 3
   },
   "manufacturing_communities": {
     "type": "regions",
@@ -36,7 +38,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 4
   },
   "mayors_challenge": {
     "type": "regions",
@@ -49,7 +52,8 @@
       "fillOpacity": 0.8,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 5
   },
   "my_brothers_keeper": {
     "type": "regions",
@@ -62,7 +66,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 6
   },
   "neighborhood_revitalization": {
     "type": "regions",
@@ -75,7 +80,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 7
   },
   "partnership_sustainable_communities": {
     "type": "regions",
@@ -88,7 +94,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 8
   },
   "pay_for_success": {
     "type": "regions",
@@ -102,7 +109,8 @@
       "fillOpacity": 0.6,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 9
   },
   "persistent_poverty": {
     "type": "regions",
@@ -115,7 +123,8 @@
       "fillOpacity": 0.6,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 10
   },
   "promise_zones": {
     "type": "regions",
@@ -128,7 +137,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 11
   },
   "rebuild_by_design": {
     "type": "regions",
@@ -141,7 +151,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 12
   },
   "strike_force": {
     "type": "regions",
@@ -154,7 +165,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 13
   },
   "strong_cities_strong_communities": {
     "type": "regions",
@@ -167,7 +179,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 14
   },
   "techhire": {
     "type": "regions",
@@ -180,7 +193,8 @@
       "fillOpacity": 0.4,
       "opacity": 1,
       "dashArray": "3, 5"
-    }
+    },
+    "layerOrder": 15
   },
   "state_summary": {
     "type": "choropleth",
@@ -189,7 +203,7 @@
     "topojson": "data/topojson/stateSummary.topo.json",
     "style": {
       "weight": 2,
-      "fillOpacity": 0.7,
+      "fillOpacity": 0.6,
       "opacity": 1,
       "dashArray": "3, 5"
     },
@@ -199,7 +213,8 @@
       "opacity": 1,
       "dashArray": ""
     },
-    "colors": ["#201BFF","#2463E8","#34BBFF","#24E8E6","#27FFAD"],
-    "thresholds": [300, 100, 50, 20]
+    "colors": ["#0000B8","#3333D6","#6666E0","#9999EB","#CCCCF5"],
+    "thresholds": [300, 100, 50, 20],
+    "layerOrder": 1
   }
 }
