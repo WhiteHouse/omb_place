@@ -87,8 +87,8 @@
                     layerOrdering[parseInt(data_obj[k]["layerOrder"],10)-1] = k;
                 }
             }
-            console.log(numDatasets);
-            console.log(layerOrdering);
+            // console.log(numDatasets);
+            // console.log(layerOrdering);
 
             var i;
             // Load each program and add it as an overlay layer to control
@@ -166,12 +166,14 @@
                 newLayer.addData(data);
                 if (data_obj[loc_key]["type"] === "regions") {
                     newLayer.setStyle(data_obj[loc_key]["style"]);
+                    /*
                     for (layer in newLayer._layers) {
                         if (newLayer._layers.hasOwnProperty(layer)) {
                             newLayer._layers[layer].bindPopup(L.Util.template(popupTemplate,
                                     newLayer._layers[layer].feature.properties));
                         }
                     }
+                    */
                     layerGroup.addLayer(newLayer);
                     data_obj[loc_key]["layer_data"] = layerGroup;
                     data_obj[loc_key]["layer_data"].setZIndex(data_obj[loc_key]["zIndex"]);
@@ -204,16 +206,16 @@
                             theLayer.setStyle({
                                 "color": theColor
                             });
-                            theLayer.bindPopup(L.Util.template(choroTemplate, layerProps));
+                            // theLayer.bindPopup(L.Util.template(choroTemplate, layerProps));
                             theLayer.on("mouseover", function(e) {
-                                console.log("captured mouseover event on:");
-                                console.log(e);
+                                // console.log("captured mouseover event on:");
+                                // console.log(e);
                                 choroplethDisplay.addTo(map);
                                 choroplethDisplay.update(e, loc_key);
                             });
                             theLayer.on("mouseout", function(e) {
-                                console.log("captured mouseout event on");
-                                console.log(e);
+                                // console.log("captured mouseout event on");
+                                // console.log(e);
                                 choroplethDisplay.removeFrom(map);
                             });
                         }
@@ -331,7 +333,7 @@
     for (bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
         base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
     } }
-    var map = L.map('map', { scrollWheelZoom: false, zoomControl: false })
+    var map = L.map('map', { scrollWheelZoom: false, zoomControl: false/*, doubleClickZoom: false */ })
             .setView([39.363415, -95.999397], 5);
 
     map.on("overlayadd", function(e) {
@@ -447,49 +449,62 @@
             .append("<span>Find My Location</span>");
     */
 
-    function handleClick(e) {
-        var p = e.latlng;
-        var popupString = "";
-        console.log("Map clicked: { lat: "+p.lat+", lng: "+p.lng+" }");
-        var marker = L.marker(p);
-        marker.addTo(map);
+    function getPolygonsForPoint(p) {
+        var polygons = {};
         for (var dataset in data_obj) {
             if (data_obj.hasOwnProperty(dataset)) {
-                console.log("  Reviewing dataset: " + data_obj[dataset]["label"]);
-                var colorBoxDiv = "<div class=\"colorbox colorbox-popup colorbox-" + dataset + "\"></div>";
-                var layerData = data_obj[dataset]["layer_data"];
-                layerData.eachLayer( function (layer) {
-                    console.log("--> Layer:");
-                    console.log(layer);
-                    console.log("Is layer a Polygon? "+(layer instanceof L.Polygon));
-                    layer.eachLayer( function (sublayer) {
-                        console.log("    --> Sublayer:");
-                        console.log(sublayer);
-                        console.log("Is sublayer a Polygon? "+(sublayer instanceof L.Polygon));
-                        var sublayers = leafletPip.pointInLayer(p, sublayer.toGeoJSON());
-                        console.log("        --> leafletPip.pointInLayer(p, sublayer) results:");
-                        console.log(sublayers);
-                        if (sublayers && sublayers.length > 0) {
-                            popupString += colorBoxDiv + "<strong>" + data_obj[dataset]["label"] + "</strong>";
-                            for (var s in sublayers) {
-                                if (sublayers.hasOwnProperty(s)) {
-                                    console.log((sublayers[s] instanceof L.MultiPolygon).toString() + " || " +
-                                            (sublayers[s] instanceof L.Polygon).toString() + " = " +
-                                            (sublayers[s] instanceof L.MultiPolygon || sublayers[s] instanceof L.Polygon).toString());
-                                    console.log(" ** Found polygon: " + s.properties.InitiativeTitle + " (" + s.properties.LocationDisplay + ")");
-                                    popupString += "<p>" + s.properties.InitiativeTitle + " (" + s.properties.LocationDisplay + ")</p>";
-                                }
-                            }
-                        }
-                    });
+                polygons[dataset] = [];
+                data_obj[dataset].layer_data.eachLayer( function(l) {
+                    result = leafletPip.pointInLayer(p, l);
+                    console.log(result);
+                    Array.prototype.push.apply(polygons[dataset], result);
                 });
+            }
+        }
+        return polygons;
+    }
+
+    function handleDblClick(e) {
+        var p = e.latlng;
+        var popupString = "";
+        console.log("Map double clicked: { lat: "+p.lat+", lng: "+p.lng+" }");
+        var marker = L.marker(p);
+        marker.addTo(map);
+        var polys = getPolygonsForPoint(p);
+        console.log(polys);
+        for (var i = 0; i < numDatasets; i++) {
+            var dataset = layerOrdering[i];
+            if (polys.hasOwnProperty(dataset) && polys[dataset].length) {
+                var colorBoxDiv = "<div class=\"colorbox colorbox-popup colorbox-" + dataset + "\"></div>";
+                popupString += "<div class=\"popup-segment\">" + colorBoxDiv + "<strong>"
+                        + data_obj[dataset]["label"] + "</strong>";
+                for (var poly in polys[dataset]) {
+                    if (polys[dataset].hasOwnProperty(poly)) {
+                        var thePoly = polys[dataset][poly];
+                        console.log((thePoly instanceof L.MultiPolygon).toString() + " || " +
+                                (thePoly instanceof L.Polygon).toString() + " = " +
+                                (thePoly instanceof L.MultiPolygon || thePoly instanceof L.Polygon).toString());
+                        if (data_obj[dataset].type !== "choropleth") {
+                            console.log(" ** Found polygon: " + thePoly.feature.properties.InitiativeTitle + " (" +
+                                    thePoly.feature.properties.LocationDisplay + ")");
+                            popupString += "<p>" + thePoly.feature.properties.InitiativeTitle + " (" +
+                                    thePoly.feature.properties.LocationDisplay + ")</p>";
+                        } else {
+                            console.log(" ** Found choropleth polygon: " + thePoly.feature.properties.name + " (" +
+                                    thePoly.feature.properties.density + ")");
+                            popupString += "<p>State: " + thePoly.feature.properties.name + " (" +
+                                    thePoly.feature.properties.density + " programs)</p>";
+                        }
+                    }
+                }
+                popupString += "</div>";
             }
         }
         if (!popupString) { popupString = "No layers found."; }
         marker.bindPopup(popupString);
     }
 
-    map.on('click', handleClick);
+    map.on('dblclick', handleDblClick);
 
 </script>
 
