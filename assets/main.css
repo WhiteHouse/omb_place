@@ -6,6 +6,21 @@ html, body, #map {
     height: 100%;
 }
 
+/* Colorboxes */
+.colorbox {
+    width: 8px;
+    height: 8px;
+    border: 2px dashed white;
+    display: inline-block;
+}
+.colorbox-legend {
+    float: right;
+    margin-left: 4px;
+}
+.colorbox-popup {
+    margin-right: 4px;
+}
+
 /* Alterations to the Map Layers Control */
 a.leaflet-control-layers-toggle {
     background-position: 10px 50%;
@@ -106,7 +121,7 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 5px 0px;
     clear: both;
     display: block;
-    float: right;
+    float: left;
     font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-size: 12px;
     line-height: 18px;

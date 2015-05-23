@@ -198,7 +198,7 @@
   },
   "state_summary": {
     "type": "choropleth",
-    "label": "Summary: Number of Programs by State",
+    "label": "Number of Programs by State",
     "geojson": "data/geojson/stateSummary.geo.json",
     "topojson": "data/topojson/stateSummary.topo.json",
     "style": {

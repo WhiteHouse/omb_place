@@ -27,21 +27,7 @@
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Pan.ie.css"/>
     <![endif]-->
     <link rel="stylesheet" href="assets/main.css"/>
-    <style id="colorboxes">
-        .colorbox {
-            width: 8px;
-            height: 8px;
-            border: 2px dashed white;
-            display: inline-block;
-        }
-        .colorbox-legend {
-            float: right;
-            margin-left: 4px;
-        }
-        .colorbox-popup {
-            margin-right: 4px;
-        }
-    </style>
+    <style id="colorboxes"></style>
 </head>
 
 <body id="map_sample" onload="">
@@ -174,15 +160,23 @@
                         }
                     }
                     */
+                    newLayer.on("mouseover", function(e) {
+                        //var polys = getPolygonsForPoint(e.latlng);
+                        //if (polys.hasOwnProperty("state_summary")) {
+                        if (e.target.hasOwnProperty("feature") && e.target.feature.hasOwnProperty("density")) {
+                            map.choroplethDisplay["state_summary"].addTo(map);
+                            map.choroplethDisplay["state_summary"].update(e);
+                        }
+                    });
+                    newLayer.on("mouseout", function(e) {
+                        map.choroplethDisplay["state_summary"].removeFrom(map);
+                    });
+                    newLayer.on("click", handleClick);
                     layerGroup.addLayer(newLayer);
                     data_obj[loc_key]["layer_data"] = layerGroup;
                     data_obj[loc_key]["layer_data"].setZIndex(data_obj[loc_key]["zIndex"]);
                     var rgb_color = hexToRgb(data_obj[loc_key].style.color);
-                    colorBoxDiv = "<div class=\"colorbox colorbox-legend colorbox-" + loc_key + "\"></div>";
-                    styledLabel = $("<span>");
-                    styledLabel.css("font-weight", "bold");
-                    styledLabel.text(data_obj[loc_key]["label"]);
-                    layerControl.addOverlay(data_obj[loc_key]["layer_data"], colorBoxDiv + styledLabel.prop("outerHTML"));
+                    layerControl.addOverlay(data_obj[loc_key]["layer_data"], getStyledInitiativeLabel(loc_key, "legend"));
                     data_obj[loc_key]["layer_data"].addTo(map);
                     var cssString = ".colorbox-" + loc_key + " { background-color: rgba("
                             + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
@@ -193,57 +187,30 @@
                     colorBoxStyles.append(cssString);
                 } else if (data_obj[loc_key]["type"] === "choropleth") {
                     newLayer.setStyle(data_obj[loc_key]["style"]);
+                    createChoroplethTools(loc_key);
                     for (layer in newLayer._layers) {
                         if (newLayer._layers.hasOwnProperty(layer)) {
                             var theLayer = newLayer._layers[layer];
                             var layerProps = theLayer.feature.properties;
-                            var theColor = getColor(loc_key, layerProps.density);
-                            var choroTemplate = "<div class=\"colorbox colorbox-popup\" "+
-                                    "style=\"border: 1px solid "+theColor+
-                                    "; background-color: "+theColor+
-                                    ";\"></div><strong>State: {name}</strong><p><strong>{density}</strong> programs</p>";
                             layerProps.density = parseInt(layerProps.density, 10);
+                            var theColor = getColor(loc_key, layerProps.density);
                             theLayer.setStyle({
                                 "color": theColor
                             });
-                            // theLayer.bindPopup(L.Util.template(choroTemplate, layerProps));
                             theLayer.on("mouseover", function(e) {
-                                // console.log("captured mouseover event on:");
-                                // console.log(e);
-                                choroplethDisplay.addTo(map);
-                                choroplethDisplay.update(e, loc_key);
+                                map.choroplethDisplay[loc_key].addTo(map);
+                                map.choroplethDisplay[loc_key].update(e);
                             });
                             theLayer.on("mouseout", function(e) {
-                                // console.log("captured mouseout event on");
-                                // console.log(e);
-                                choroplethDisplay.removeFrom(map);
+                                map.choroplethDisplay[loc_key].removeFrom(map);
                             });
+                            theLayer.on("click", handleClick);
                         }
                     }
                     layerGroup.addLayer(newLayer);
                     data_obj[loc_key]["layer_data"] = layerGroup;
-                    colorBoxDiv = "<div class=\"colorbox colorbox-legend\"></div>";
-                    var aDiv;
-                    var gradientBox = $(colorBoxDiv);
-                    gradientBox.width("40px")
-                            .css("border-width","0px")
-                            .css("padding","0px")
-                            .css("height", "10px");
-                    data_obj[loc_key]["colors"].forEach(function (col) {
-                        aDiv = $("<div></div>")
-                                .css("background-color", col)
-                                .css("border-width", "0px")
-                                .css("display", "inline-block")
-                                .css("height", "100%")
-                                .width((40 / data_obj[loc_key]["colors"].length).toString()+"px");
-                        gradientBox.prepend(aDiv);
-                    });
-                    styledLabel = $("<span>");
-                    styledLabel.css("font-weight", "bold");
-                    styledLabel.text(data_obj[loc_key]["label"]);
                     layerControl.addOverlay(data_obj[loc_key]["layer_data"],
-                            gradientBox.prop("outerHTML") +
-                                styledLabel.prop("outerHTML"));
+                            getStyledChoroplethLabel(loc_key, "legend"));
                     data_obj[loc_key]["layer_data"].addTo(map);
                 }
                 overlayCount++;
@@ -254,6 +221,38 @@
             }, function(e) { map.spin(false); console.log(e); });
         };
     };
+
+    function getStyledInitiativeLabel(dataset, where) {
+        var colorBoxDiv = "<div class=\"colorbox colorbox-" + where +
+                " colorbox-" + dataset + "\"></div>";
+        var styledLabel = $("<span>");
+        styledLabel.css("font-weight", "bold");
+        styledLabel.text(data_obj[dataset]["label"]);
+        return colorBoxDiv + styledLabel.prop("outerHTML");
+    }
+
+    function getStyledChoroplethLabel(dataset, where) {
+        var colorBoxDiv = "<div class=\"colorbox colorbox-"+where+"\"></div>";
+        var aDiv;
+        var gradientBox = $(colorBoxDiv);
+        gradientBox.width("40px")
+                .css("border-width","0px")
+                .css("padding","0px")
+                .css("height", "10px");
+        data_obj[dataset]["colors"].forEach(function (col) {
+            aDiv = $("<div></div>")
+                    .css("background-color", col)
+                    .css("border-width", "0px")
+                    .css("display", "inline-block")
+                    .css("height", "100%")
+                    .width((40 / data_obj[dataset]["colors"].length).toString()+"px");
+            gradientBox.prepend(aDiv);
+        });
+        var styledLabel = $("<span>");
+        styledLabel.css("font-weight", "bold");
+        styledLabel.text(data_obj[dataset]["label"]);
+        return gradientBox.prop("outerHTML") + styledLabel.prop("outerHTML");
+    }
 
     function hexToRgb(hex) {
         // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -333,74 +332,110 @@
     for (bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
         base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
     } }
-    var map = L.map('map', { scrollWheelZoom: false, zoomControl: false/*, doubleClickZoom: false */ })
-            .setView([39.363415, -95.999397], 5);
+    var map = L.map('map', {
+        click: handleClick,
+        scrollWheelZoom: false,
+        zoomControl: false/*,
+        doubleClickZoom: false */
+    }).setView([39.363415, -95.999397], 5);
+
+    // Add the display and legend for choropleth layers
+    map.choroplethLegend = {};
+    map.choroplethDisplay = {};
+
+    function createChoroplethTools(dataset) {
+        // console.log("Creating choroplethLegend["+dataset+"]");
+        map.choroplethLegend[dataset] = L.control({"position":"bottomleft"});
+        map.choroplethLegend[dataset].onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'choropleth-legend');
+            this.update();
+            return this._div;
+        };
+        map.choroplethLegend[dataset].update = function () {
+            this._div.innerHTML = "<strong>Legend: "+data_obj[dataset]["label"]+"</strong>";
+            var colors = data_obj[dataset]["colors"];
+            var thresholds = data_obj[dataset]["thresholds"];
+            for (var i in thresholds) {
+                if (i == 0) {
+                    this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
+                            +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
+                            +(thresholds[i]+1)+"+</span></div>";
+                } else {
+                    this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
+                            +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
+                            +(thresholds[i]+1)+" - "+(thresholds[i-1])+"</span></div>";
+                }
+            }
+            this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
+                    +colors[colors.length-1]+";border-color:"+colors[colors.length-1]+";\"></div>"
+                    +"<span>1 - "+(thresholds[thresholds.length-1])+"</span></div>";
+        };
+        // console.log("Creating choroplethDisplay["+dataset+"]");
+        map.choroplethDisplay[dataset] = L.control({"position":"bottomleft"});
+        map.choroplethDisplay[dataset].onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'choropleth-display');
+            this._div.innerHTML = "<strong>Hover over a state for more information.</strong>";
+            return this._div;
+        };
+        map.choroplethDisplay[dataset].currentShape = null;
+        map.choroplethDisplay[dataset].update = function (e) {
+            /*
+             var theLayer;
+            if (e.target === this.currentShape) { theLayer = null; }
+            else if (e.target.hasOwnProperty("feature") && e.target.feature.hasOwnProperty("density")) {
+                theLayer = e.target;
+                this.currentShape = theLayer;
+            } else {
+                var polys = getPolygonsForPoint(e.latlng);
+                if (polys.hasOwnProperty("state_summary")) {
+                    theLayer = polys["state_summary"][0];
+                    this.currentShape = theLayer;
+                }
+            }
+            else { theLayer = e.target }
+            // console.log(e);
+            // console.log(theLayer);
+            if (theLayer) {
+                this._div.innerHTML = "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"+
+                        getColor(dataset, theLayer.feature.properties.density)+
+                        "; width: 90%; margin: 0 auto; height: 20px;\"></div>"+
+                        "<strong>State: "+ theLayer.feature.properties.name+
+                        "</strong><p><strong style=\"font-size: 2.0em;\">"+
+                        theLayer.feature.properties.density+"</strong> programs</p>";
+            }
+            */
+            this._div.innerHTML = "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"+
+                    getColor(dataset, e.target.feature.properties.density)+
+                    "; width: 90%; margin: 0 auto; height: 20px;\"></div>"+
+                    "<strong>State: "+ e.target.feature.properties.name+
+                    "</strong><p><strong style=\"font-size: 2.0em;\">"+
+                    e.target.feature.properties.density+"</strong> programs</p>";
+        };
+    }
 
     map.on("overlayadd", function(e) {
         for (var i = 0; i < numDatasets; i++) {
-            var k = layerOrdering[i];
-            if (data_obj.hasOwnProperty(k) && e.layer === data_obj[k]["layer_data"]) {
-                if (data_obj[k]["type"] === "choropleth") {
-                    choroplethLegend.addTo(map);
-                    choroplethLegend.update(k);
+            var dataset = layerOrdering[i];
+            if (data_obj.hasOwnProperty(dataset) && e.layer === data_obj[dataset]["layer_data"]) {
+                if (data_obj[dataset]["type"] === "choropleth") {
+                    // console.log("overlayadd triggered, dataset="+dataset+": adding choroplethLegend to map");
+                    map.choroplethLegend[dataset].addTo(map);
+                    map.choroplethLegend[dataset].update();
                 }
             }
         }
         reorderLayers();
     });
     map.on("overlayremove", function(e) {
-        for (var k in data_obj) {
-            if (data_obj.hasOwnProperty(k) && e.layer === data_obj[k]["layer_data"]) {
-                if (data_obj[k]["type"] === "choropleth") {
-                    map.removeControl(choroplethLegend);
+        for (var dataset in data_obj) {
+            if (data_obj.hasOwnProperty(dataset) && e.layer === data_obj[dataset]["layer_data"]) {
+                if (data_obj[dataset]["type"] === "choropleth") {
+                    map.removeControl(map.choroplethLegend[dataset]);
                 }
             }
         }
     });
 
-    // Add the display and legend for choropleth layers
-    var choroplethLegend = L.control({"position":"bottomleft"});
-    choroplethLegend.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'choropleth-legend');
-        this.update();
-        return this._div;
-    };
-    var choroplethDisplay = L.control({"position":"bottomleft"})
-    choroplethDisplay.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'choropleth-display');
-        this._div.innerHTML = "<strong>Hover over a state for more information.</strong>";
-        return this._div;
-    };
-
-    choroplethLegend.update = function (layer_name) {
-        layer_name = layer_name || "state_summary";
-        this._div.innerHTML = "<strong>Legend</strong>";
-        var colors = data_obj[layer_name]["colors"];
-        var thresholds = data_obj[layer_name]["thresholds"];
-        for (var i in thresholds) {
-            if (i == 0) {
-                this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
-                        +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
-                        +(thresholds[i]+1)+"+</span></div>";
-            } else {
-                this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
-                        +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
-                        +(thresholds[i]+1)+" - "+(thresholds[i-1])+"</span></div>";
-            }
-        }
-        this._div.innerHTML += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
-                +colors[colors.length-1]+";border-color:"+colors[colors.length-1]+";\"></div>"
-                +"<span>1 - "+(thresholds[thresholds.length-1])+"</span></div>";
-    };
-    choroplethDisplay.update = function (e, layer_name) {
-        layer_name = layer_name || "state_summary";
-        this._div.innerHTML = "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"+
-                getColor(layer_name, e.target.feature.properties.density)+
-                "; width: 90%; margin: 0 auto; height: 20px;\"></div>"+
-                "<strong>State: "+ e.target.feature.properties.name+
-                "</strong><p><strong style=\"font-size: 2.0em;\">"+
-                e.target.feature.properties.density+"</strong> programs</p>";
-    };
 
     var overlayCount = 0;
 
@@ -464,36 +499,53 @@
         return polygons;
     }
 
-    function handleDblClick(e) {
+    function handleClick(e) {
         var p = e.latlng;
         var popupString = "";
-        console.log("Map double clicked: { lat: "+p.lat+", lng: "+p.lng+" }");
-        var marker = L.marker(p);
-        marker.addTo(map);
+        // console.log("Map clicked: { lat: "+p.lat+", lng: "+p.lng+" }");
+        var popup = L.popup().setLatLng(p);
         var polys = getPolygonsForPoint(p);
-        console.log(polys);
+        var poly, thePoly;
+        var numPolys = Object.keys(polys).map(function(dataset) {
+            if (polys.hasOwnProperty(dataset) && dataset !== "state_summary") {
+                return polys[dataset].length;
+            } return 0;
+        }).reduce(function(prev, curr) { return prev + curr; });
+        // console.log(polys);
         for (var i = 0; i < numDatasets; i++) {
             var dataset = layerOrdering[i];
             if (polys.hasOwnProperty(dataset) && polys[dataset].length) {
-                var colorBoxDiv = "<div class=\"colorbox colorbox-popup colorbox-" + dataset + "\"></div>";
-                popupString += "<div class=\"popup-segment\">" + colorBoxDiv + "<strong>"
-                        + data_obj[dataset]["label"] + "</strong>";
-                for (var poly in polys[dataset]) {
-                    if (polys[dataset].hasOwnProperty(poly)) {
-                        var thePoly = polys[dataset][poly];
-                        console.log((thePoly instanceof L.MultiPolygon).toString() + " || " +
-                                (thePoly instanceof L.Polygon).toString() + " = " +
-                                (thePoly instanceof L.MultiPolygon || thePoly instanceof L.Polygon).toString());
-                        if (data_obj[dataset].type !== "choropleth") {
+                if (data_obj[dataset].type !== "choropleth") {
+                    popupString += "<div class=\"popup-segment\">" + getStyledInitiativeLabel(dataset, "popup");
+                    for (poly in polys[dataset]) {
+                        if (polys[dataset].hasOwnProperty(poly)) {
+                            thePoly = polys[dataset][poly];
+                            /*
+                            console.log((thePoly instanceof L.MultiPolygon).toString() + " || " +
+                                    (thePoly instanceof L.Polygon).toString() + " = " +
+                                    (thePoly instanceof L.MultiPolygon || thePoly instanceof L.Polygon).toString());
                             console.log(" ** Found polygon: " + thePoly.feature.properties.InitiativeTitle + " (" +
                                     thePoly.feature.properties.LocationDisplay + ")");
+                            */
                             popupString += "<p>" + thePoly.feature.properties.InitiativeTitle + " (" +
                                     thePoly.feature.properties.LocationDisplay + ")</p>";
-                        } else {
+                        }
+                    }
+                } else {
+                    popupString += "<div class=\"popup-segment\">" + getStyledChoroplethLabel(dataset, "popup");
+                    for (poly in polys[dataset]) {
+                        if (polys[dataset].hasOwnProperty(poly)) {
+                            thePoly = polys[dataset][poly];
+                            /*
+                            console.log((thePoly instanceof L.MultiPolygon).toString() + " || " +
+                                    (thePoly instanceof L.Polygon).toString() + " = " +
+                                    (thePoly instanceof L.MultiPolygon || thePoly instanceof L.Polygon).toString());
                             console.log(" ** Found choropleth polygon: " + thePoly.feature.properties.name + " (" +
                                     thePoly.feature.properties.density + ")");
-                            popupString += "<p>State: " + thePoly.feature.properties.name + " (" +
-                                    thePoly.feature.properties.density + " programs)</p>";
+                            */
+                            popupString += "<p><strong>" + numPolys + "</strong> of " +
+                                    thePoly.feature.properties.density + " programs in state: " +
+                                    thePoly.feature.properties.name + "</p>";
                         }
                     }
                 }
@@ -501,10 +553,8 @@
             }
         }
         if (!popupString) { popupString = "No layers found."; }
-        marker.bindPopup(popupString);
+        popup.setContent(popupString).openOn(map);
     }
-
-    map.on('dblclick', handleDblClick);
 
 </script>
 
