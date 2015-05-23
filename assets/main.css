@@ -25,6 +25,15 @@ html, body, #map {
     margin-bottom: 20px;
 }
 
+.popup-segment {
+    padding-top: 8px;
+}
+.popup-segment p {
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+    padding-left: 0.5em;
+}
+
 /* Alterations to the Map Layers Control */
 .leaflet-control-layers-title {
     background-image: url(leaflet-0.7.3/css/images/layers-2x.png);
