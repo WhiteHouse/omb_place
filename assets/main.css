@@ -19,9 +19,60 @@ html, body, #map {
 }
 .colorbox-popup {
     margin-right: 4px;
+    margin-bottom: 3px;
+}
+.colorbox-info-gradient {
+    margin-bottom: 20px;
 }
 
 /* Alterations to the Map Layers Control */
+.leaflet-control-layers-title {
+    background-image: url(leaflet-0.7.3/css/images/layers-2x.png);
+    background-position: 10px 50%;
+    background-repeat: no-repeat;
+    background-size: 26px 26px;
+    height: 36px;
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+.leaflet-control-layers-title>span {
+    padding-left: 46px;
+    line-height: 36px;
+}
+.leaflet-control-layers-base>label {
+    padding-left: .5em;
+}
+.leaflet-control-layers-section-name {
+    background-color:rgb(229, 229, 229);
+    border-bottom: 1px solid rgb(159, 159, 159);
+    width: 100%;
+    padding: 3px 10px 5px 6px;
+    margin: 10px -10px 5px -6px;
+}
+.leaflet-control-layers-section-name>h4 {
+    font-size: 1.2em;
+    display: inline-block;
+    margin: 0;
+}
+.leaflet-control-layers-group-name {
+    width: 100%;
+    font-size: 1.2em;
+    border-bottom: 1px solid rgb(159, 159, 159);
+    padding-bottom: 1px;
+    margin-bottom: 6px;
+    margin-top: 8px;
+}
+.bulk-select-overlays {
+    display: inline-block;
+    float: right;
+}
+div.leaflet-control-layers-separator {
+    display: none;
+}
+.leaflet-control-layers-selector {
+    padding-right: 2px;
+}
 a.leaflet-control-layers-toggle {
     background-position: 10px 50%;
     width: auto;
@@ -44,7 +95,7 @@ button {
     border: none;
     border-radius: 5px;
     padding: 3px 5px;
-    margin: 3px 5px 3px 0;
+    margin: 3px 0 3px 5px;
     font-weight: bold;
     color: white;
 }
