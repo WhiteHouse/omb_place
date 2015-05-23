@@ -15,12 +15,16 @@
     <link rel="stylesheet" href="assets/font-awesome-4.2.0/font-awesome.min.css"/>
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/leaflet.css"/>
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/l.geosearch.css"/>
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Pan.css"/>
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.ZoomBox.css"/>
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/css/leaflet.zoomhome.css"/>
     <!--
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Locate.min.css"/>
     -->
     <!--[if lt IE 9]>
     <!--
     <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Locate.ie.min.css"/>
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/css/L.Control.Pan.ie.css"/>
     <![endif]-->
     <link rel="stylesheet" href="assets/main.css"/>
     <style id="colorboxes">
@@ -59,6 +63,9 @@
 <script src="assets/leaflet-0.7.3/js/leaflet.geojsoncss.min.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/l.control.geosearch.js" charset="utf-8"></script>
 <script src="assets/leaflet-0.7.3/js/l.geosearch.provider.openstreetmap.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/L.Control.Pan.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/L.Control.ZoomBox.min.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/leaflet.zoomhome.min.js" charset="utf-8"></script>
 <!--
 <script src="assets/leaflet-0.7.3/js/L.Control.Locate.min.js" charset="utf-8"></script>
 -->
@@ -323,8 +330,9 @@
     for (bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
         base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
     } }
-    var map = L.map('map', { scrollWheelZoom: false }).setView([39.363415, -95.999397], 5);
-    // map.on("zoomend", zoomLevelChanged);
+    var map = L.map('map', { scrollWheelZoom: false, zoomControl: false })
+            .setView([39.363415, -95.999397], 5);
+
     map.on("overlayadd", function(e) {
         for (var i = 0; i < numDatasets; i++) {
             var k = layerOrdering[i];
@@ -392,6 +400,17 @@
     };
 
     var overlayCount = 0;
+
+    // Add zoom, pan and reset controls to the top left of map
+    new L.Control.Pan({
+        position: 'topleft'
+    }).addTo(map);
+    L.Control.zoomHome({
+        zoomHomeTitle: "Reset map view",
+        homeCoordinates: [39.363415, -95.999397],
+        homeZoom: 5
+    }).addTo(map);
+    new L.Control.ZoomBox().addTo(map);
 
     // Create a location search control and add to top right of map
     new L.Control.GeoSearch({
