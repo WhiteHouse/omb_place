@@ -114,22 +114,10 @@
                     layerGroup.addLayer(newLayer);
                 });
                 data_obj[loc_key]["layer_data"] = layerGroup;
-                var rgb_color = hexToRgb(data_obj[loc_key].style.color);
-                var colorBoxDiv = "<div class=\"colorbox colorbox-legend colorbox-"+loc_key+"\"></div>";
-                var styledLabel = $("<span>");
-                //styledLabel.css("color", data_obj[loc_key]["style"]["color"]);
-                styledLabel.css("font-weight","bold");
-                styledLabel.text(data_obj[loc_key]["label"]);
-                layerControl.addOverlay( data_obj[loc_key]["layer_data"], colorBoxDiv+styledLabel.prop("outerHTML") );
+                layerControl.addOverlay(data_obj[loc_key]["layer_data"],
+                        getStyledInitiativeLabel(loc_key, "legend"));
                 data_obj[loc_key]["layer_data"].addTo(map);
-                var cssString = ".colorbox-"+loc_key+" { background-color: rgba("
-                        +rgb_color.r+","+rgb_color.g+","+rgb_color.b+","
-                        +data_obj[loc_key]["style"]["fillOpacity"]+"); border-color: rgba("
-                        +rgb_color.r+","+rgb_color.g+","+rgb_color.b+","
-                        +data_obj[loc_key]["style"]["opacity"]+"); }";
-                var colorBoxStyles = $("style#colorboxes");
-                //console.log(colorBoxStyles.prop("outerHTML"));
-                colorBoxStyles.append(cssString);
+                createColorBoxCSS(loc_key);
                 overlayCount++;
                 if (overlayCount === numDatasets) {
                     reorderLayers();
@@ -175,16 +163,10 @@
                     layerGroup.addLayer(newLayer);
                     data_obj[loc_key]["layer_data"] = layerGroup;
                     data_obj[loc_key]["layer_data"].setZIndex(data_obj[loc_key]["zIndex"]);
-                    var rgb_color = hexToRgb(data_obj[loc_key].style.color);
-                    layerControl.addOverlay(data_obj[loc_key]["layer_data"], getStyledInitiativeLabel(loc_key, "legend"));
+                    layerControl.addOverlay(data_obj[loc_key]["layer_data"],
+                            getStyledInitiativeLabel(loc_key, "legend"));
                     data_obj[loc_key]["layer_data"].addTo(map);
-                    var cssString = ".colorbox-" + loc_key + " { background-color: rgba("
-                            + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
-                            + data_obj[loc_key]["style"]["fillOpacity"] + "); border-color: rgba("
-                            + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
-                            + data_obj[loc_key]["style"]["opacity"] + "); }";
-                    var colorBoxStyles = $("style#colorboxes");
-                    colorBoxStyles.append(cssString);
+                    createColorBoxCSS(loc_key);
                 } else if (data_obj[loc_key]["type"] === "choropleth") {
                     newLayer.setStyle(data_obj[loc_key]["style"]);
                     createChoroplethTools(loc_key);
@@ -221,6 +203,16 @@
             }, function(e) { map.spin(false); console.log(e); });
         };
     };
+
+    function createColorBoxCSS(dataset) {
+        var rgb_color = hexToRgb(data_obj[dataset].style.color);
+        var cssString = ".colorbox-" + dataset + " { background-color: rgba("
+                + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
+                + data_obj[dataset]["style"]["fillOpacity"] + "); border-color: rgba("
+                + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
+                + data_obj[dataset]["style"]["opacity"] + "); }";
+        $("style#colorboxes").append(cssString);
+    }
 
     function getStyledInitiativeLabel(dataset, where) {
         var colorBoxDiv = "<div class=\"colorbox colorbox-" + where +
@@ -499,57 +491,48 @@
         return polygons;
     }
 
+    function getInitiativePopupSegment(dataset, polygons) {
+        var popupString = "<div class=\"popup-segment\">" + getStyledInitiativeLabel(dataset, "popup");
+        for (var poly in polygons) {
+            if (polygons.hasOwnProperty(poly)) {
+                popupString += "<p>" + polygons[poly].feature.properties.InitiativeTitle + " (" +
+                        polygons[poly].feature.properties.LocationDisplay + ")</p>";
+            }
+        }
+        popupString += "</div>";
+        return popupString;
+    }
+
+    function getSummaryPopupSegment(dataset, polygons, numPolygons) {
+        var popupString = "<div class=\"popup-segment\">" + getStyledChoroplethLabel(dataset, "popup");
+        for (var poly in polygons) {
+            if (polygons.hasOwnProperty(poly)) {
+                popupString += "<p><strong>" + numPolygons + "</strong> of " +
+                        polygons[poly].feature.properties.density + " programs in state: " +
+                        polygons[poly].feature.properties.name + "</p>";
+            }
+        }
+        popupString += "</div>";
+        return popupString;
+    }
+
     function handleClick(e) {
-        var p = e.latlng;
         var popupString = "";
-        // console.log("Map clicked: { lat: "+p.lat+", lng: "+p.lng+" }");
-        var popup = L.popup().setLatLng(p);
-        var polys = getPolygonsForPoint(p);
-        var poly, thePoly;
+        var popup = L.popup().setLatLng(e.latlng);
+        var polys = getPolygonsForPoint(e.latlng);
         var numPolys = Object.keys(polys).map(function(dataset) {
-            if (polys.hasOwnProperty(dataset) && dataset !== "state_summary") {
+            if (polys.hasOwnProperty(dataset) && data_obj[dataset].category === "initiative") {
                 return polys[dataset].length;
             } return 0;
         }).reduce(function(prev, curr) { return prev + curr; });
-        // console.log(polys);
         for (var i = 0; i < numDatasets; i++) {
             var dataset = layerOrdering[i];
             if (polys.hasOwnProperty(dataset) && polys[dataset].length) {
                 if (data_obj[dataset].type !== "choropleth") {
-                    popupString += "<div class=\"popup-segment\">" + getStyledInitiativeLabel(dataset, "popup");
-                    for (poly in polys[dataset]) {
-                        if (polys[dataset].hasOwnProperty(poly)) {
-                            thePoly = polys[dataset][poly];
-                            /*
-                            console.log((thePoly instanceof L.MultiPolygon).toString() + " || " +
-                                    (thePoly instanceof L.Polygon).toString() + " = " +
-                                    (thePoly instanceof L.MultiPolygon || thePoly instanceof L.Polygon).toString());
-                            console.log(" ** Found polygon: " + thePoly.feature.properties.InitiativeTitle + " (" +
-                                    thePoly.feature.properties.LocationDisplay + ")");
-                            */
-                            popupString += "<p>" + thePoly.feature.properties.InitiativeTitle + " (" +
-                                    thePoly.feature.properties.LocationDisplay + ")</p>";
-                        }
-                    }
+                    popupString += getInitiativePopupSegment(dataset, polys[dataset]);
                 } else {
-                    popupString += "<div class=\"popup-segment\">" + getStyledChoroplethLabel(dataset, "popup");
-                    for (poly in polys[dataset]) {
-                        if (polys[dataset].hasOwnProperty(poly)) {
-                            thePoly = polys[dataset][poly];
-                            /*
-                            console.log((thePoly instanceof L.MultiPolygon).toString() + " || " +
-                                    (thePoly instanceof L.Polygon).toString() + " = " +
-                                    (thePoly instanceof L.MultiPolygon || thePoly instanceof L.Polygon).toString());
-                            console.log(" ** Found choropleth polygon: " + thePoly.feature.properties.name + " (" +
-                                    thePoly.feature.properties.density + ")");
-                            */
-                            popupString += "<p><strong>" + numPolys + "</strong> of " +
-                                    thePoly.feature.properties.density + " programs in state: " +
-                                    thePoly.feature.properties.name + "</p>";
-                        }
-                    }
+                    popupString += getSummaryPopupSegment(dataset, polys[dataset], numPolys);
                 }
-                popupString += "</div>";
             }
         }
         if (!popupString) { popupString = "No layers found."; }

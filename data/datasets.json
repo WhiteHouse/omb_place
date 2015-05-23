@@ -1,6 +1,7 @@
 {
   "climate_champions": {
     "type": "regions",
+    "category": "initiative",
     "label": "Climate Action Champions",
     "geojson": "data/geojson/climate_action_champions.geo.json",
     "topojson": "data/topojson/climate_action_champions.topo.json",
@@ -15,6 +16,7 @@
   },
   "innovation_nation": {
     "type": "regions",
+    "category": "initiative",
     "label": "Innovation Nation",
     "geojson": "data/geojson/innovation_nation.geo.json",
     "topojson": "data/topojson/innovation_nation.topo.json",
@@ -29,6 +31,7 @@
   },
   "manufacturing_communities": {
     "type": "regions",
+    "category": "initiative",
     "label": "Investing in Manufacturing Communities Partnership",
     "geojson": "data/geojson/investing_in_manufacturing_communities_partnership.geo.json",
     "topojson": "data/topojson/investing_in_manufacturing_communities_partnership.topo.json",
@@ -43,6 +46,7 @@
   },
   "mayors_challenge": {
     "type": "regions",
+    "category": "initiative",
     "label": "Mayor's Challenge to End Veterans' Homelessness",
     "geojson": "data/geojson/mayors_challenge_to_end_veterans_homelessness.geo.json",
     "topojson": "data/topojson/mayors_challenge_to_end_veterans_homelessness.topo.json",
@@ -57,6 +61,7 @@
   },
   "my_brothers_keeper": {
     "type": "regions",
+    "category": "initiative",
     "label": "My Brother's Keeper Community Challenge",
     "geojson": "data/geojson/my_brothers_keeper_community_challenge.geo.json",
     "topojson": "data/topojson/my_brothers_keeper_community_challenge.topo.json",
@@ -71,6 +76,7 @@
   },
   "neighborhood_revitalization": {
     "type": "regions",
+    "category": "initiative",
     "label": "Neighborhood Revitalization Initiative",
     "geojson": "data/geojson/neighborhood_revitalization_initiative.geo.json",
     "topojson": "data/topojson/neighborhood_revitalization_initiative.topo.json",
@@ -85,6 +91,7 @@
   },
   "partnership_sustainable_communities": {
     "type": "regions",
+    "category": "initiative",
     "label": "Partnership for Sustainable Communities",
     "geojson": "data/geojson/partnership_for_sustainable_communities.geo.json",
     "topojson": "data/topojson/partnership_for_sustainable_communities.topo.json",
@@ -99,6 +106,7 @@
   },
   "pay_for_success": {
     "type": "regions",
+    "category": "initiative",
     "label": "Pay for Success",
     "geojson": "data/geojson/pay_for_success.geo.json",
     "topojson": "data/topojson/pay_for_success.topo.json",
@@ -114,6 +122,7 @@
   },
   "persistent_poverty": {
     "type": "regions",
+    "category": "baseline",
     "label": "Persistent Poverty",
     "geojson": "data/geojson/persistent_poverty.geo.json",
     "topojson": "data/topojson/persistent_poverty.topo.json",
@@ -128,6 +137,7 @@
   },
   "promise_zones": {
     "type": "regions",
+    "category": "initiative",
     "label": "Promise Zones",
     "geojson": "data/geojson/promise_zones.geo.json",
     "topojson": "data/topojson/promise_zones.topo.json",
@@ -142,6 +152,7 @@
   },
   "rebuild_by_design": {
     "type": "regions",
+    "category": "initiative",
     "label": "Rebuild by Design",
     "geojson": "data/geojson/rebuild_by_design.geo.json",
     "topojson": "data/topojson/rebuild_by_design.topo.json",
@@ -156,6 +167,7 @@
   },
   "strike_force": {
     "type": "regions",
+    "category": "initiative",
     "label": "Strike Force",
     "geojson": "data/geojson/strike_force.geo.json",
     "topojson": "data/topojson/strike_force.topo.json",
@@ -170,6 +182,7 @@
   },
   "strong_cities_strong_communities": {
     "type": "regions",
+    "category": "initiative",
     "label": "Strong Cities Strong Communities",
     "geojson": "data/geojson/strong_cities_strong_communities.geo.json",
     "topojson": "data/topojson/strong_cities_strong_communities.topo.json",
@@ -184,6 +197,7 @@
   },
   "techhire": {
     "type": "regions",
+    "category": "initiative",
     "label": "TechHire",
     "geojson": "data/geojson/techhire.geo.json",
     "topojson": "data/topojson/techhire.topo.json",
@@ -198,6 +212,7 @@
   },
   "state_summary": {
     "type": "choropleth",
+    "category": "summary",
     "label": "Number of Programs by State",
     "geojson": "data/geojson/stateSummary.geo.json",
     "topojson": "data/topojson/stateSummary.topo.json",
