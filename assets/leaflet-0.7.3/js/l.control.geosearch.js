@@ -191,9 +191,16 @@ L.Control.GeoSearch = L.Control.extend({
                 this._positionMarker.setLatLng([location.Y, location.X]);
             }
         }
+        console.log("latlng: ["+location.Y+","+location.X+"]");
         if (!this.options.retainZoomLevel && location.bounds && location.bounds.isValid()) {
             this._map.fitBounds(location.bounds);
         }
+        /* Patched by Ryan Harvey, 2015-05-24
+           Zooming all the way in when location.bounds is undefined is jarring. */
+        else if (!this.options.retainZoomLevel && !location.bounds) {
+            this._map.setView([location.Y, location.X], 13, false);
+        }
+        /* End patch by Ryan Harvey, 2015-05-24 */
         else {
             this._map.setView([location.Y, location.X], this._getZoomLevel(), false);
         }

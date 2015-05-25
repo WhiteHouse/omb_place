@@ -29,9 +29,16 @@
     <![endif]-->
     <link rel="stylesheet" href="assets/main.css"/>
     <style id="colorboxes"></style>
+    <style id="layercontrol"></style>
 </head>
 
 <body id="map_sample" onload="">
+<!--[if lt IE 9]>
+<div class="browser-version-alert">
+    You are using an old version of Internet Explorer that is slow and may not be able to load this map.
+    If you are having difficulties, please switch to a modern browser (evergreen browsers or IE 9+).
+</div>
+<![endif]-->
 <div id="map"></div>
 
 <!-- Scripts -->
@@ -376,6 +383,48 @@
         doubleClickZoom: false */
     }).setView([39.363415, -95.999397], 5);
 
+    /*
+    map.on("viewreset", function(e) { console.log("zoom: "+map.getZoom()+
+        " | minZoom: "+map.getMinZoom()+" | maxZoom: "+map.getMaxZoom()); });
+    */
+
+    // Create layers control and add base map to control
+    var overlay_groups = {};
+    overlay_groups[getLayerCategoryLabel("summary")] = {};
+    overlay_groups[getLayerCategoryLabel("initiative")] = {};
+    overlay_groups[getLayerCategoryLabel("baseline")] = {};
+    var layerControl = L.control.groupedLayers(base_layers, overlay_groups, { exclusiveGroups: [] });
+    layerControl.addTo(map);
+    base_layers["Thunderforest Landscape"].addTo(map);
+    // For accessibility
+    $("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
+            .append("<span>Select Data Layers</span>");
+    // Add check all and uncheck all buttons to overlays selection
+    var overlaysDiv = $("div.leaflet-control-layers-overlays");
+    var baseLayersDiv = $("div.leaflet-control-layers-base");
+    var buttonsDiv = $("<div></div>").addClass("bulk-select-overlays");
+    var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
+    var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
+    buttonsDiv.html(selectAllButton+unselectAllButton);
+    // overlaysDiv.before(buttonsDiv);
+    var titleSpan = "<div><h3 class=\"leaflet-control-layers-title\"><span>Select Data Layers</span></h3></div>";
+    $("form.leaflet-control-layers-list").prepend($(titleSpan));
+    $(".leaflet-control-layers-toggle").on("mouseover", setLayerControlHeight)
+            .on("focus", setLayerControlHeight)
+            .on("touchstart",setLayerControlHeight);
+
+    function setLayerControlHeight(e) {
+        var controlHeight = map.getSize().y-50;
+        /*
+         $(".leaflet-control-layers-expanded")
+                .css("max-height",controlHeight.toString()+"px");
+         */
+        var cssString = ".leaflet-control-layers-expanded { max-height: "
+                + controlHeight.toString() + "px; }";
+        $("style#layercontrol").text(cssString);
+    }
+
+
     // Add the display and legend for choropleth layers
     map.choroplethLegend = {};
     map.choroplethDisplay = {};
@@ -459,16 +508,35 @@
 
     var overlayCount = 0;
 
-    // Add zoom, pan and reset controls to the top left of map
-    new L.Control.Pan({
-        position: 'topleft'
-    }).addTo(map);
-    L.Control.zoomHome({
+    // Add zoom, pan, scale and reset controls to the top left of map
+    /*
+    var zooms = $("<div></div>", { id: "zoomcontrols" });
+    var zoomHomeCtl = L.control.zoomHome({
+        zoomHomeTitle: "Reset map view",
+        homeCoordinates: [39.363415, -95.999397],
+        homeZoom: 5
+    });
+    zoomHomeCtl.addTo(map);
+    zoomHomeCtl._container.remove();
+    zooms.append(zoomHomeCtl.onAdd(map));
+    var zoomBoxCtl = L.control.zoomBox();
+    zoomBoxCtl.addTo(map);
+    zoomBoxCtl._container.remove();
+    zooms.append(zoomBoxCtl.onAdd(map));
+    */
+    new L.Control.zoomHome({
         zoomHomeTitle: "Reset map view",
         homeCoordinates: [39.363415, -95.999397],
         homeZoom: 5
     }).addTo(map);
     new L.Control.ZoomBox().addTo(map);
+
+    new L.Control.Pan({
+        position: 'topleft'
+    }).addTo(map);
+
+    L.control.scale({ position: "topleft" }).addTo(map);
+
 
     // Create a location search control and add to top right of map
     new L.Control.GeoSearch({
@@ -477,28 +545,6 @@
         showMarker: false,
         retainZoomLevel: false
     }).addTo(map);
-
-    // Create layers control and add base map to control
-    var overlay_groups = {};
-    overlay_groups[getLayerCategoryLabel("summary")] = {};
-    overlay_groups[getLayerCategoryLabel("initiative")] = {};
-    overlay_groups[getLayerCategoryLabel("baseline")] = {};
-    var layerControl = L.control.groupedLayers(base_layers, overlay_groups, { exclusiveGroups: [] });
-    layerControl.addTo(map);
-    base_layers["Thunderforest Landscape"].addTo(map);
-    // For accessibility
-    $("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
-            .append("<span>Select Data Layers</span>");
-    // Add check all and uncheck all buttons to overlays selection
-    var overlaysDiv = $("div.leaflet-control-layers-overlays");
-    var baseLayersDiv = $("div.leaflet-control-layers-base");
-    var buttonsDiv = $("<div></div>").addClass("bulk-select-overlays");
-    var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
-    var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
-    buttonsDiv.html(selectAllButton+unselectAllButton);
-    // overlaysDiv.before(buttonsDiv);
-    var titleSpan = "<div><h3 class=\"leaflet-control-layers-title\"><span>Select Data Layers</span></h3></div>";
-    $("form.leaflet-control-layers-list").prepend($(titleSpan));
 
     // Create locate control and add to bottom right
     /*
@@ -589,11 +635,6 @@
 <!--[if lt IE 9]>
 <script>
     // Load data into layers: IE 8
-    $("div.leaflet-control-container div.leaflet-top.leaflet-center")
-            .prepend(
-                $("<div></div>").addClass("browser-version-alert")
-                        .text("You are using an old version of Internet Explorer that is slow and may not be able to load this map. If you are having difficulties, please switch to a modern browser (evergreen browsers or IE 9+).")
-            );
     load_map_data("geojson");
 </script>
 <![endif]-->
@@ -604,5 +645,11 @@
     load_map_data("topojson");
 </script>
 <!--<![endif]-->
+
+<noscript>
+    You are using browser with JavaScript disabled, which will not be able to load this map.
+    Please enable JavaScript. If you are having difficulties, please switch to a modern browser
+    (evergreen browsers or IE 9+).
+</noscript>
 
 </body></html>
