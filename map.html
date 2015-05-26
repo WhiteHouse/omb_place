@@ -158,28 +158,30 @@
             map.spin(true);
             var layer;
             $.getJSON(data_obj[dataset]["topojson"], function(data) {
-                var colorBoxDiv, styledLabel;
                 var layerGroup = L.featureGroup();
                 var newLayer = new L.TopoJSON();
                 newLayer.addData(data);
                 if (data_obj[dataset]["type"] === "regions") {
                     newLayer.setStyle(data_obj[dataset]["style"]);
                     newLayer.on("mouseover", function(e) {
-                        var targets = map.summaryOverlays.map( function(summary) {
+                        var targets = {};
+                        getSummaryOverlays().map( function(summary) {
                             var poly = getPolygonsForPointInDataset(e.latlng, summary);
-                            if (poly.length) {
-                                return poly[0];
+                            if (poly.length) { targets[summary] = poly[0]; }
+                        });
+                        for (var overlay in targets) {
+                            if (targets.hasOwnProperty(overlay)) {
+                                if (targets[overlay]) {
+                                    e.target = targets[overlay];
+                                    map.choroplethDisplay[overlay].update(e);
+                                } else {
+                                    map.choroplethDisplay[overlay].reset();
+                                }
                             }
-                        });
-                        targets.forEach( function(tgt) {
-                            e.target = tgt;
-                            map.summaryOverlays.map(function(overlay) {
-                                map.choroplethDisplay[overlay].update(e);
-                            });
-                        });
+                        }
                     });
                     newLayer.on("mouseout", function(e) {
-                        map.summaryOverlays.forEach(function(overlay) {
+                        getSummaryOverlays().forEach(function(overlay) {
                             map.choroplethDisplay[overlay].reset();
                         });
                     });
@@ -189,45 +191,49 @@
                     layerControl.addOverlay(data_obj[dataset]["layer_data"],
                             getStyledInitiativeLabel(dataset, "legend"),
                             getLayerCategoryLabel(data_obj[dataset]["category"]));
-                    data_obj[dataset]["layer_data"].addTo(map);
-                    data_obj[dataset]["layer_data"].addTo(map);
                     createColorBoxCSS(dataset);
+                    if (data_obj[dataset]["displayed"]) {
+                        data_obj[dataset]["layer_data"].addTo(map);
+                    }
                 } else if (data_obj[dataset]["type"] === "choropleth") {
                     if (data_obj[dataset]["category"] === "summary") {
                         map.summaryOverlays.push(dataset);
                     }
                     newLayer.setStyle(data_obj[dataset]["style"]);
                     createChoroplethTools(dataset);
-                    console.log("Created Choropleth Tools for "+dataset);
+                    //console.log("Created Choropleth Tools for "+dataset);
                     for (layer in newLayer._layers) {
                         if (newLayer._layers.hasOwnProperty(layer)) {
-                            console.log(layer);
+                            //console.log(layer);
                             var theLayer = newLayer._layers[layer];
-                            console.log(theLayer);
+                            //console.log(theLayer);
                             var layerProps = theLayer.feature.properties;
                             var variable = parseInt(getChoroplethVariable(dataset, layerProps), 10);
                             var theColor = getColor(dataset, variable);
-                            console.log("theColor = "+theColor);
-                            console.log(theLayer.setStyle);
+                            //console.log("theColor = "+theColor);
+                            //console.log(theLayer.setStyle);
                             theLayer.setStyle({
                                 "color": theColor
                             });
                             theLayer.on("mouseover", function(e) {
-                                var targets = map.summaryOverlays.map( function(summary) {
+                                var targets = {};
+                                getSummaryOverlays().map( function(summary) {
                                     var poly = getPolygonsForPointInDataset(e.latlng, summary);
-                                    if (poly.length) {
-                                        return poly[0];
+                                    if (poly.length) { targets[summary] = poly[0]; }
+                                });
+                                for (var overlay in targets) {
+                                    if (targets.hasOwnProperty(overlay)) {
+                                        if (targets[overlay]) {
+                                            e.target = targets[overlay];
+                                            map.choroplethDisplay[overlay].update(e);
+                                        } else {
+                                            map.choroplethDisplay[overlay].reset();
+                                        }
                                     }
-                                });
-                                targets.forEach( function(tgt) {
-                                    e.target = tgt;
-                                    map.summaryOverlays.map(function(overlay) {
-                                        map.choroplethDisplay[overlay].update(e);
-                                    });
-                                });
+                                }
                             });
                             theLayer.on("mouseout", function(e) {
-                                map.summaryOverlays.forEach(function(overlay) {
+                                getSummaryOverlays().forEach(function(overlay) {
                                     map.choroplethDisplay[overlay].reset();
                                 });
                             });
@@ -239,7 +245,9 @@
                     layerControl.addOverlay(data_obj[dataset]["layer_data"],
                             getStyledChoroplethLabel(dataset, "legend"),
                             getLayerCategoryLabel(data_obj[dataset]["category"]));
-                    data_obj[dataset]["layer_data"].addTo(map);
+                    if (data_obj[dataset]["displayed"]) {
+                        data_obj[dataset]["layer_data"].addTo(map);
+                    }
                 }
                 overlayCount++;
                 if (overlayCount === numDatasets) {
@@ -256,6 +264,10 @@
                 map.spin(false);
             }, function(e) { map.spin(false); console.log(e); });
         }
+    }
+
+    function getSummaryOverlays() {
+        return map.summaryOverlays;
     }
 
     function getChoropleths() {
@@ -385,6 +397,7 @@
     }
 
     // Generate base map
+    var reverseGeocodeServiceUrl = "//nominatim.openstreetmap.org/reverse?format=json&accept-language=us-en";
     var tflandscape = L.tileLayer.provider("Thunderforest.Landscape");
     var tftransport = L.tileLayer.provider("Thunderforest.Transport");
     var osm = L.tileLayer.provider("OpenStreetMap");
@@ -454,7 +467,7 @@
 
     function getChoroplethVariableLabel (dataset, props) {
         var varlabels = data_obj[dataset].variable_label;
-        if (typeof varlabels === "Array") {
+        if (varlabels instanceof Array) {
             return varlabels.map(function (k) {
                 return props[k];
             }).join(", ");
@@ -516,8 +529,13 @@
             $(this._div).html("<strong>"+hoverMessage+"</strong>");
         };
         map.choroplethDisplay[dataset].update = function (e) {
+            //console.log("In map.choroplethDisplay["+dataset+"].update(e)...  e = ");
+            //console.log(e);
             var props = e.target.feature.properties;
+            //console.log(props);
             var cols = data_obj[dataset]["colors"];
+            //console.log(this.variable_label(props));
+            //console.log(this.variable(props));
             $(this._div).html("<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"+
                     getColor(this.dataset, Math.round(this.variable(props)))+
                     "; width: 100%; margin: 0 auto; padding: 0; height: 25px;\">"+
@@ -553,6 +571,11 @@
         }
     });
 
+    function getLocationNameFromClick(latlng) {
+        var serviceRequestUrl = reverseGeocodeServiceUrl+"&lat="+latlng.lat+
+                "&lon="+latlng.lng+"&zoom=12&addressdetails=1";
+        return $.getJSON(serviceRequestUrl);
+    }
 
     var overlayCount = 0;
 

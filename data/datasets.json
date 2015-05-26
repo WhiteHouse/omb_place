@@ -22,7 +22,34 @@
     "colors": ["#0000B8","#3333D6","#6666E0","#9999EB","#CCCCF5"],
     "thresholds": [300, 100, 50, 20],
     "hover_instructions": "Hover over a state.",
-    "layerOrder": 1
+    "layerOrder": 1,
+    "displayed": false
+  },
+  "county_summary": {
+    "type": "choropleth",
+    "category": "summary",
+    "label": "Number of Programs by County",
+    "geojson": "data/geojson/countySummary.geo.json",
+    "topojson": "data/topojson/countySummary.topo.json",
+    "style": {
+      "weight": 2,
+      "fillOpacity": 0.6,
+      "opacity": 1,
+      "dashArray": "3, 5"
+    },
+    "highlight": {
+      "weight": 3,
+      "fillOpacity": 1,
+      "opacity": 1,
+      "dashArray": ""
+    },
+    "variable": "NUMBEROFPROGRAMS",
+    "variable_label": ["county", "state"],
+    "colors": ["#0000B8","#3333D6","#6666E0","#9999EB","#CCCCF5"],
+    "thresholds": [40, 20, 10, 5],
+    "hover_instructions": "Hover over a county.",
+    "layerOrder": 2,
+    "displayed": true
   },
   "persistent_poverty": {
     "type": "regions",
@@ -37,7 +64,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 2
+    "layerOrder": 3,
+    "displayed": true
   },
   "climate_champions": {
     "type": "regions",
@@ -52,7 +80,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 3
+    "layerOrder": 4,
+    "displayed": true
   },
   "innovation_nation": {
     "type": "regions",
@@ -67,7 +96,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 4
+    "layerOrder": 5,
+    "displayed": true
   },
   "manufacturing_communities": {
     "type": "regions",
@@ -82,7 +112,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 5
+    "layerOrder": 6,
+    "displayed": true
   },
   "mayors_challenge": {
     "type": "regions",
@@ -97,7 +128,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 6
+    "layerOrder": 7,
+    "displayed": true
   },
   "my_brothers_keeper": {
     "type": "regions",
@@ -112,7 +144,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 7
+    "layerOrder": 8,
+    "displayed": true
   },
   "neighborhood_revitalization": {
     "type": "regions",
@@ -127,7 +160,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 8
+    "layerOrder": 9,
+    "displayed": true
   },
   "partnership_sustainable_communities": {
     "type": "regions",
@@ -142,7 +176,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 9
+    "layerOrder": 10,
+    "displayed": true
   },
   "pay_for_success": {
     "type": "regions",
@@ -158,7 +193,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 10
+    "layerOrder": 11,
+    "displayed": true
   },
   "promise_zones": {
     "type": "regions",
@@ -173,7 +209,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 11
+    "layerOrder": 12,
+    "displayed": true
   },
   "rebuild_by_design": {
     "type": "regions",
@@ -188,7 +225,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 12
+    "layerOrder": 13,
+    "displayed": true
   },
   "strike_force": {
     "type": "regions",
@@ -203,7 +241,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 13
+    "layerOrder": 14,
+    "displayed": true
   },
   "strong_cities_strong_communities": {
     "type": "regions",
@@ -218,7 +257,8 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 14
+    "layerOrder": 15,
+    "displayed": true
   },
   "techhire": {
     "type": "regions",
@@ -233,6 +273,7 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-    "layerOrder": 15
+    "layerOrder": 16,
+    "displayed": true
   }
 }
