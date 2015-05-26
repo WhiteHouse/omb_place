@@ -152,8 +152,8 @@
     }
 
     function load_topojson_location_data (dataset) {
-        //console.log("Entered load_topojson_location_data("+dataset+")");
-        var popupTemplate = "<div class=\"colorbox colorbox-popup colorbox-"+dataset+"\"></div><strong>{InitiativeTitle}</strong><p>{LocationDisplay}</p>";
+        console.log("Entered load_topojson_location_data("+dataset+")");
+        // var popupTemplate = "<div class=\"colorbox colorbox-popup colorbox-"+dataset+"\"></div><strong>{InitiativeTitle}</strong><p>{LocationDisplay}</p>";
         if (!data_obj[dataset].hasOwnProperty("layer_data") || data_obj[dataset][layer_data] === undefined) {
             map.spin(true);
             var layer;
@@ -164,52 +164,74 @@
                 newLayer.addData(data);
                 if (data_obj[dataset]["type"] === "regions") {
                     newLayer.setStyle(data_obj[dataset]["style"]);
-                    /*
-                    for (layer in newLayer._layers) {
-                        if (newLayer._layers.hasOwnProperty(layer)) {
-                            newLayer._layers[layer].bindPopup(L.Util.template(popupTemplate,
-                                    newLayer._layers[layer].feature.properties));
-                        }
-                    }
-                    */
                     newLayer.on("mouseover", function(e) {
-                        if (!(e.target.hasOwnProperty("feature") && e.target.feature.hasOwnProperty("density"))) {
-                            var poly = getPolygonsForPointInDataset(e.latlng, "state_summary");
-                            if (poly.length) { e.target = poly[0]; } else { return; }
-                        }
-                        map.choroplethDisplay["state_summary"].update(e);
+                        var targets = map.summaryOverlays.map( function(summary) {
+                            var poly = getPolygonsForPointInDataset(e.latlng, summary);
+                            if (poly.length) {
+                                return poly[0];
+                            }
+                        });
+                        targets.forEach( function(tgt) {
+                            e.target = tgt;
+                            map.summaryOverlays.map(function(overlay) {
+                                map.choroplethDisplay[overlay].update(e);
+                            });
+                        });
                     });
                     newLayer.on("mouseout", function(e) {
-                        map.choroplethDisplay["state_summary"].reset();
+                        map.summaryOverlays.forEach(function(overlay) {
+                            map.choroplethDisplay[overlay].reset();
+                        });
                     });
-                    newLayer.on("click", handleClick);
+                    newLayer.on("click", displayPopup);
                     layerGroup.addLayer(newLayer);
                     data_obj[dataset]["layer_data"] = layerGroup;
-                    data_obj[dataset]["layer_data"].setZIndex(data_obj[dataset]["zIndex"]);
                     layerControl.addOverlay(data_obj[dataset]["layer_data"],
                             getStyledInitiativeLabel(dataset, "legend"),
                             getLayerCategoryLabel(data_obj[dataset]["category"]));
                     data_obj[dataset]["layer_data"].addTo(map);
+                    data_obj[dataset]["layer_data"].addTo(map);
                     createColorBoxCSS(dataset);
                 } else if (data_obj[dataset]["type"] === "choropleth") {
+                    if (data_obj[dataset]["category"] === "summary") {
+                        map.summaryOverlays.push(dataset);
+                    }
                     newLayer.setStyle(data_obj[dataset]["style"]);
                     createChoroplethTools(dataset);
+                    console.log("Created Choropleth Tools for "+dataset);
                     for (layer in newLayer._layers) {
                         if (newLayer._layers.hasOwnProperty(layer)) {
+                            console.log(layer);
                             var theLayer = newLayer._layers[layer];
+                            console.log(theLayer);
                             var layerProps = theLayer.feature.properties;
-                            layerProps.density = parseInt(layerProps.density, 10);
-                            var theColor = getColor(dataset, layerProps.density);
+                            var variable = parseInt(getChoroplethVariable(dataset, layerProps), 10);
+                            var theColor = getColor(dataset, variable);
+                            console.log("theColor = "+theColor);
+                            console.log(theLayer.setStyle);
                             theLayer.setStyle({
                                 "color": theColor
                             });
                             theLayer.on("mouseover", function(e) {
-                                map.choroplethDisplay[dataset].update(e);
+                                var targets = map.summaryOverlays.map( function(summary) {
+                                    var poly = getPolygonsForPointInDataset(e.latlng, summary);
+                                    if (poly.length) {
+                                        return poly[0];
+                                    }
+                                });
+                                targets.forEach( function(tgt) {
+                                    e.target = tgt;
+                                    map.summaryOverlays.map(function(overlay) {
+                                        map.choroplethDisplay[overlay].update(e);
+                                    });
+                                });
                             });
                             theLayer.on("mouseout", function(e) {
-                                map.choroplethDisplay[dataset].reset();
+                                map.summaryOverlays.forEach(function(overlay) {
+                                    map.choroplethDisplay[overlay].reset();
+                                });
                             });
-                            theLayer.on("click", handleClick);
+                            theLayer.on("click", displayPopup);
                         }
                     }
                     layerGroup.addLayer(newLayer);
@@ -377,11 +399,12 @@
         base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
     } }
     var map = L.map('map', {
-        click: handleClick,
+        click: displayPopup,
         scrollWheelZoom: false,
         zoomControl: false/*,
         doubleClickZoom: false */
     }).setView([39.363415, -95.999397], 5);
+    map.summaryOverlays = [];
 
     /*
     map.on("viewreset", function(e) { console.log("zoom: "+map.getZoom()+
@@ -429,10 +452,28 @@
     map.choroplethLegend = {};
     map.choroplethDisplay = {};
 
+    function getChoroplethVariableLabel (dataset, props) {
+        var varlabels = data_obj[dataset].variable_label;
+        if (typeof varlabels === "Array") {
+            return varlabels.map(function (k) {
+                return props[k];
+            }).join(", ");
+        }
+        return props[varlabels];
+    }
+
+    function getChoroplethVariable (dataset, props) {
+        return props[data_obj[dataset]["variable"]];
+    }
+
     function createChoroplethTools(dataset) {
         // console.log("Creating choroplethLegend["+dataset+"]");
         map.choroplethLegend[dataset] = L.control({"position":"bottomleft"});
         map.choroplethLegend[dataset].dataset = dataset;
+        map.choroplethLegend[dataset].variable = function(p) {
+            return getChoroplethVariable(dataset, p); };
+        map.choroplethLegend[dataset].variable_label = function(p) {
+            return getChoroplethVariableLabel(dataset, p); };
         map.choroplethLegend[dataset].onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'choropleth-legend choropleth-legend-'+this.dataset);
             this.update();
@@ -460,6 +501,10 @@
         };
         map.choroplethDisplay[dataset] = L.control({"position":"bottomleft"});
         map.choroplethDisplay[dataset].dataset = dataset;
+        map.choroplethDisplay[dataset].variable = function(p) {
+            return getChoroplethVariable(dataset, p); };
+        map.choroplethDisplay[dataset].variable_label = function(p) {
+            return getChoroplethVariableLabel(dataset, p); };
         map.choroplethDisplay[dataset].onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'choropleth-display');
             this.reset();
@@ -467,16 +512,19 @@
         };
         map.choroplethDisplay[dataset].currentShape = null;
         map.choroplethDisplay[dataset].reset = function() {
-            $(this._div).html("<strong>Hover over a state</strong>");
+            var hoverMessage = data_obj[dataset]["hover_instructions"] || "Hover over a region";
+            $(this._div).html("<strong>"+hoverMessage+"</strong>");
         };
         map.choroplethDisplay[dataset].update = function (e) {
+            var props = e.target.feature.properties;
+            var cols = data_obj[dataset]["colors"];
             $(this._div).html("<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"+
-                    getColor(this.dataset, e.target.feature.properties.density)+
+                    getColor(this.dataset, Math.round(this.variable(props)))+
                     "; width: 100%; margin: 0 auto; padding: 0; height: 25px;\">"+
-                    getChoroplethGradientBox(100, "%", 5, "px", data_obj[dataset]["colors"], "info-gradient")+
-                    "</div>"+"<strong>State: "+ e.target.feature.properties.name+
+                    getChoroplethGradientBox(100, "%", 5, "px", cols, "info-gradient")+
+                    "</div><strong>"+ this.variable_label(props) +
                     "</strong><p><strong style=\"font-size: 2.0em;\">"+
-                    e.target.feature.properties.density+"</strong> programs</p>");
+                    Math.round(this.variable(props)) +"</strong> programs</p>");
         };
     }
 
@@ -598,15 +646,15 @@
         for (var poly in polygons) {
             if (polygons.hasOwnProperty(poly)) {
                 popupString += "<p><strong>" + numPolygons + "</strong> of " +
-                        polygons[poly].feature.properties.density + " programs in state: " +
-                        polygons[poly].feature.properties.name + "</p>";
+                        Math.round(getChoroplethVariable(dataset, polygons[poly].feature.properties))+ " programs in " +
+                        getChoroplethVariableLabel(dataset, polygons[poly].feature.properties) + "</p>";
             }
         }
         popupString += "</div>";
         return popupString;
     }
 
-    function handleClick(e) {
+    function displayPopup(e) {
         var popupString = "";
         var popup = L.popup().setLatLng(e.latlng);
         var polys = getPolygonsForPoint(e.latlng);

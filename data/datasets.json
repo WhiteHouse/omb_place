@@ -11,14 +11,17 @@
       "opacity": 1,
       "dashArray": "3, 5"
     },
-      "highlight": {
+    "highlight": {
       "weight": 3,
       "fillOpacity": 1,
       "opacity": 1,
       "dashArray": ""
     },
+    "variable": "density",
+    "variable_label": "name",
     "colors": ["#0000B8","#3333D6","#6666E0","#9999EB","#CCCCF5"],
     "thresholds": [300, 100, 50, 20],
+    "hover_instructions": "Hover over a state.",
     "layerOrder": 1
   },
   "persistent_poverty": {
