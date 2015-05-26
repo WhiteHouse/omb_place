@@ -152,7 +152,7 @@
     }
 
     function load_topojson_location_data (dataset) {
-        console.log("Entered load_topojson_location_data("+dataset+")");
+        // console.log("Entered load_topojson_location_data("+dataset+")");
         // var popupTemplate = "<div class=\"colorbox colorbox-popup colorbox-"+dataset+"\"></div><strong>{InitiativeTitle}</strong><p>{LocationDisplay}</p>";
         if (!data_obj[dataset].hasOwnProperty("layer_data") || data_obj[dataset][layer_data] === undefined) {
             map.spin(true);
@@ -571,7 +571,7 @@
         }
     });
 
-    function getLocationNameFromClick(latlng) {
+    function getReverseGeolocationPromise(latlng) {
         var serviceRequestUrl = reverseGeocodeServiceUrl+"&lat="+latlng.lat+
                 "&lon="+latlng.lng+"&zoom=12&addressdetails=1";
         return $.getJSON(serviceRequestUrl);
@@ -678,7 +678,31 @@
     }
 
     function displayPopup(e) {
-        var popupString = "";
+        getReverseGeolocationPromise(e.latlng).done( function(data) {
+            console.log(data);
+            var location_string = "";
+            if (data.hasOwnProperty("address")) {
+                if (data["address"].hasOwnProperty("city")
+                        && data["address"].hasOwnProperty("state")) {
+                    location_string = data["address"]["city"] + ", " + data["address"]["state"];
+                } else if (data["address"].hasOwnProperty("county")
+                        && data["address"].hasOwnProperty("state")) {
+                    location_string = data["address"]["county"] + ", " + data["address"]["state"];
+                } else if (data["address"].hasOwnProperty("state")) {
+                    location_string = data["address"]["state"] + " (" + data["lat"]
+                            + ", " + data["lon"] + ")";
+                } else {
+                    location_string = "(" + data["lat"] + ", " + data["lon"] + ")";
+                }
+            } else {
+                location_string = "(" + data["lat"] + ", " + data["lon"] + ")";
+            }
+            $("#popup_location_heading").text(location_string);
+        }).error( function(err) {
+            console.log("Reverse geolocation failed. Error:");
+            console.log(err);
+        });
+        var popupString = "<h3 id=\"popup_location_heading\"></h3>";
         var popup = L.popup().setLatLng(e.latlng);
         var polys = getPolygonsForPoint(e.latlng);
         var numPolys = Object.keys(polys).map(function(dataset) {

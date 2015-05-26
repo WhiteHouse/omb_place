@@ -17,8 +17,8 @@
       "opacity": 1,
       "dashArray": ""
     },
-    "variable": "density",
-    "variable_label": "name",
+    "variable": "NUMBEROFPROJECTS",
+    "variable_label": "state",
     "colors": ["#0000B8","#3333D6","#6666E0","#9999EB","#CCCCF5"],
     "thresholds": [300, 100, 50, 20],
     "hover_instructions": "Hover over a state.",
@@ -43,10 +43,10 @@
       "opacity": 1,
       "dashArray": ""
     },
-    "variable": "NUMBEROFPROGRAMS",
+    "variable": "NUMBEROFPROJECTS",
     "variable_label": ["county", "state"],
     "colors": ["#0000B8","#3333D6","#6666E0","#9999EB","#CCCCF5"],
-    "thresholds": [40, 20, 10, 5],
+    "thresholds": [15, 10, 5, 2],
     "hover_instructions": "Hover over a county.",
     "layerOrder": 2,
     "displayed": true
