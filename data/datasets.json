@@ -23,7 +23,7 @@
     "thresholds": [300, 100, 50, 20],
     "hover_instructions": "Hover over a state.",
     "layerOrder": 1,
-    "displayed": false
+    "displayed": true
   },
   "county_summary": {
     "type": "choropleth",

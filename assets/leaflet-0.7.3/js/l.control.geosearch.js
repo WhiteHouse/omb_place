@@ -198,7 +198,7 @@ L.Control.GeoSearch = L.Control.extend({
         /* Patched by Ryan Harvey, 2015-05-24
            Zooming all the way in when location.bounds is undefined is jarring. */
         else if (!this.options.retainZoomLevel && !location.bounds) {
-            this._map.setView([location.Y, location.X], 13, false);
+            this._map.setView([location.Y, location.X], 11, false);
         }
         /* End patch by Ryan Harvey, 2015-05-24 */
         else {

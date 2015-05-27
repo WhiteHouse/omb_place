@@ -43,7 +43,7 @@
 
 <!-- Scripts -->
 <!--[if lt IE 9]>
-<script src="assets/array_foreach_polyfill_ie8.js" charset="utf-8"></script>
+<script src="assets/ie8_polyfills.js" charset="utf-8"></script>
 <![endif]-->
 <script src="assets/jquery-1.11.2/jquery.min.js" charset="utf-8"></script>
 <script src="assets/spin-2.1.0/spin.min.js" charset="utf-8"></script>
@@ -398,13 +398,13 @@
 
     // Generate base map
     var reverseGeocodeServiceUrl = "//nominatim.openstreetmap.org/reverse?format=json&accept-language=us-en";
-    var tflandscape = L.tileLayer.provider("Thunderforest.Landscape");
     var tftransport = L.tileLayer.provider("Thunderforest.Transport");
+    var tflandscape = L.tileLayer.provider("Thunderforest.Landscape");
     var osm = L.tileLayer.provider("OpenStreetMap");
     var stamenwc = L.tileLayer.provider("Stamen.Watercolor");
     var base_layers = {
-        "Thunderforest Landscape": tflandscape,
         "Thunderforest Transport": tftransport,
+        "Thunderforest Landscape": tflandscape,
         "Open Street Map": osm,
         "Stamen Watercolor": stamenwc
     };
@@ -431,7 +431,7 @@
     overlay_groups[getLayerCategoryLabel("baseline")] = {};
     var layerControl = L.control.groupedLayers(base_layers, overlay_groups, { exclusiveGroups: [] });
     layerControl.addTo(map);
-    base_layers["Thunderforest Landscape"].addTo(map);
+    base_layers["Thunderforest Transport"].addTo(map);
     // For accessibility
     $("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
             .append("<span>Select Data Layers</span>");
@@ -681,15 +681,43 @@
         getReverseGeolocationPromise(e.latlng).done( function(data) {
             console.log(data);
             var location_string = "";
+            var city, county, state;
             if (data.hasOwnProperty("address")) {
-                if (data["address"].hasOwnProperty("city")
-                        && data["address"].hasOwnProperty("state")) {
-                    location_string = data["address"]["city"] + ", " + data["address"]["state"];
-                } else if (data["address"].hasOwnProperty("county")
-                        && data["address"].hasOwnProperty("state")) {
-                    location_string = data["address"]["county"] + ", " + data["address"]["state"];
-                } else if (data["address"].hasOwnProperty("state")) {
-                    location_string = data["address"]["state"] + " (" + data["lat"]
+                if (data["address"].hasOwnProperty("city")) {
+                    city = data["address"]["city"].trim();
+                }
+                if (data["address"].hasOwnProperty("county")) {
+                    county = data["address"]["county"].trim();
+                }
+                if (data["address"].hasOwnProperty("state")) {
+                    state = data["address"]["state"].trim();
+                }
+
+                if (state && (state === "penna")) {
+                    state = "Pennsylvania";
+                }
+                if (city && (city === "NYC") && state && (state === "New York")) {
+                    city = "New York";
+                }
+                if (city && (city === "LA") && state && (state === "California")) {
+                    city = "Los Angeles";
+                }
+                if (city && (city === "SF") && state && (state === "California")) {
+                    city = "San Francisco";
+                }
+                if (city && ((city.slice(-4).toLowerCase() !== "city")
+                        || (city.slice(-8).toLowerCase() !==  "township"))) {
+                    city = "City of " + city;
+                }
+                if (city && (city.slice(-10).toLowerCase() === " (city of)")) {
+                    city = city.slice(0, city.length - 10);
+                }
+                if (city && state) {
+                    location_string = city + ", " + state;
+                } else if (county && state) {
+                    location_string = county + ", " + state;
+                } else if (state) {
+                    location_string = state + " (" + data["lat"]
                             + ", " + data["lon"] + ")";
                 } else {
                     location_string = "(" + data["lat"] + ", " + data["lon"] + ")";
