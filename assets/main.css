@@ -5,6 +5,9 @@ body {
 html, body, #map {
     height: 100%;
 }
+a {
+    text-decoration: none;
+}
 
 /* Colorboxes */
 .colorbox {
@@ -19,7 +22,7 @@ html, body, #map {
 }
 .colorbox-popup {
     margin-right: 4px;
-    margin-bottom: 3px;
+    /* margin-bottom: 3px; */
 }
 .colorbox-info-gradient {
     margin-bottom: 20px;

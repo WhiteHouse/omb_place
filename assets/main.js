@@ -221,12 +221,21 @@ function createColorBoxCSS(dataset) {
     $("style#colorboxes").append(cssString);
 }
 
-function getStyledInitiativeLabel(dataset, where) {
+function getStyledInitiativeLabel(dataset, where, linked) {
+    console.log("\n" + dataset + " at " + where + ": " + linked);
+    linked = typeof linked !== 'undefined' ? linked : false; // default to no link
+    console.log("post-default: " + linked);
     var colorBoxDiv = "<div class=\"colorbox colorbox-" + where +
         " colorbox-" + dataset + "\"></div>";
     var styledLabel = $("<span>");
     styledLabel.css("font-weight", "bold");
-    styledLabel.text(data_obj[dataset]["label"]);
+    if (linked && data_obj[dataset].hasOwnProperty("initiativeURL")) {
+        var linkString = '<a href="' + data_obj[dataset]["initiativeURL"] + '" target="_blank">'
+            + data_obj[dataset]["label"] + '</a>';
+        styledLabel.html(linkString);
+    } else {
+        styledLabel.text(data_obj[dataset]["label"]);
+    }
     return colorBoxDiv + styledLabel.prop("outerHTML");
 }
 
@@ -585,10 +594,10 @@ function getPolygonsForPointInDataset(p, dataset) {
 }
 
 function getInitiativePopupSegment(dataset, polygons) {
-    var popupString = "<div class=\"popup-segment\">" + getStyledInitiativeLabel(dataset, "popup");
+    var popupString = "<div class=\"popup-segment\">" + getStyledInitiativeLabel(dataset, "popup", true);
     for (var poly in polygons) {
         if (polygons.hasOwnProperty(poly)) {
-            popupString += "<p>" + polygons[poly].feature.properties.InitiativeTitle + " (" +
+            popupString += "<p>" + polygons[poly].feature.properties.InitiativeTitle + "(" +
                 polygons[poly].feature.properties.LocationDisplay + ")</p>";
         }
     }
