@@ -431,7 +431,7 @@
     overlay_groups[getLayerCategoryLabel("baseline")] = {};
     var layerControl = L.control.groupedLayers(base_layers, overlay_groups, { exclusiveGroups: [] });
     layerControl.addTo(map);
-    base_layers["Thunderforest Transport"].addTo(map);
+    base_layers["Open Street Map"].addTo(map);
     // For accessibility
     $("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
             .append("<span>Select Data Layers</span>");
