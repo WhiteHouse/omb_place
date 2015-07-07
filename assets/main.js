@@ -1,5 +1,35 @@
 var data_obj, numDatasets, layerOrdering, choropleths;
 
+
+function parseQueryParams() {
+    var queryParams = {};
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    var results, pair, int_result, float_result;
+    for (var i=0;i<vars.length;i++) {
+        pair = vars[i].split("=");
+        if (typeof pair[1] == 'undefined') {
+            results = true;
+        } else {
+            results = pair[1].split(",");
+            if (results.length == 1) {
+                results = results[0];
+                float_result = parseFloat(results);
+                if (!isNaN(float_result)) {
+                    int_result = parseInt(results);
+                    if (int_result == float_result) {
+                        results = int_result;
+                    } else {
+                        results = float_result;
+                    }
+                }
+            }
+        }
+        queryParams[pair[0]] = results;
+    }
+    return queryParams;
+}
+
 function getLayerCategoryLabel(category) {
     switch (category) {
         case "summary": return "Summaries";
@@ -338,6 +368,23 @@ function reorderLayers() {
 }
 
 // Generate base map
+var defaultParams = {
+    "zoom": 5,
+    "centerLat": 39.363415,
+    "centerLon": -95.999397,
+    "report": false
+};
+var queryParams = parseQueryParams();
+console.log(queryParams);
+for (var prop in defaultParams) {
+    if (defaultParams.hasOwnProperty(prop)) {
+        queryParams[prop] = typeof queryParams[prop] == 'undefined'
+            ? defaultParams[prop] : queryParams[prop];
+    }
+}
+window.location.queryParams = queryParams;
+console.log(window.location.queryParams);
+
 var reverseGeocodeServiceUrl = "//nominatim.openstreetmap.org/reverse?format=json&accept-language=us-en";
 var tftransport = L.tileLayer.provider("Thunderforest.Transport");
 var tflandscape = L.tileLayer.provider("Thunderforest.Landscape");
@@ -357,7 +404,8 @@ var map = L.map('map', {
     scrollWheelZoom: false,
     zoomControl: false/*,
      doubleClickZoom: false */
-}).setView([39.363415, -95.999397], 5);
+}).setView([window.location.queryParams.centerLat, window.location.queryParams.centerLon],
+    window.location.queryParams.zoom);
 map.summaryOverlays = [];
 
 /*
