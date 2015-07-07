@@ -3,7 +3,7 @@ var data_obj, numDatasets, layerOrdering, choropleths;
 
 function parseQueryParams() {
     var queryParams = {};
-    var query = window.location.search.substring(1);
+    var query = decodeURIComponent(window.location.search.substring(1));
     if (query[query.length-1] == '/') {
         query = query.substring(0, query.length-1);
     }
@@ -392,7 +392,8 @@ var defaultParams = {
     "zoom": 5,
     "centerLat": 39.363415,
     "centerLon": -95.999397,
-    "report": false
+    "report": false,
+    "base": "Open Street Map"
 };
 var queryParams = parseQueryParams();
 console.log(queryParams);
@@ -458,7 +459,11 @@ if (!window.location.queryParams.report) {
         .on("focus", setLayerControlHeight)
         .on("touchstart",setLayerControlHeight);
 }
-base_layers["Open Street Map"].addTo(map);
+if (base_layers.hasOwnProperty(window.location.queryParams.base)) {
+    base_layers[window.location.queryParams.base].addTo(map);
+} else {
+    base_layers[defaultParams.base].addTo(map);
+}
 
 function setLayerControlHeight(e) {
     var controlHeight = map.getSize().y-50;
@@ -631,9 +636,9 @@ if (!window.location.queryParams.report) {
         retainZoomLevel: false
     }).addTo(map);
 }
-if (!window.location.queryParams.report) {
-    // Create locate control and add to bottom right
+// Create locate control and add to bottom right
 /*
+if (!window.location.queryParams.report) {
      L.control.locate({
      position: "bottomright",
      locateOptions: { maxZoom: 8 }
@@ -642,8 +647,9 @@ if (!window.location.queryParams.report) {
      $("div.leaflet-control-locate a.leaflet-bar-part.leaflet-bar-part-single")
      .prop("title", "Find My Location")
      .append("<span>Find My Location</span>");
- */
 }
+ */
+
 function getPolygonsForPoint(p) {
     var polygons = {};
     for (var dataset in data_obj) {
