@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="assets/spectrum.min.css">
+	<style>
+		body {
+			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+		}
+		.controls {
+			height: 35px;
+			border-bottom: 1px solid black;
+			margin-bottom: 10px;
+		}
+		.colorbox {
+			border: 2px dashed white;
+			width: 230px;
+			height: 50px;
+			margin: 0 10px 10px 0;
+			float: left;
+			overflow-x: hidden;
+		}
+		.colorbox>p {
+			padding: 2px;
+			margin: 0;
+		}
+		button {
+			margin-left: 20px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="controls">
+		<label for="colorHex">Choose a color:</label>
+		<input id="colorHex"></input>
+		<button id="addColorButton" onclick="addColorBox()">Add Color</button>
+		<button id="addDatasetColors" onclick="addDatasetColors()">Add All Dataset Colors</button>
+	</div>
+	<div id="colorboxes">
+	</div>
+	
+	<script src="assets/jquery-2.1.4.min.js"></script>
+	<script src="assets/spectrum.min.js"></script>
+	<script>
+		$("#colorHex").spectrum({
+			preferredFormat: "hex",
+			showInput: true,
+		});
+
+		var datasetColors = {};
+
+		function hexToRgb(hex) {
+			// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+			var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+			hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+				return r + r + g + g + b + b;
+			});
+			var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+			return result ? {
+				r: parseInt(result[1], 16),
+				g: parseInt(result[2], 16),
+				b: parseInt(result[3], 16)
+			} : null;
+		}
+
+		function createColorBox(color, opacity, datasetName) {
+			var rgbColor = hexToRgb(color);
+			if (rgbColor) {
+				var colorString = "rgba("+rgbColor.r+","+rgbColor.g+","+rgbColor.b+","+opacity+")";
+				var newColorBox = document.createElement("div");
+				newColorBox.className = "colorbox";
+				newColorBox.style.backgroundColor = colorString; 
+				newColorBox.style.borderColor = color;
+				var colorBoxText = document.createTextNode(color);
+				var colorBoxTextP = document.createElement("p");
+				colorBoxTextP.appendChild(colorBoxText);
+				newColorBox.appendChild(colorBoxTextP);
+				if (datasetName) {
+					var moreText = document.createTextNode(datasetName);
+					var moreTextP = document.createElement("p");
+					moreTextP.appendChild(moreText);
+					newColorBox.appendChild(moreTextP);
+				}
+				document.getElementById("colorboxes").appendChild(newColorBox);
+				console.log("added color box");
+			}
+		}
+
+		function addColorBox(e) {
+			var colorHex = document.getElementById("colorHex").value;
+			console.log(colorHex);
+			if (colorHex) {
+				createColorBox(colorHex, "0.6");
+			} else {
+				alert("Enter the hex code for the color you would like to add.");
+			}
+		}
+
+		function addDatasetColors(e) {
+			request = new XMLHttpRequest();
+			request.open('GET', '../data/datasets.json', true);
+			request.onload = function() {
+			  if (request.status >= 200 && request.status < 400){
+			    // Success!
+			    data = JSON.parse(request.responseText);
+			    for (var dataset in data) {
+			    	if (data.hasOwnProperty(dataset)) {
+			    		datasetColors[dataset] = {};
+			    		if (data[dataset].hasOwnProperty("colors") && data[dataset]["colors"] instanceof Array) {
+		    				var n = Math.floor(data[dataset]["colors"].length/2);
+		    				datasetColors[dataset]["color"] = data[dataset]["colors"][n];
+		    				datasetColors[dataset]["fillOpacity"] = data[dataset]["style"]["fillOpacity"];
+			    		} else if (data[dataset].hasOwnProperty("color")) {
+			    			datasetColors[dataset]["color"] = data[dataset]["color"];
+			    			datasetColors[dataset]["fillOpacity"] = data[dataset]["style"]["fillOpacity"];
+			    		} else if (data[dataset].hasOwnProperty("style") && data[dataset]["style"].hasOwnProperty("color")) {
+			    			datasetColors[dataset]["color"] = data[dataset]["style"]["color"], 
+			    			datasetColors[dataset]["fillOpacity"] = data[dataset]["style"]["fillOpacity"];
+			    		}
+			    	}
+			    }
+			    for (dataset in datasetColors) {
+			    	if (datasetColors.hasOwnProperty(dataset)) {
+			    		createColorBox(datasetColors[dataset]["color"], datasetColors[dataset]["fillOpacity"], dataset);
+			    	}
+			    }
+			  } else {
+			    // We reached our target server, but it returned an error
+			    alert("The server returned an error. Please try again.");
+			  }
+			};
+			request.onerror = function() {
+			  // There was a connection error of some sort
+			  alert("There was a connection error. Please try again.")
+			};
+
+			request.send();
+		}
+	</script>
+</html>
