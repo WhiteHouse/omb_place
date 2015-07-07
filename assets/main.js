@@ -4,6 +4,9 @@ var data_obj, numDatasets, layerOrdering, choropleths;
 function parseQueryParams() {
     var queryParams = {};
     var query = window.location.search.substring(1);
+    if (query[query.length-1] == '/') {
+        query = query.substring(0, query.length-1);
+    }
     var vars = query.split("&");
     var results, pair, int_result, float_result;
     for (var i=0;i<vars.length;i++) {
@@ -28,6 +31,17 @@ function parseQueryParams() {
         queryParams[pair[0]] = results;
     }
     return queryParams;
+}
+
+function isRequestedDataset(dataset) {
+    if (typeof window.location.queryParams.datasets == 'undefined') {
+        if (data_obj.hasOwnProperty(dataset) && data_obj[dataset].hasOwnProperty("displayed")) {
+            return data_obj[dataset]["displayed"];
+        } else {
+            return true;
+        }
+    }
+    return ($.inArray(dataset, window.location.queryParams.datasets) !== -1);
 }
 
 function getLayerCategoryLabel(category) {
@@ -150,11 +164,13 @@ function load_topojson_location_data (dataset) {
                 newLayer.on("click", displayPopup);
                 layerGroup.addLayer(newLayer);
                 data_obj[dataset]["layer_data"] = layerGroup;
-                layerControl.addOverlay(data_obj[dataset]["layer_data"],
-                    getStyledInitiativeLabel(dataset, "legend"),
-                    getLayerCategoryLabel(data_obj[dataset]["category"]));
+                if (!window.location.queryParams.report) {
+                    layerControl.addOverlay(data_obj[dataset]["layer_data"],
+                        getStyledInitiativeLabel(dataset, "legend"),
+                        getLayerCategoryLabel(data_obj[dataset]["category"]));
+                }
                 createColorBoxCSS(dataset);
-                if (data_obj[dataset]["displayed"]) {
+                if (isRequestedDataset(dataset)) {
                     data_obj[dataset]["layer_data"].addTo(map);
                 }
             } else if (data_obj[dataset]["type"] === "choropleth") {
@@ -204,10 +220,12 @@ function load_topojson_location_data (dataset) {
                 }
                 layerGroup.addLayer(newLayer);
                 data_obj[dataset]["layer_data"] = layerGroup;
-                layerControl.addOverlay(data_obj[dataset]["layer_data"],
-                    getStyledChoroplethLabel(dataset, "legend"),
-                    getLayerCategoryLabel(data_obj[dataset]["category"]));
-                if (data_obj[dataset]["displayed"]) {
+                if (!window.location.queryParams.report) {
+                    layerControl.addOverlay(data_obj[dataset]["layer_data"],
+                        getStyledChoroplethLabel(dataset, "legend"),
+                        getLayerCategoryLabel(data_obj[dataset]["category"]));
+                }
+                if (isRequestedDataset(dataset)) {
                     data_obj[dataset]["layer_data"].addTo(map);
                 }
             }
@@ -215,13 +233,15 @@ function load_topojson_location_data (dataset) {
             if (overlayCount === numDatasets) {
                 reorderLayers();
                 choropleths = getChoropleths();
-                var baseLayersTitle = $("<div  class=\"leaflet-control-layers-section-name\"></div>")
-                    .html("<h4>Base Map Layers</h4>");
-                baseLayersDiv.before(baseLayersTitle);
-                var overlayLayersTitle = $("<div class=\"leaflet-control-layers-section-name\"></div>")
-                    .html("<h4>Overlay Layers</h4>")
-                    .append(buttonsDiv);
-                overlaysDiv.before(overlayLayersTitle);
+                if (!window.location.queryParams.report) {
+                    var baseLayersTitle = $("<div  class=\"leaflet-control-layers-section-name\"></div>")
+                        .html("<h4>Base Map Layers</h4>");
+                    baseLayersDiv.before(baseLayersTitle);
+                    var overlayLayersTitle = $("<div class=\"leaflet-control-layers-section-name\"></div>")
+                        .html("<h4>Overlay Layers</h4>")
+                        .append(buttonsDiv);
+                    overlaysDiv.before(overlayLayersTitle);
+                }
             }
             map.spin(false);
         }, function(e) { map.spin(false); console.log(e); });
@@ -413,30 +433,32 @@ map.summaryOverlays = [];
  " | minZoom: "+map.getMinZoom()+" | maxZoom: "+map.getMaxZoom()); });
  */
 
+if (!window.location.queryParams.report) {
 // Create layers control and add base map to control
-var overlay_groups = {};
-overlay_groups[getLayerCategoryLabel("summary")] = {};
-overlay_groups[getLayerCategoryLabel("initiative")] = {};
-overlay_groups[getLayerCategoryLabel("baseline")] = {};
-var layerControl = L.control.groupedLayers(base_layers, overlay_groups, { exclusiveGroups: [] });
-layerControl.addTo(map);
+    var overlay_groups = {};
+    overlay_groups[getLayerCategoryLabel("summary")] = {};
+    overlay_groups[getLayerCategoryLabel("initiative")] = {};
+    overlay_groups[getLayerCategoryLabel("baseline")] = {};
+    var layerControl = L.control.groupedLayers(base_layers, overlay_groups, { exclusiveGroups: [] });
+    layerControl.addTo(map);
+    // For accessibility
+    $("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
+        .append("<span>Select Data Layers</span>");
+    // Add check all and uncheck all buttons to overlays selection
+    var overlaysDiv = $("div.leaflet-control-layers-overlays");
+    var baseLayersDiv = $("div.leaflet-control-layers-base");
+    var buttonsDiv = $("<div></div>").addClass("bulk-select-overlays");
+    var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
+    var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
+    buttonsDiv.html(selectAllButton+unselectAllButton);
+    // overlaysDiv.before(buttonsDiv);
+    var titleSpan = "<div><h3 class=\"leaflet-control-layers-title\"><span>Select Data Layers</span></h3></div>";
+    $("form.leaflet-control-layers-list").prepend($(titleSpan));
+    $(".leaflet-control-layers-toggle").on("mouseover", setLayerControlHeight)
+        .on("focus", setLayerControlHeight)
+        .on("touchstart",setLayerControlHeight);
+}
 base_layers["Open Street Map"].addTo(map);
-// For accessibility
-$("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
-    .append("<span>Select Data Layers</span>");
-// Add check all and uncheck all buttons to overlays selection
-var overlaysDiv = $("div.leaflet-control-layers-overlays");
-var baseLayersDiv = $("div.leaflet-control-layers-base");
-var buttonsDiv = $("<div></div>").addClass("bulk-select-overlays");
-var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
-var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
-buttonsDiv.html(selectAllButton+unselectAllButton);
-// overlaysDiv.before(buttonsDiv);
-var titleSpan = "<div><h3 class=\"leaflet-control-layers-title\"><span>Select Data Layers</span></h3></div>";
-$("form.leaflet-control-layers-list").prepend($(titleSpan));
-$(".leaflet-control-layers-toggle").on("mouseover", setLayerControlHeight)
-    .on("focus", setLayerControlHeight)
-    .on("touchstart",setLayerControlHeight);
 
 function setLayerControlHeight(e) {
     var controlHeight = map.getSize().y-50;
@@ -539,7 +561,7 @@ map.on("overlayadd", function(e) {
     for (var i = 0; i < numDatasets; i++) {
         var dataset = layerOrdering[i];
         if (data_obj.hasOwnProperty(dataset) && e.layer === data_obj[dataset]["layer_data"]) {
-            if (data_obj[dataset]["type"] === "choropleth") {
+            if (data_obj[dataset]["type"] === "choropleth" && !window.location.queryParams.report) {
                 map.choroplethLegend[dataset].update();
                 map.choroplethLegend[dataset].addTo(map);
                 map.choroplethDisplay[dataset].reset();
@@ -552,7 +574,7 @@ map.on("overlayadd", function(e) {
 map.on("overlayremove", function(e) {
     for (var dataset in data_obj) {
         if (data_obj.hasOwnProperty(dataset) && e.layer === data_obj[dataset]["layer_data"]) {
-            if (data_obj[dataset]["type"] === "choropleth") {
+            if (data_obj[dataset]["type"] === "choropleth" && !window.location.queryParams.report) {
                 map.removeControl(map.choroplethDisplay[dataset]);
                 map.removeControl(map.choroplethLegend[dataset]);
             }
@@ -584,40 +606,44 @@ var overlayCount = 0;
  zoomBoxCtl._container.remove();
  zooms.append(zoomBoxCtl.onAdd(map));
  */
-new L.Control.zoomHome({
-    zoomHomeTitle: "Reset map view",
-    homeCoordinates: [39.363415, -95.999397],
-    homeZoom: 5
-}).addTo(map);
-new L.Control.ZoomBox().addTo(map);
+if (!window.location.queryParams.report) {
+    new L.Control.zoomHome({
+        zoomHomeTitle: "Reset map view",
+        homeCoordinates: [39.363415, -95.999397],
+        homeZoom: 5
+    }).addTo(map);
+    new L.Control.ZoomBox().addTo(map);
 
-new L.Control.Pan({
-    position: 'topleft'
-}).addTo(map);
-
+    new L.Control.Pan({
+        position: 'topleft'
+    }).addTo(map);
+}
 L.control.scale({ position: "topleft" }).addTo(map);
 
 
-// Create a location search control and add to top right of map
-new L.Control.GeoSearch({
-    provider: new L.GeoSearch.Provider.OpenStreetMap(),
-    position: 'topcenter',
-    showMarker: false,
-    retainZoomLevel: false
-}).addTo(map);
 
-// Create locate control and add to bottom right
+if (!window.location.queryParams.report) {
+    // Create a location search control and add to top right of map
+    new L.Control.GeoSearch({
+        provider: new L.GeoSearch.Provider.OpenStreetMap(),
+        position: 'topcenter',
+        showMarker: false,
+        retainZoomLevel: false
+    }).addTo(map);
+}
+if (!window.location.queryParams.report) {
+    // Create locate control and add to bottom right
 /*
- L.control.locate({
- position: "bottomright",
- locateOptions: { maxZoom: 8 }
- }).addTo(map);
- // For accessibility
- $("div.leaflet-control-locate a.leaflet-bar-part.leaflet-bar-part-single")
- .prop("title", "Find My Location")
- .append("<span>Find My Location</span>");
+     L.control.locate({
+     position: "bottomright",
+     locateOptions: { maxZoom: 8 }
+     }).addTo(map);
+     // For accessibility
+     $("div.leaflet-control-locate a.leaflet-bar-part.leaflet-bar-part-single")
+     .prop("title", "Find My Location")
+     .append("<span>Find My Location</span>");
  */
-
+}
 function getPolygonsForPoint(p) {
     var polygons = {};
     for (var dataset in data_obj) {
@@ -667,80 +693,87 @@ function getSummaryPopupSegment(dataset, polygons, numPolygons) {
 }
 
 function displayPopup(e) {
-    getReverseGeolocationPromise(e.latlng).done( function(data) {
-        console.log(data);
-        var location_string = "";
-        var city, county, state;
-        if (data.hasOwnProperty("address")) {
-            if (data["address"].hasOwnProperty("city")) {
-                city = data["address"]["city"].trim();
-            }
-            if (data["address"].hasOwnProperty("county")) {
-                county = data["address"]["county"].trim();
-            }
-            if (data["address"].hasOwnProperty("state")) {
-                state = data["address"]["state"].trim();
-            }
+    if (!window.location.queryParams.report) {
+        getReverseGeolocationPromise(e.latlng).done(function (data) {
+            console.log(data);
+            var location_string = "";
+            var city, county, state;
+            if (data.hasOwnProperty("address")) {
+                if (data["address"].hasOwnProperty("city")) {
+                    city = data["address"]["city"].trim();
+                }
+                if (data["address"].hasOwnProperty("county")) {
+                    county = data["address"]["county"].trim();
+                }
+                if (data["address"].hasOwnProperty("state")) {
+                    state = data["address"]["state"].trim();
+                }
 
-            if (state && (state === "penna")) {
-                state = "Pennsylvania";
-            }
-            if (city && (city === "NYC") && state && (state === "New York")) {
-                city = "New York";
-            }
-            if (city && (city === "LA") && state && (state === "California")) {
-                city = "Los Angeles";
-            }
-            if (city && (city === "SF") && state && (state === "California")) {
-                city = "San Francisco";
-            }
-            if (city && (city === "ABQ") && state && (state === "New Mexico")) {
-                city = "Albuquerque";
-            }
-            if (city && ((city.slice(-4).toLowerCase() !== "city")
-                || (city.slice(-8).toLowerCase() !==  "township"))) {
-                city = "City of " + city;
-            }
-            if (city && (city.slice(-10).toLowerCase() === " (city of)")) {
-                city = city.slice(0, city.length - 10);
-            }
-            if (city && state) {
-                location_string = city + ", " + state;
-            } else if (county && state) {
-                location_string = county + ", " + state;
-            } else if (state) {
-                location_string = state + " (" + data["lat"]
-                    + ", " + data["lon"] + ")";
+                if (state && (state === "penna")) {
+                    state = "Pennsylvania";
+                }
+                if (city && (city === "NYC") && state && (state === "New York")) {
+                    city = "New York";
+                }
+                if (city && (city === "LA") && state && (state === "California")) {
+                    city = "Los Angeles";
+                }
+                if (city && (city === "SF") && state && (state === "California")) {
+                    city = "San Francisco";
+                }
+                if (city && (city === "ABQ") && state && (state === "New Mexico")) {
+                    city = "Albuquerque";
+                }
+                if (city && ((city.slice(-4).toLowerCase() !== "city")
+                    || (city.slice(-8).toLowerCase() !== "township"))) {
+                    city = "City of " + city;
+                }
+                if (city && (city.slice(-10).toLowerCase() === " (city of)")) {
+                    city = city.slice(0, city.length - 10);
+                }
+                if (city && state) {
+                    location_string = city + ", " + state;
+                } else if (county && state) {
+                    location_string = county + ", " + state;
+                } else if (state) {
+                    location_string = state + " (" + data["lat"]
+                        + ", " + data["lon"] + ")";
+                } else {
+                    location_string = "(" + data["lat"] + ", " + data["lon"] + ")";
+                }
             } else {
                 location_string = "(" + data["lat"] + ", " + data["lon"] + ")";
             }
-        } else {
-            location_string = "(" + data["lat"] + ", " + data["lon"] + ")";
-        }
-        $("#popup_location_heading").text(location_string);
-    }).error( function(err) {
-        console.log("Reverse geolocation failed. Error:");
-        console.log(err);
-    });
-    var popupString = "<h3 id=\"popup_location_heading\"></h3>";
-    var popup = L.popup().setLatLng(e.latlng);
-    var polys = getPolygonsForPoint(e.latlng);
-    var numPolys = Object.keys(polys).map(function(dataset) {
-        if (polys.hasOwnProperty(dataset) && data_obj[dataset].category === "initiative") {
-            return polys[dataset].length;
-        } return 0;
-    }).reduce(function(prev, curr) { return prev + curr; });
-    for (var i = 0; i < numDatasets; i++) {
-        var dataset = layerOrdering[i];
-        if (polys.hasOwnProperty(dataset) && polys[dataset].length) {
-            if (data_obj[dataset].type !== "choropleth") {
-                popupString += getInitiativePopupSegment(dataset, polys[dataset]);
-            } else {
-                popupString += getSummaryPopupSegment(dataset, polys[dataset], numPolys);
+            $("#popup_location_heading").text(location_string);
+        }).error(function (err) {
+            console.log("Reverse geolocation failed. Error:");
+            console.log(err);
+        });
+        var popupString = "<h3 id=\"popup_location_heading\"></h3>";
+        var popup = L.popup().setLatLng(e.latlng);
+        var polys = getPolygonsForPoint(e.latlng);
+        var numPolys = Object.keys(polys).map(function (dataset) {
+            if (polys.hasOwnProperty(dataset) && data_obj[dataset].category === "initiative") {
+                return polys[dataset].length;
+            }
+            return 0;
+        }).reduce(function (prev, curr) {
+            return prev + curr;
+        });
+        for (var i = 0; i < numDatasets; i++) {
+            var dataset = layerOrdering[i];
+            if (polys.hasOwnProperty(dataset) && polys[dataset].length) {
+                if (data_obj[dataset].type !== "choropleth") {
+                    popupString += getInitiativePopupSegment(dataset, polys[dataset]);
+                } else {
+                    popupString += getSummaryPopupSegment(dataset, polys[dataset], numPolys);
+                }
             }
         }
+        if (!popupString) {
+            popupString = "No layers found.";
+        }
+        popup.setContent(popupString).openOn(map);
     }
-    if (!popupString) { popupString = "No layers found."; }
-    popup.setContent(popupString).openOn(map);
 }
 
