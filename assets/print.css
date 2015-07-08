@@ -1,0 +1,249 @@
+body {
+    width: 7.5in;
+    padding: 0;
+    margin: 0.75in auto;
+}
+#map {
+    width: 6.5in;
+    height: 4.0in;
+    border: 2px solid black;
+    margin: 0 auto;
+}
+#initiatives {
+    width: 6.5in;
+    margin: 0 auto;
+}
+a {
+    text-decoration: none;
+}
+
+/* Colorboxes */
+.colorbox {
+    width: 8px;
+    height: 8px;
+    border: 2px dashed white;
+    display: inline-block;
+}
+.colorbox-legend {
+    float: right;
+    margin-left: 4px;
+}
+.colorbox-popup {
+    margin-right: 4px;
+    /* margin-bottom: 3px; */
+}
+.colorbox-info-gradient {
+    margin-bottom: 20px;
+}
+
+.popup-segment {
+    padding-top: 8px;
+}
+.popup-segment p {
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+    padding-left: 0.5em;
+}
+
+.leaflet-control { clear: none; }
+
+/* Alterations to the Map Layers Control */
+.leaflet-control-layers-expanded {
+    overflow-y: scroll;
+}
+.leaflet-control-layers-title {
+    background-image: url(leaflet-0.7.3/css/images/layers-2x.png);
+    background-position: 10px 50%;
+    background-repeat: no-repeat;
+    background-size: 26px 26px;
+    height: 36px;
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.leaflet-control-layers-title>span {
+    padding-left: 46px;
+    line-height: 36px;
+}
+.leaflet-control-layers-section-name {
+    background-color:rgb(229, 229, 229);
+    border-bottom: 1px solid rgb(159, 159, 159);
+    width: 100%;
+    padding: 1px 10px 3px 6px;
+    margin: 5px -10px 5px -6px;
+}
+.leaflet-control-layers-section-name>h4 {
+    font-size: 1.2em;
+    display: inline-block;
+    margin: 0;
+}
+.leaflet-control-layers-base>label {
+    padding-left: .5em;
+}
+.leaflet-control-layers-group {
+    margin-bottom: 3px;
+}
+.leaflet-control-layers-group-name {
+    width: 100%;
+    font-size: 1.2em;
+    border-bottom: 1px solid rgb(159, 159, 159);
+    padding-bottom: 1px;
+    margin-bottom: 2px;
+    margin-top: 2px;
+}
+.bulk-select-overlays {
+    display: inline-block;
+    float: right;
+}
+div.leaflet-control-layers-separator {
+    display: none;
+}
+.leaflet-control-layers-selector {
+    padding-right: 2px;
+}
+a.leaflet-control-layers-toggle {
+    background-position: 10px 50%;
+    width: auto;
+}
+a.leaflet-control-layers-toggle span {
+    display: inline-block;
+    padding-left: 46px;
+    padding-right: 10px;
+    color: black;
+    font-weight: bold;
+    font-size: 1.1em;
+    vertical-align: middle;
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+button {
+    border: none;
+    border-radius: 5px;
+    padding: 3px 5px;
+    margin: 3px 0 3px 5px;
+    font-weight: bold;
+    color: white;
+}
+button.select-all-overlays {
+    background-color: #2e8b57;
+}
+button.unselect-all-overlays {
+    background-color: #dc143c;
+}
+
+/* Alterations to placement of Zoom controls */
+#zoomcontrols {
+    clear: none;
+    float: left;
+}
+#zoomcontrols>.leaflet-control {
+    clear:both;
+}
+
+/* Alterations to the Locate Control */
+div.leaflet-control-locate a.leaflet-bar-part-single {
+    width: auto;
+}
+div.leaflet-control-locate a.leaflet-bar-part-single span {
+    display: inline-block;
+    padding-left: 0px;
+    padding-right: 5px;
+    margin-top: -9px;
+    height: 100%;
+    color: black;
+    font-weight: bold;
+    font-size: 0.8em;
+    text-align: left;
+    vertical-align: middle;
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
+    padding: 5px 5px 5px 5px;
+    line-height: 26px;
+    margin-top: 0;
+}
+
+/* Custom choropleth legend control */
+.leaflet-control.choropleth-legend {
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 5px 0px;
+    clear: both;
+    display: block;
+    float: left;
+    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 18px;
+    background: rgba(255, 255, 255, 0.7);
+    margin: 10px;
+    padding: 10px;
+    color: #333;
+    min-width: 100px;
+    /* max-width: 120px; */
+    vertical-align: top;
+}
+.leaflet-control.choropleth-legend strong {
+    font-weight: bold;
+    font-size: 14px;
+    float: none;
+}
+.leaflet-control.choropleth-legend>div {
+    width: 100%;
+    float: none;
+}
+.leaflet-control.choropleth-legend div.colorbox {
+    padding-right: 10px;
+    float: none;
+}
+
+/* Custom choropleth display control */
+.leaflet-control.choropleth-display {
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 5px 0px;
+    clear: both;
+    display: block;
+    float: left;
+    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 18px;
+    background: rgba(255, 255, 255, 0.7);
+    margin: 10px;
+    padding: 10px;
+    color: #333;
+    min-width: 100px;
+    max-width: 150px;
+    vertical-align: top;
+}
+.leaflet-control.choropleth-display strong {
+    font-weight: bold;
+    font-size: 14px;
+    float: none;
+}
+.leaflet-control.choropleth-display>div {
+    width: 100%;
+    float: none;
+    vertical-align: top;
+}
+.leaflet-control.choropleth-display div.colorbox {
+    padding-right: 10px;
+    float: none;
+}
+
+
+/* Browser version issues alert message */
+.browser-version-alert {
+    background: white;
+    border-radius: 5px;
+    padding: 8px;
+    font-weight: bold;
+    color: darkred;
+    text-align: center;
+}

@@ -392,6 +392,10 @@ var defaultParams = {
     "zoom": 5,
     "centerLat": 39.363415,
     "centerLon": -95.999397,
+    "NElat": 51.80861475198521,
+    "NElon": -63.94042968749999,
+    "SWlat": 24.246964554300938,
+    "SWlon": -128.1005859375,
     "report": false,
     "base": "Open Street Map"
 };
@@ -421,12 +425,14 @@ for (bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
     base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
 } }
 var map = L.map('map', {
-    click: displayPopup,
-    scrollWheelZoom: false,
-    zoomControl: false/*,
-     doubleClickZoom: false */
-}).setView([window.location.queryParams.centerLat, window.location.queryParams.centerLon],
-    window.location.queryParams.zoom);
+        click: displayPopup,
+        scrollWheelZoom: false,
+        zoomControl: false /*,
+        doubleClickZoom: false */ })
+    .setView([window.location.queryParams.centerLat, window.location.queryParams.centerLon],
+        window.location.queryParams.zoom)
+    .fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
+        [window.location.queryParams.NElat, window.location.queryParams.NElon]]);
 map.summaryOverlays = [];
 
 /*

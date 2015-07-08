@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Community Solutions and Place-based Initiatives</title>
+
+    <!-- IE -->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <!-- other browsers -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="assets/font-awesome-4.2.0/font-awesome.min.css"/>
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/css/leaflet.css"/>
+    <link rel="stylesheet" href="assets/print.css"/>
+    <style id="colorboxes"></style>
+    <style id="layercontrol"></style>
+</head>
+
+<body id="map_sample" onload="">
+
+<!--[if lt IE 9]>
+<div class="browser-version-alert">
+    You are using an old version of Internet Explorer that is slow and may not be able to load this map.
+    If you are having difficulties, please switch to a modern browser (evergreen browsers or IE 9+).
+</div>
+<![endif]-->
+
+<div id="map"></div>
+
+<div id="initiatives"></div>
+
+<!-- Scripts -->
+<!--[if lt IE 9]>
+<script src="assets/ie8_polyfills.js" charset="utf-8"></script>
+<![endif]-->
+<script src="assets/jquery-1.11.2/jquery.min.js" charset="utf-8"></script>
+<script src="assets/spin-2.1.0/spin.min.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/leaflet.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/leaflet-providers.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/leaflet-pip.min.js" charset="utf-8"></script>
+<!--[if (!IE)|(gte IE 9)]>-->
+<script src="assets/topojson-1.0/topojson.v1.min.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/L.TopoJSON.js" charset="utf-8"></script>
+<!--<![endif]-->
+<script src="assets/leaflet-0.7.3/js/leaflet.spin.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/leaflet.geojsoncss.min.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/l.control.geosearch.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/l.geosearch.provider.openstreetmap.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/L.Control.Pan.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/L.Control.ZoomBox.min.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/leaflet.zoomhome.min.js" charset="utf-8"></script>
+<script src="assets/leaflet-0.7.3/js/leaflet.groupedlayercontrol.min.js" charset="utf-8"></script>
+
+<script src="assets/main.js"></script>
+
+<!--[if lt IE 9]>
+<script>
+    // Load data into layers: IE 8
+    load_map_data("geojson");
+</script>
+<![endif]-->
+
+<!--[if (!IE)|(gte IE 9)]>-->
+<script>
+    // Load data into layers: IE 9+ and non-IE
+    load_map_data("topojson");
+</script>
+<!--<![endif]-->
+
+<noscript>
+    You are using browser with JavaScript disabled, which will not be able to load this map.
+    Please enable JavaScript. If you are having difficulties, please switch to a modern browser
+    (evergreen browsers or IE 9+).
+</noscript>
+
+</body></html>
