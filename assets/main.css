@@ -229,6 +229,32 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     float: none;
 }
 
+/* Print Button */
+.printbutton-div {
+    width: 36px;
+    height: 36px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 1px 1px 0px;
+    display: block;
+    float: right;
+    font-family: 'Whitney SSm A', 'Whitney SSm B', HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans L', sans-serif;
+    font-size: 12px;
+    line-height: 18px;
+    margin: 10px;
+    padding: 0px;
+    vertical-align: top;
+}
+#printbutton {
+    width: 98%;
+    height: 98%;
+    border: none;
+    color: black;
+    background: white;
+    margin: 1px;
+    padding: 0;
+    font-size: 18px;
+}
 
 /* Browser version issues alert message */
 .browser-version-alert {

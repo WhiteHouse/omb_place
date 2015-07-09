@@ -54,7 +54,6 @@ function getLayerCategoryLabel(category) {
 }
 
 function load_map_data (data_format) {
-    //console.log(data_format);
     $.getJSON('data/datasets.json', function(datasets) {
         data_obj = datasets;
         numDatasets = datasetCount();
@@ -64,8 +63,6 @@ function load_map_data (data_format) {
                 layerOrdering[parseInt(data_obj[k]["layerOrder"],10)-1] = k;
             }
         }
-        // console.log(numDatasets);
-        // console.log(layerOrdering);
 
         var i;
         // Load each program and add it as an overlay layer to control
@@ -93,7 +90,6 @@ function load_map_data (data_format) {
 }
 
 function load_geojson_location_data (dataset) {
-    //console.log(dataset);
     if (!data_obj[dataset].hasOwnProperty("layer_data") || data_obj[dataset][layer_data] === undefined) {
         map.spin(true);
         $.getJSON(data_obj[dataset]["geojson"], function(data) {
@@ -128,8 +124,6 @@ function load_geojson_location_data (dataset) {
 }
 
 function load_topojson_location_data (dataset) {
-    // console.log("Entered load_topojson_location_data("+dataset+")");
-    // var popupTemplate = "<div class=\"colorbox colorbox-popup colorbox-"+dataset+"\"></div><strong>{InitiativeTitle}</strong><p>{LocationDisplay}</p>";
     if (!data_obj[dataset].hasOwnProperty("layer_data") || data_obj[dataset][layer_data] === undefined) {
         map.spin(true);
         var layer;
@@ -179,17 +173,12 @@ function load_topojson_location_data (dataset) {
                 }
                 newLayer.setStyle(data_obj[dataset]["style"]);
                 createChoroplethTools(dataset);
-                //console.log("Created Choropleth Tools for "+dataset);
                 for (layer in newLayer._layers) {
                     if (newLayer._layers.hasOwnProperty(layer)) {
-                        //console.log(layer);
                         var theLayer = newLayer._layers[layer];
-                        //console.log(theLayer);
                         var layerProps = theLayer.feature.properties;
                         var variable = parseInt(getChoroplethVariable(dataset, layerProps), 10);
                         var theColor = getColor(dataset, variable);
-                        //console.log("theColor = "+theColor);
-                        //console.log(theLayer.setStyle);
                         theLayer.setStyle({
                             "color": theColor
                         });
@@ -233,7 +222,41 @@ function load_topojson_location_data (dataset) {
             if (overlayCount === numDatasets) {
                 reorderLayers();
                 choropleths = getChoropleths();
-                if (!window.location.queryParams.report) {
+                if (window.location.queryParams.report) {
+                    // Populate initiatives report
+                    var container = $("div#initiatives");
+                    var datasetsList = window.location.queryParams.datasets;
+                    var polys = getPolygonsInBoundsForDatasets(datasetsList);
+                    var numPolys = Object.keys(polys).map(function (dataset) {
+                        if (polys.hasOwnProperty(dataset) && data_obj[dataset].category === "initiative") {
+                            return polys[dataset].length;
+                        }
+                        return 0;
+                    }).reduce(function (prev, curr) {
+                        return prev + curr;
+                    });
+                    var datasetKey = "";
+                    var reportString = "";
+                    for (var k = 0; k < datasetsList.length; k++) {
+                        datasetKey = datasetsList[k];
+                        if (window.data_obj.hasOwnProperty(datasetKey) && polys[datasetKey].length) {
+                            switch (window.data_obj[datasetKey].category) {
+                                case "summary":
+                                    reportString += getSummaryReportSegment(datasetKey, sortPolygonsByState(polys[datasetKey]), numPolys);
+                                    break;
+                                case "baseline":
+                                    reportString += getBaselineReportSegment(datasetKey, sortPolygonsByState(polys[datasetKey]));
+                                    break;
+                                case "initiative":
+                                    reportString += getInitiativeReportSegment(datasetKey, sortPolygonsByState(polys[datasetKey]));
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    container.html(reportString);
+                } else {
                     var baseLayersTitle = $("<div  class=\"leaflet-control-layers-section-name\"></div>")
                         .html("<h4>Base Map Layers</h4>");
                     baseLayersDiv.before(baseLayersTitle);
@@ -271,15 +294,18 @@ function createColorBoxCSS(dataset) {
     $("style#colorboxes").append(cssString);
 }
 
-function getStyledInitiativeLabel(dataset, where, linked) {
-    console.log("\n" + dataset + " at " + where + ": " + linked);
-    linked = typeof linked !== 'undefined' ? linked : false; // default to no link
-    console.log("post-default: " + linked);
-    var colorBoxDiv = "<div class=\"colorbox colorbox-" + where +
+function getColorBoxDiv(dataset, where) {
+    return "<div class=\"colorbox colorbox-" + where +
         " colorbox-" + dataset + "\"></div>";
+}
+
+function getStyledInitiativeLabel(dataset, where, linked) {
+    linked = typeof linked !== 'undefined' ? linked : false; // default to no link
+    var colorBoxDiv = getColorBoxDiv(dataset, where);
     var styledLabel = $("<span>");
     styledLabel.css("font-weight", "bold");
-    if (linked && data_obj[dataset].hasOwnProperty("initiativeURL")) {
+    if (linked && data_obj[dataset].hasOwnProperty("initiativeURL")
+            && data_obj[dataset]["initiativeURL"].length > 0) {
         var linkString = '<a href="' + data_obj[dataset]["initiativeURL"] + '" target="_blank">'
             + data_obj[dataset]["label"] + '</a>';
         styledLabel.html(linkString);
@@ -400,7 +426,6 @@ var defaultParams = {
     "base": "Open Street Map"
 };
 var queryParams = parseQueryParams();
-console.log(queryParams);
 for (var prop in defaultParams) {
     if (defaultParams.hasOwnProperty(prop)) {
         queryParams[prop] = typeof queryParams[prop] == 'undefined'
@@ -408,7 +433,6 @@ for (var prop in defaultParams) {
     }
 }
 window.location.queryParams = queryParams;
-console.log(window.location.queryParams);
 
 var reverseGeocodeServiceUrl = "//nominatim.openstreetmap.org/reverse?format=json&accept-language=us-en";
 var tftransport = L.tileLayer.provider("Thunderforest.Transport");
@@ -434,11 +458,6 @@ var map = L.map('map', {
     .fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
         [window.location.queryParams.NElat, window.location.queryParams.NElon]]);
 map.summaryOverlays = [];
-
-/*
- map.on("viewreset", function(e) { console.log("zoom: "+map.getZoom()+
- " | minZoom: "+map.getMinZoom()+" | maxZoom: "+map.getMaxZoom()); });
- */
 
 if (!window.location.queryParams.report) {
 // Create layers control and add base map to control
@@ -482,6 +501,45 @@ function setLayerControlHeight(e) {
     $("style#layercontrol").text(cssString);
 }
 
+// Add the print report button
+if (!window.location.queryParams.report) {
+    function spawnPrintView() {
+        var bounds = map.getBounds();
+        var SWlat = bounds.getSouthWest().lat;
+        var SWlon = bounds.getSouthWest().lng;
+        var NElat = bounds.getNorthEast().lat;
+        var NElon = bounds.getNorthEast().lng;
+        var activeBaseLayer;
+        for (var bl in base_layers) {
+            if (base_layers.hasOwnProperty(bl) && map.hasLayer(base_layers[bl])
+                && !base_layers[bl].overlay) {
+                activeBaseLayer = bl;
+            }
+        }
+        var activeOverlays = [];
+        for (var dataset in data_obj) {
+            if (data_obj.hasOwnProperty(dataset)
+                && data_obj[dataset].hasOwnProperty("layer_data")
+                && map.hasLayer(data_obj[dataset]["layer_data"])) {
+                activeOverlays.push(dataset);
+            }
+        }
+        var queryString = "report&SWlat="+SWlat+"&SWlon="+SWlon+"&NElat="+
+            NElat+"&NElon="+NElon+"&base="+activeBaseLayer+"&datasets="+
+            activeOverlays.join(",")
+        var url = encodeURI("print.html?" + queryString);
+        window.open(url, "_blank");
+    }
+
+    map.printButton = L.control({"position":"topright"});
+    map.printButton.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'printbutton-div');
+        var pb = '<button id="printbutton" class="fa fa-print" onclick="spawnPrintView()"></button>'
+        $(this._div).html(pb);
+        return this._div;
+    };
+    map.printButton.addTo(map);
+}
 
 // Add the display and legend for choropleth layers
 map.choroplethLegend = {};
@@ -502,7 +560,6 @@ function getChoroplethVariable (dataset, props) {
 }
 
 function createChoroplethTools(dataset) {
-    // console.log("Creating choroplethLegend["+dataset+"]");
     map.choroplethLegend[dataset] = L.control({"position":"bottomleft"});
     map.choroplethLegend[dataset].dataset = dataset;
     map.choroplethLegend[dataset].variable = function(p) {
@@ -551,13 +608,8 @@ function createChoroplethTools(dataset) {
         $(this._div).html("<strong>"+hoverMessage+"</strong>");
     };
     map.choroplethDisplay[dataset].update = function (e) {
-        //console.log("In map.choroplethDisplay["+dataset+"].update(e)...  e = ");
-        //console.log(e);
         var props = e.target.feature.properties;
-        //console.log(props);
         var cols = data_obj[dataset]["colors"];
-        //console.log(this.variable_label(props));
-        //console.log(this.variable(props));
         $(this._div).html("<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"+
             getColor(this.dataset, Math.round(this.variable(props)))+
             "; width: 100%; margin: 0 auto; padding: 0; height: 25px;\">"+
@@ -667,32 +719,79 @@ function getPolygonsForPoint(p) {
 }
 
 function getPolygonsForPointInDataset(p, dataset) {
-    var polygons = {};
+    var polygons = [];
     if (data_obj.hasOwnProperty(dataset)) {
         polygons = [];
         data_obj[dataset].layer_data.eachLayer( function(l) {
             result = leafletPip.pointInLayer(p, l);
-            //console.log(result);
             Array.prototype.push.apply(polygons, result);
         });
     }
     return polygons;
 }
 
-function getInitiativePopupSegment(dataset, polygons) {
-    var popupString = "<div class=\"popup-segment\">" + getStyledInitiativeLabel(dataset, "popup", true);
+function sortPolygonsByState(polygons) {
+    var partitions = {};
+    var state, props;
     for (var poly in polygons) {
         if (polygons.hasOwnProperty(poly)) {
-            popupString += "<p>" + polygons[poly].feature.properties.InitiativeTitle + "(" +
-                polygons[poly].feature.properties.LocationDisplay + ")</p>";
+            props = polygons[poly].feature.properties;
+            state = props.hasOwnProperty("state") ? props.state :
+                (props.hasOwnProperty("LocationDisplay") ?
+                    props.LocationDisplay.substring(props.LocationDisplay.length-3) : "ZZ");
+            if (!partitions.hasOwnProperty(state)) { partitions[state] = []; }
+            partitions[state].push(polygons[poly]);
         }
     }
-    popupString += "</div>";
+    var states = Object.keys(partitions).sort();
+    var result = [];
+    for (var k = 0; k < states.length; k++) {
+        state = states[k];
+        result = partitions[state].reduce( function(ary, i) {ary.push(i); return ary;}, result);
+    }
+    return result;
+}
+
+function getInitiativeSegment(dataset, polygons, where) {
+    var popupString = "<div class=\""+where+"-segment\">" + (where == "report" ? "<h2>" : "") +
+        getStyledInitiativeLabel(dataset, where, true) + (where == "report" ?
+            '</h2><div class="initiative-locations">' : "");
+    for (var poly in polygons) {
+        if (polygons.hasOwnProperty(poly)) {
+            var disp = polygons[poly].feature.properties.LocationDisplay;
+            var city = polygons[poly].feature.properties.hasOwnProperty("city") ?
+                polygons[poly].feature.properties.city : "";
+            var county = polygons[poly].feature.properties.hasOwnProperty("county") ?
+                polygons[poly].feature.properties.county : "";
+            var state = polygons[poly].feature.properties.hasOwnProperty("state") ?
+                polygons[poly].feature.properties.state : "";
+            var cityCountyState = (city.length > 0 ? city + ", " : "") +
+                (county.length > 0 ? county + ", " : "") + state;
+            var cityState = (city.length > 0 ? city + ", " : "") + state;
+            var countyState = (county.length > 0 ? county + ", " : "") + state;
+            if (disp == cityCountyState || disp == cityState || disp == countyState) {
+                popupString += "<p>" + disp + "</p>";
+            } else {
+                popupString += "<p>" + disp +
+                    (cityCountyState.length > 0 ? " (" + cityCountyState + ")" : "") +
+                    "</p>";
+            }
+        }
+    }
+    popupString += (where == "report" ? '</div>' : "") + "</div>";
     return popupString;
 }
 
-function getSummaryPopupSegment(dataset, polygons, numPolygons) {
-    var popupString = "<div class=\"popup-segment\">" + getStyledChoroplethLabel(dataset, "popup");
+function getInitiativePopupSegment(dataset, polygons) {
+    return getInitiativeSegment(dataset, polygons, "popup")
+}
+
+function getInitiativeReportSegment(dataset, polygons) {
+    return getInitiativeSegment(dataset, polygons, "report")
+}
+
+function getSummarySegment(dataset, polygons, numPolygons, where) {
+    var popupString = "<div class=\""+where+"-segment\">" + getStyledChoroplethLabel(dataset, where);
     for (var poly in polygons) {
         if (polygons.hasOwnProperty(poly)) {
             popupString += "<p><strong>" + numPolygons + "</strong> of " +
@@ -704,10 +803,40 @@ function getSummaryPopupSegment(dataset, polygons, numPolygons) {
     return popupString;
 }
 
+function getSummaryPopupSegment(dataset, polygons, numPolygons) {
+    return getSummarySegment(dataset, polygons, numPolygons, "popup");
+}
+
+function getSummaryReportSegment(dataset, polygons, numPolygons) {
+    return getSummarySegment(dataset, polygons, numPolygons, "report");
+}
+
+
+function getBaselineSegment(dataset, polygons, where) {
+    var popupString = "<div class=\""+where+"-segment\">" + getStyledChoroplethLabel(dataset, where);
+    for (var poly in polygons) {
+        if (polygons.hasOwnProperty(poly)) {
+            popupString += "<p><strong>" +
+                Math.round(getChoroplethVariable(dataset, polygons[poly].feature.properties)) +
+                "%</strong> " + getChoroplethVariableLabel(dataset, polygons[poly].feature.properties) +
+                "</p>";
+        }
+    }
+    popupString += "</div>";
+    return popupString;
+}
+
+function getBaselinePopupSegment(dataset, polygons) {
+    return getBaselineSegment(dataset, polygons, "popup");
+}
+
+function getBaselineReportSegment(dataset, polygons) {
+    return getBaselineSegment(dataset, polygons, "report");
+}
+
 function displayPopup(e) {
     if (!window.location.queryParams.report) {
         getReverseGeolocationPromise(e.latlng).done(function (data) {
-            console.log(data);
             var location_string = "";
             var city, county, state;
             if (data.hasOwnProperty("address")) {
@@ -775,10 +904,18 @@ function displayPopup(e) {
         for (var i = 0; i < numDatasets; i++) {
             var dataset = layerOrdering[i];
             if (polys.hasOwnProperty(dataset) && polys[dataset].length) {
-                if (data_obj[dataset].type !== "choropleth") {
-                    popupString += getInitiativePopupSegment(dataset, polys[dataset]);
-                } else {
-                    popupString += getSummaryPopupSegment(dataset, polys[dataset], numPolys);
+                switch (data_obj[dataset].category) {
+                    case "initiative":
+                        popupString += getInitiativePopupSegment(dataset, polys[dataset]);
+                        break;
+                    case "summary":
+                        popupString += getSummaryPopupSegment(dataset, polys[dataset], numPolys);
+                        break;
+                    case "baseline":
+                        popupString += getBaselinePopupSegment(dataset, polys[dataset]);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -787,5 +924,42 @@ function displayPopup(e) {
         }
         popup.setContent(popupString).openOn(map);
     }
+}
+
+function getPolygonsInBoundsForDatasets(datasets) {
+    var polygons = {};
+    var dataset;
+    for (var k = 0; k < datasets.length; k++) {
+        dataset = datasets[k];
+        if (data_obj.hasOwnProperty(dataset)) {
+            polygons[dataset] = getPolygonsInBoundsForDataset(dataset);
+        }
+    }
+    return polygons;
+}
+
+function getPolygonsWithinBounds(layer, result, depth) {
+    result = typeof result == 'undefined' ? [] : result;
+    depth = typeof depth == 'undefined' ? 0 : depth;
+    if (layer.hasOwnProperty("feature")) {
+        var mB = map.getBounds();
+        var lB = layer.getBounds();
+        if (mB.contains(lB) || mB.intersects(lB)) {
+            result.push(layer);
+        }
+    } else if (layer instanceof L.LayerGroup) {
+        layer.eachLayer(function(l) {
+            result.concat(getPolygonsWithinBounds(l, result, depth+1));
+        });
+    }
+    return result;
+}
+
+function getPolygonsInBoundsForDataset(dataset) {
+    var polygons = [];
+    if (data_obj.hasOwnProperty(dataset) && data_obj[dataset].hasOwnProperty("layer_data")) {
+        polygons = getPolygonsWithinBounds(data_obj[dataset].layer_data);
+    }
+    return polygons;
 }
 
