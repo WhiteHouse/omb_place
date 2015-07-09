@@ -256,6 +256,25 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     font-size: 18px;
 }
 
+/* Disclaimer control styles */
+.leaflet-control-disclaimer {
+    background-color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    padding: 0 5px;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+    margin-top: 2px;
+    color: #333;
+    width: 100%;
+}
+
+.leaflet-control-disclaimer .disclaimer-text {
+    font-size: 11px;
+    padding: 0 8px;
+    margin: 0;
+    text-align: center;
+}
+
 /* Browser version issues alert message */
 .browser-version-alert {
     background: white;

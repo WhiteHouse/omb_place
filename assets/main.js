@@ -445,19 +445,36 @@ var base_layers = {
     "Open Street Map": osm,
     "Stamen Watercolor": stamenwc
 };
+var attrib_tail = ' | powered by <a href="https://max.gov" target="_blank">MAX.gov</a>';
 for (bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
-    base_layers[bl].options.attribution += " | powered by <a href=\"https://max.gov\" target=\"_blank\">MAX.gov</a>";
+    base_layers[bl].options.attribution += attrib_tail;
 } }
 var map = L.map('map', {
         click: displayPopup,
         scrollWheelZoom: false,
-        zoomControl: false /*,
-        doubleClickZoom: false */ })
+        zoomControl: false,
+        attributionControl: false }) // add attribution control after adding disclaimer control below
     .setView([window.location.queryParams.centerLat, window.location.queryParams.centerLon],
         window.location.queryParams.zoom)
     .fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
         [window.location.queryParams.NElat, window.location.queryParams.NElon]]);
 map.summaryOverlays = [];
+
+// Add disclaimer control
+var disclaimer = '<p class="disclaimer-text">This map is an experimental and evolving '
+    + 'view of Federal place-based initiatives. Check back frequently for more data and new '
+    + 'features. Source code available (public domain) and feedback welcome at '
+    + '<a href="http://github.com/BFELoB/map" target="_blank">http://github.com/BFELoB/map</a>. '
+    + 'Last updated 7/9/2015.</p>';
+var disclaimerControl = L.control({position: "bottomright"});
+disclaimerControl.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'leaflet-control-disclaimer');
+    $(this._div).html(disclaimer);
+    return this._div;
+};
+disclaimerControl.addTo(map);
+// Add back attribution control
+L.control.attribution({position: "bottomright"}).addTo(map);
 
 if (!window.location.queryParams.report) {
 // Create layers control and add base map to control
