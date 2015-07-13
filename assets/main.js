@@ -250,6 +250,7 @@ function load_topojson_location_data (dataset) {
                     for (var k = 0; k < datasetsList.length; k++) {
                         datasetKey = datasetsList[k];
                         if (window.data_obj.hasOwnProperty(datasetKey) && polys[datasetKey].length) {
+                            /*
                             switch (window.data_obj[datasetKey].category) {
                                 case "summary":
                                     reportString += getSummaryReportSegment(datasetKey, sortPolygonsByState(polys[datasetKey]), numPolys);
@@ -259,6 +260,20 @@ function load_topojson_location_data (dataset) {
                                     break;
                                 case "initiative":
                                     reportString += getInitiativeReportSegment(datasetKey, sortPolygonsByState(polys[datasetKey]));
+                                    break;
+                                default:
+                                    break;
+                            }
+                            */
+                            switch (window.data_obj[datasetKey].category) {
+                                case "summary":
+                                    reportString += getSummaryReportSegment(datasetKey, polys[datasetKey], numPolys);
+                                    break;
+                                case "baseline":
+                                    reportString += getBaselineReportSegment(datasetKey, polys[datasetKey]);
+                                    break;
+                                case "initiative":
+                                    reportString += getInitiativeReportSegment(datasetKey, polys[datasetKey]);
                                     break;
                                 default:
                                     break;
@@ -335,7 +350,7 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure, 
         .css("border-width","0px")
         .css("padding","0")
         .css("line-height", "0")
-        .css("vertical-align","bottom");
+        .css("vertical-align","middle");
     colors.forEach(function (col) {
         aDiv = $("<div></div>")
             .css("background-color", col)
@@ -344,7 +359,7 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure, 
             .css("height", "100%")
             .css("margin", "0")
             .css("padding", "0")
-            .css("vertical-align","bottom")
+            .css("vertical-align","middle")
             .width((100 / colors.length).toString()+"%");
         gradientBox.prepend(aDiv);
     });
@@ -846,7 +861,10 @@ function getInitiativeReportSegment(dataset, polygons) {
 }
 
 function getSummarySegment(dataset, polygons, numPolygons, where) {
-    var popupString = "<div class=\""+where+"-segment\">" + getStyledChoroplethLabel(dataset, where);
+    var popupString = "<div class=\""+where+"-segment\">" +
+        (where == "report" ? "<h2>" : "") +
+        getStyledChoroplethLabel(dataset, where) +
+        (where == "report" ? '</h2><div class="initiative-locations">' : "");
     for (var poly in polygons) {
         if (polygons.hasOwnProperty(poly)) {
             popupString += "<p><strong>" + numPolygons + "</strong> of " +
@@ -854,6 +872,7 @@ function getSummarySegment(dataset, polygons, numPolygons, where) {
                 getChoroplethVariableLabel(dataset, polygons[poly].feature.properties) + "</p>";
         }
     }
+    popupString += (where == "report" ? '</div>' : "");
     popupString += "</div>";
     return popupString;
 }
@@ -899,7 +918,9 @@ function getBaselineSegment(dataset, polygons, where) {
         }
         popupString += (where == "report" ? '</div>' : "");
     } else if (data_obj[dataset].type = "choropleth") {
-        popupString += getStyledChoroplethLabel(dataset, where);
+        popupString += (where == "report" ? "<h2>" : "") +
+            getStyledChoroplethLabel(dataset, where) +
+            (where == "report" ? '</h2><div class="initiative-locations">' : "");
         for (poly in polygons) {
             if (polygons.hasOwnProperty(poly)) {
                 popupString += "<p><strong>" +
@@ -908,6 +929,7 @@ function getBaselineSegment(dataset, polygons, where) {
                     "</p>";
             }
         }
+        popupString += (where == "report" ? '</div>' : "");
     }
     popupString += "</div>";
     return popupString;
@@ -1030,9 +1052,17 @@ function getPolygonsWithinBounds(layer, result, depth) {
     depth = typeof depth == 'undefined' ? 0 : depth;
     if (layer.hasOwnProperty("feature")) {
         var mB = map.getBounds();
-        var lB = layer.getBounds();
-        if (mB.contains(lB) || mB.intersects(lB)) {
-            result.push(layer);
+        var lB;
+        if (layer.feature.geometry.type === "Point") {
+            lB = layer._latlng;
+            if (mB.contains(lB)) {
+                result.push(layer);
+            }
+        } else {
+            lB = layer.getBounds();
+            if (mB.contains(lB) || mB.intersects(lB)) {
+                result.push(layer);
+            }
         }
     } else if (layer instanceof L.LayerGroup) {
         layer.eachLayer(function(l) {
