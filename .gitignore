@@ -3,3 +3,12 @@
 
 /* licensed fonts */
 assets/fonts/wh-fonts.css
+
+/* build and distribution files */
+dist
+dist/*
+buildtools
+buildtools/*
+assets/inline_code.js
+inline_code.js
+compile_js.py
