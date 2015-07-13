@@ -59,7 +59,7 @@ function load_map_data (data_format) {
         numDatasets = datasetCount();
         layerOrdering = [];
         for (var k in data_obj) {
-            if (data_obj.hasOwnProperty(k)) {
+            if (data_obj.hasOwnProperty(k) && data_obj[k].hasOwnProperty("layerOrder")) {
                 layerOrdering[parseInt(data_obj[k]["layerOrder"],10)-1] = k;
             }
         }
@@ -130,6 +130,17 @@ function load_topojson_location_data (dataset) {
         $.getJSON(data_obj[dataset]["topojson"], function(data) {
             var layerGroup = L.featureGroup();
             var newLayer = new L.TopoJSON();
+            /*
+            newLayer.options.pointToLayer = function(feature, latlng) {
+                    var smallIcon = L.Icon.Default.extend({
+                        options: {
+                            'iconSize': [10, 10]
+                        }
+                    });
+                    var myIcon = new smallIcon();
+                    return L.marker(latlng, {icon: smallIcon});
+                };
+            */
             newLayer.addData(data);
             if (data_obj[dataset]["type"] === "regions") {
                 newLayer.setStyle(data_obj[dataset]["style"]);
@@ -342,11 +353,16 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure, 
 }
 
 function getStyledChoroplethLabel(dataset, where) {
-    var gradientBox = getChoroplethGradientBox(40, "px", 10, "px", data_obj[dataset]["colors"], where);
     var styledLabel = $("<span>");
     styledLabel.css("font-weight", "bold");
     styledLabel.text(data_obj[dataset]["label"]);
-    return gradientBox + styledLabel.prop("outerHTML");
+    if (data_obj.hasOwnProperty(dataset) && data_obj[dataset].hasOwnProperty("colors")) {
+        var gradientBox = getChoroplethGradientBox(40, "px", 10, "px", data_obj[dataset]["colors"], where);
+        return gradientBox + styledLabel.prop("outerHTML");
+    } else {
+        console.log("Couldn't create gradient box for dataset "+dataset+" -- no colors provided");
+        return styledLabel.prop("outerHTML");
+    }
 }
 
 function hexToRgb(hex) {
@@ -830,13 +846,45 @@ function getSummaryReportSegment(dataset, polygons, numPolygons) {
 
 
 function getBaselineSegment(dataset, polygons, where) {
-    var popupString = "<div class=\""+where+"-segment\">" + getStyledChoroplethLabel(dataset, where);
-    for (var poly in polygons) {
-        if (polygons.hasOwnProperty(poly)) {
-            popupString += "<p><strong>" +
-                Math.round(getChoroplethVariable(dataset, polygons[poly].feature.properties)) +
-                "%</strong> " + getChoroplethVariableLabel(dataset, polygons[poly].feature.properties) +
-                "</p>";
+    var popupString = "<div class=\""+where+"-segment\">";
+    var poly;
+    if (data_obj[dataset].type == "regions") {
+        popupString += (where == "report" ? "<h2>" : "") +
+            getStyledInitiativeLabel(dataset, where, true) +
+            (where == "report" ? '</h2><div class="initiative-locations">' : "");
+        for (poly in polygons) {
+            if (polygons.hasOwnProperty(poly)) {
+                popupString += "<p>";
+                var disp = polygons[poly].feature.properties.LocationDisplay;
+                var city = polygons[poly].feature.properties.hasOwnProperty("city") ?
+                    polygons[poly].feature.properties.city : "";
+                var county = polygons[poly].feature.properties.hasOwnProperty("county") ?
+                    polygons[poly].feature.properties.county : "";
+                var state = polygons[poly].feature.properties.hasOwnProperty("state") ?
+                    polygons[poly].feature.properties.state : "";
+                var cityCountyState = (city.length > 0 ? city + ", " : "") +
+                    (county.length > 0 ? county + ", " : "") + state;
+                var cityState = (city.length > 0 ? city + ", " : "") + state;
+                var countyState = (county.length > 0 ? county + ", " : "") + state;
+                if (disp == cityCountyState || disp == cityState || disp == countyState) {
+                    popupString += disp + "</p>";
+                } else {
+                    popupString += disp +
+                        (cityCountyState.length > 0 ? " (" + cityCountyState + ")" : "") +
+                        "</p>";
+                }
+            }
+        }
+        popupString += (where == "report" ? '</div>' : "");
+    } else if (data_obj[dataset].type = "choropleth") {
+        popupString += getStyledChoroplethLabel(dataset, where);
+        for (poly in polygons) {
+            if (polygons.hasOwnProperty(poly)) {
+                popupString += "<p><strong>" +
+                    Math.round(getChoroplethVariable(dataset, polygons[poly].feature.properties)) +
+                    "%</strong> " + getChoroplethVariableLabel(dataset, polygons[poly].feature.properties) +
+                    "</p>";
+            }
         }
     }
     popupString += "</div>";
