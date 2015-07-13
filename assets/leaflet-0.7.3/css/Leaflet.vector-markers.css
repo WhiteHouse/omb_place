@@ -1,0 +1,82 @@
+/*
+Author: Mathias Schneider
+License: MIT
+Version: 1.0
+*/
+/* Marker setup */
+.vector-marker {
+  /*
+  width: 35px;
+  height: 46px;
+  */
+  width: 15px;
+  height: 28px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  text-align: center;
+}
+.vector-marker path {
+  stroke: black;
+  stroke-opacity: 0.4;
+  stroke-width: 1;
+}
+.vector-marker.not-accepted {
+  opacity: 0.5;
+}
+
+.vector-marker-shadow {
+  background: url("images/shadow.png") no-repeat 0 0;
+  /*
+  width: 36px;
+  height: 16px;
+  */
+  width: 12px;
+  height: 6px;
+  display: none;
+}
+
+/* Retina displays */
+@media (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3 / 2), (-webkit-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx) {
+  .vector-marker {
+    /*
+    background-size: 720px 46px;
+    */
+    background-size: 720px 28px;
+  }
+
+  .vector-marker-shadow {
+    background-image: url("images/shadow@2x.png");
+    /*
+    background-size: 54px 51px;
+    */
+    background-size: 26px 31px;
+    display: none;
+  }
+}
+.vector-marker i {
+  position: absolute;
+  left: 0;
+  /*
+  top: 8px;
+  width: 32px;
+  font-size: 14px;
+  */
+  top: 4px;
+  width: 14px;
+  font-size: 6px;
+  color: #333;
+  margin: auto;
+  display: inline-block;
+}
+
+.vector-marker i.maki-icon {
+  width: 24px;
+  left: 4px;
+  top: 4px;
+}
+
+.vector-marker .icon-white {
+  color: #fff;
+}

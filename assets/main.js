@@ -130,19 +130,18 @@ function load_topojson_location_data (dataset) {
         $.getJSON(data_obj[dataset]["topojson"], function(data) {
             var layerGroup = L.featureGroup();
             var newLayer = new L.TopoJSON();
-            /*
-            newLayer.options.pointToLayer = function(feature, latlng) {
-                    var smallIcon = L.Icon.Default.extend({
-                        options: {
-                            'iconSize': [10, 10]
-                        }
+            if (data_obj[dataset]["type"] === "regions" || data_obj[dataset]["type"] === "points") {
+                newLayer.setStyle(data_obj[dataset]["style"]);
+                newLayer.options.pointToLayer = function(feature, latlng) {
+                    var smallIcon = L.VectorMarkers.icon({
+                        icon: 'circle',
+                        markerColor: data_obj[dataset]["style"]["color"]
                     });
-                    var myIcon = new smallIcon();
                     return L.marker(latlng, {icon: smallIcon});
                 };
-            */
+            }
             newLayer.addData(data);
-            if (data_obj[dataset]["type"] === "regions") {
+            if (data_obj[dataset]["type"] === "regions" || data_obj[dataset]["type"] === "points") {
                 newLayer.setStyle(data_obj[dataset]["style"]);
                 newLayer.on("mouseover", function(e) {
                     var targets = {};
@@ -755,12 +754,35 @@ function getPolygonsForPointInDataset(p, dataset) {
     var polygons = [];
     if (data_obj.hasOwnProperty(dataset)) {
         polygons = [];
-        data_obj[dataset].layer_data.eachLayer( function(l) {
-            result = leafletPip.pointInLayer(p, l);
-            Array.prototype.push.apply(polygons, result);
-        });
+        if (data_obj[dataset].type !== 'points') {
+            data_obj[dataset].layer_data.eachLayer( function(l) {
+                result = leafletPip.pointInLayer(p, l);
+                Array.prototype.push.apply(polygons, result);
+            });
+        } else {
+            data_obj[dataset].layer_data.eachLayer( function(l) {
+                result = getMarkersForPointInLayer(p, l);
+                Array.prototype.push.apply(polygons, result);
+            });
+        }
     }
     return polygons;
+}
+
+function getMarkersForPointInLayer(p, layer, result, depth) {
+    result = typeof result == 'undefined' ? [] : result;
+    depth = typeof depth == 'undefined' ? 0 : depth;
+    if (layer.hasOwnProperty("feature") && layer.feature.geometry.type === "Point") {
+        var lll = layer._latlng;
+        if (p == lll) {
+            result.push(layer);
+        }
+    } else if (layer instanceof L.LayerGroup) {
+        layer.eachLayer(function(l) {
+            result.concat(getMarkersForPointInLayer(p, l, result, depth+1));
+        });
+    }
+    return result;
 }
 
 function sortPolygonsByState(polygons) {
@@ -848,7 +870,7 @@ function getSummaryReportSegment(dataset, polygons, numPolygons) {
 function getBaselineSegment(dataset, polygons, where) {
     var popupString = "<div class=\""+where+"-segment\">";
     var poly;
-    if (data_obj[dataset].type == "regions") {
+    if (data_obj[dataset].type == "regions" || data_obj[dataset].type === "points") {
         popupString += (where == "report" ? "<h2>" : "") +
             getStyledInitiativeLabel(dataset, where, true) +
             (where == "report" ? '</h2><div class="initiative-locations">' : "");
