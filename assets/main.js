@@ -247,9 +247,17 @@ function getColor(dataset, d) {
  */
 function createColorBoxCSS(dataset) {
     var rgb_color = hexToRgb(data_obj[dataset].style.color);
-    var cssString = ".colorbox-" + dataset + " { background-color: rgba("
-        + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
-        + data_obj[dataset]["style"]["fillOpacity"] + "); border-color: rgba("
+    var cssString = ".colorbox-" + dataset;
+    if (window.location.queryParams.report) {
+        cssString += " { box-shadow: inset 0 0 0 1000px rgba("
+            + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
+            + data_obj[dataset]["style"]["fillOpacity"] + "); ";
+    } else {
+        cssString += " { background-color: rgba("
+            + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
+            + data_obj[dataset]["style"]["fillOpacity"] + "); ";
+    }
+    cssString += "border-color: rgba("
         + rgb_color.r + "," + rgb_color.g + "," + rgb_color.b + ","
         + data_obj[dataset]["style"]["opacity"] + "); }";
     $("style#colorboxes").append(cssString);
@@ -346,7 +354,6 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure, 
         .css("vertical-align","middle");
     colors.forEach(function (col) {
         aDiv = $("<div></div>")
-            .css("background-color", col)
             .css("border-width", "0px")
             .css("display", "inline-block")
             .css("height", "100%")
@@ -354,6 +361,11 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure, 
             .css("padding", "0")
             .css("vertical-align","middle")
             .width((100 / colors.length).toString()+"%");
+        if (window.location.queryParams.report) {
+            aDiv.css("box-shadow","inset 0 0 0 1000px "+col);
+        } else {
+            aDiv.css("background-color", col);
+        }
         gradientBox.prepend(aDiv);
     });
     return gradientBox.prop("outerHTML");
