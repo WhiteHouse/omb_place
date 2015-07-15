@@ -491,11 +491,11 @@ var map = L.map('map', {
 map.summaryOverlays = [];
 
 // Add disclaimer control
-var disclaimer = '<p class="disclaimer-text">This map is an experimental and evolving '
-    + 'view of Federal place-based initiatives. Check back frequently for more data and new '
+var disclaimer = '<p class="disclaimer-text">This map is an experimental '
+    + 'view of Federal place-based initiatives. Check back for more data and '
     + 'features. Source code available (public domain) and feedback welcome at '
     + '<a href="http://github.com/BFELoB/map" target="_blank">http://github.com/BFELoB/map</a>. '
-    + 'Last updated 7/9/2015.</p>';
+    + 'Last updated 7/14/2015.</p>';
 var disclaimerControl = L.control({position: "bottomright"});
 disclaimerControl.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'leaflet-control-disclaimer');
