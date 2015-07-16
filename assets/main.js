@@ -1027,7 +1027,10 @@ var disclaimer = '<p class="disclaimer-text">This map is an experimental '
     + 'view of Federal place-based initiatives. Check back for more data and '
     + 'features. Source code available (public domain) and feedback welcome at '
     + '<a href="http://github.com/BFELoB/map" target="_blank">http://github.com/BFELoB/map</a>. '
-    + 'Last updated 7/14/2015.</p>';
+    + 'Last updated 7/16/2015.</p><p class="disclaimer-text">Layer Credits: '
+    + 'Absolute Upward Mobility. Raj Chetty, Nathaniel Hendren and Lawrence Katz. More '
+    + 'information at: <a href="http://www.equality-of-opportunity.org/" target="_blank">'
+    + 'http://www.equality-of-opportunity.org/</a>.</p>';
 var disclaimerControl = L.control({position: "bottomright"});
 disclaimerControl.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'leaflet-control-disclaimer');
