@@ -8,6 +8,9 @@ html, body, #map {
 a {
     text-decoration: none;
 }
+img#logo {
+    height: 85px;
+}
 
 /* Colorboxes */
 .colorbox {
@@ -254,6 +257,15 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     margin: 1px;
     padding: 0;
     font-size: 18px;
+}
+
+/* GeoSearch Input Box */
+.leaflet-container .leaflet-control-geosearch {
+    max-width: 80%;
+    margin: 10px 10% 0;
+}
+.leaflet-top.leaflet-center {
+    margin: 10px auto 0;
 }
 
 /* Disclaimer control styles */

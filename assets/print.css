@@ -9,11 +9,19 @@ body {
     margin: 0 auto;
     padding: 0;
 }
+header {
+    width: 100%;
+}
 h1 {
     text-align: center;
     font-size: 24px;
     font-family: 'Hoefler Text A', 'Hoefler Text B', Georgia, 'Times New Roman', 'DejaVu Serif', serif;
     margin-bottom: 30px;
+}
+img#logo {
+    height: 90px;
+    display: block;
+    margin: 0 auto;
 }
 #map {
     width: 100%;

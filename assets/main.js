@@ -967,15 +967,15 @@ function load_geojson_location_data (dataset) {
  */
 // Set defaults for query parameters
 var defaultParams = {
-    "zoom": 5,
-    "centerLat": 39.363415,
-    "centerLon": -95.999397,
-    "NElat": 51.80861475198521,
-    "NElon": -63.94042968749999,
-    "SWlat": 24.246964554300938,
-    "SWlon": -128.1005859375,
+    "zoom": 3,
+    "centerLat": 44.87144275016589,
+    "centerLon": -105.2490234375,
+    "NElat": 67.57571741708057,
+    "NElon": -34.365234375,
+    "SWlat": 7.885147283424331,
+    "SWlon": -176.1328125,
     "report": false,
-    "base": "Open Street Map"
+    "base": "Thunderforest Transport"
 };
 // Get and parse query parameters
 var queryParams = parseQueryParams();
@@ -1138,8 +1138,16 @@ map.on("overlayremove", function(e) {
     }
 });
 
-// Add zoom, pan, scale and reset controls to the top left of map
+// Add logo, zoom, pan, scale and reset controls to the top left of map
 if (!window.location.queryParams.report) {
+    map.logo = L.control({"position":"topleft"});
+    map.logo.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'logo-div');
+        var theLogo = '<img id="logo" src="assets/images/seal0.png" alt="The White House logo" aria-role="logo"/>';
+        $(this._div).html(theLogo);
+        return this._div;
+    };
+    map.logo.addTo(map);
     new L.Control.zoomHome({
         zoomHomeTitle: "Reset map view",
         homeCoordinates: [39.363415, -95.999397],

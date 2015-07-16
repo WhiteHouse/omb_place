@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Clean up dist directory if exists
-rm -rf ../dist
+rm -rf ../dist/*
 
 # Create dist directory
 mkdir ../dist
@@ -23,6 +23,7 @@ ln -fhs ../data ../dist/data
 
 # Copy image and font assets
 cp -r ../assets/leaflet-0.7.3/css/images ../dist/assets/
+cp -r ../assets/images/* ../dist/assets/images/
 cp -r ../assets/fonts ../dist/assets/
 
 # Modify html JS and CSS references?
