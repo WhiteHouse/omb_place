@@ -15,7 +15,8 @@ mkdir ../dist/assets/images
 ./optimize-css.sh
 
 # Copy HTML files
-cp ../*.html ../dist/
+cp ../index-minified.html ../dist/index.html
+cp ../print-minified.html ../dist/print.html
 
 # Link data directory
 ln -fhs ../data ../dist/data
