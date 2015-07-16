@@ -88,6 +88,7 @@ function getPolygonsForPointInDataset(p, dataset) {
     var polygons = [];
     if (data_obj.hasOwnProperty(dataset)) {
         polygons = [];
+        var result;
         if (data_obj[dataset].type !== 'points') {
             data_obj[dataset].layer_data.eachLayer( function(l) {
                 result = leafletPip.pointInLayer(p, l);
@@ -232,8 +233,8 @@ function getColor(dataset, d) {
             cmap["default"] = col[i];
         }
     }
-    sorted_thr = thr.sort( function(a,b) { return b-a; } );
-    for (var t in sorted_thr) {
+    var sorted_thr = thr.sort( function(a,b) { return b-a; } );
+    for (var t = 0; t < sorted_thr.length; t++) {
         if (d > sorted_thr[t]) {
             var k = sorted_thr[t].toString();
             if (cmap.hasOwnProperty(k)) { return cmap[k]; }
@@ -598,7 +599,9 @@ function addAllLayers() {
 
 function removeAllLayers() {
     for (var k in data_obj) {
-        map.removeLayer(data_obj[k]["layer_data"]);
+        if (data_obj.hasOwnProperty(k)) {
+            map.removeLayer(data_obj[k]["layer_data"]);
+        }
     }
 }
 
@@ -671,7 +674,7 @@ function createChoroplethTools(dataset) {
         var legendString = "<strong>Legend: "+data_obj[this.dataset]["label"]+"</strong>";
         var colors = data_obj[this.dataset]["colors"];
         var thresholds = data_obj[this.dataset]["thresholds"];
-        for (var i in thresholds) {
+        for (var i = 0; i < thresholds.length; i++) {
             if (i == 0) {
                 legendString += "<div><div class=\"colorbox colorbox-popup\" style=\"background-color:"
                     +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
@@ -1000,7 +1003,7 @@ var base_layers = {
 
 // Set attribution data for base layers
 var attrib_tail = ' | powered by <a href="https://max.gov" target="_blank">MAX.gov</a>';
-for (bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
+for (var bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
     base_layers[bl].options.attribution += attrib_tail;
 } }
 
@@ -1090,7 +1093,7 @@ if (!window.location.queryParams.report) {
         }
         var queryString = "report&SWlat="+SWlat+"&SWlon="+SWlon+"&NElat="+
             NElat+"&NElon="+NElon+"&base="+activeBaseLayer+"&datasets="+
-            activeOverlays.join(",")
+            activeOverlays.join(",");
         var url = encodeURI("print.html?" + queryString);
         window.open(url, "_blank");
     }
@@ -1098,7 +1101,7 @@ if (!window.location.queryParams.report) {
     map.printButton = L.control({"position":"topright"});
     map.printButton.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'printbutton-div');
-        var pb = '<button id="printbutton" class="fa fa-print" onclick="spawnPrintView()"></button>'
+        var pb = '<button id="printbutton" class="fa fa-print" onclick="spawnPrintView()"></button>';
         $(this._div).html(pb);
         return this._div;
     };
