@@ -723,6 +723,9 @@ function togglePinLayerControl(e) {
         $(".leaflet-control-layers-pin-button").addClass("pinned");
     }
     layerControlPinned = !layerControlPinned;
+    var input_field = $("#pin-toggle-input");
+    input_field.checked = layerControlPinned;
+    input_field.prop("aria-checked",layerControlPinned.toString());
 }
 
 function getChoroplethVariableLabel (dataset, props) {
@@ -1192,7 +1195,7 @@ if (!window.location.queryParams.report) {
     overlay_groups[getLayerCategoryLabel("initiative")] = {};
     overlay_groups[getLayerCategoryLabel("baseline")] = {};
     layerControl = L.control.groupedLayers(
-        base_layers, overlay_groups, { exclusiveGroups: [], collapsed: false });
+        base_layers, overlay_groups, { exclusiveGroups: [] });
     layerControl.addTo(map);
     // For accessibility
     $("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
@@ -1204,8 +1207,10 @@ if (!window.location.queryParams.report) {
     var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
     var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
     buttonsDiv.html(selectAllButton+unselectAllButton);
-    var pinButton = $("<button></button>").addClass("leaflet-control-layers-pin-button")
-        .html('<span class="fa fa-thumb-tack"></span>Pin');
+    var pinButton = $("<div></div>").prop("id","ck-button")
+        .addClass("leaflet-control-layers-pin-button")
+        .html('<label><input id="pin-toggle-input" type="checkbox" checked aria-checked="true"/>'
+            + '<span class="fa fa-thumb-tack"></span>Pin</label>');
     pinButton.on("click", togglePinLayerControl)
         .on("keyDown", togglePinLayerControl)
         .on("touchstart", togglePinLayerControl);
