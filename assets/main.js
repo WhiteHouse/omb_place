@@ -1143,7 +1143,8 @@ if (!window.location.queryParams.report) {
     map.logo = L.control({"position":"topleft"});
     map.logo.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'logo-div');
-        var theLogo = '<img id="logo" src="assets/images/seal0.png" alt="The White House logo" aria-role="logo"/>';
+        var theLogo = '<a href="//whitehouse.gov"><img id="logo" src="assets/images/seal0.png" '
+            + 'alt="Go to The White House homepage" aria-role="logo"/></a>';
         $(this._div).html(theLogo);
         return this._div;
     };
