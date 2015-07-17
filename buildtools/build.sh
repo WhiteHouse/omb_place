@@ -14,9 +14,10 @@ mkdir ../dist/assets/images
 # Minify/Optimize CSS
 ./optimize-css.sh
 
-# Copy HTML files
+# Copy HTML files + favicon
 cp ../index-minified.html ../dist/index.html
 cp ../print-minified.html ../dist/print.html
+cp ../favicon.ico ../dist/
 
 # Link data directory
 ln -fhs ../data ../dist/data
