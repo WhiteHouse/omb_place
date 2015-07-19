@@ -32,9 +32,15 @@ cat ../assets/font-awesome-4.2.0/font-awesome.min.css ../assets/leaflet-0.7.3/cs
 cleancss -d --source-map ../dist/assets/print.ie8.opt.css -o ../dist/assets/print.ie8.min.css
 #gzip -9 -c ../dist/assets/print.ie8.min.css > ../dist/assets/print.ie8.min.css.gz
 
+# Datasets Credits - Modern Browsers
+echo -e "\033[1m\033[36mOptimizing datasets credits stylesheets for modern browsers: dist/assets/datasets_credits.min.css (dist/assets/datasets_credits.min.css.gz)\033[0m\033[0m"
+cat ../assets/font-awesome-4.2.0/font-awesome.min.css ../assets/fonts/wh-fonts.css ../assets/print.css | enhancecss --force-embed -o ../dist/assets/datasets_credits.opt.css --root ../
+cleancss -d --source-map ../dist/assets/datasets_credits.opt.css -o ../dist/assets/datasets_credits.min.css
+#gzip -9 -c ../dist/assets/datasets_credits.min.css > ../dist/assets/datasets_credits.min.css.gz
+
 # Fix file paths for fonts
 perl -pi -e 's/url\(\.\.\/fonts\/fontawesome/url\(fonts\/fontawesome/g' ../dist/assets/main.min.css
 perl -pi -e 's/url\(\.\.\/fonts\/fontawesome/url\(fonts\/fontawesome/g' ../dist/assets/main.ie8.min.css
 perl -pi -e 's/url\(\.\.\/fonts\/fontawesome/url\(fonts\/fontawesome/g' ../dist/assets/print.min.css
 perl -pi -e 's/url\(\.\.\/fonts\/fontawesome/url\(fonts\/fontawesome/g' ../dist/assets/print.ie8.min.css
-	
+perl -pi -e 's/url\(\.\.\/fonts\/fontawesome/url\(fonts\/fontawesome/g' ../dist/assets/datasets_credits.min.css

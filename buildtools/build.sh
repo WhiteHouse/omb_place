@@ -17,6 +17,7 @@ mkdir ../dist/assets/images
 # Copy HTML files + favicon
 cp ../index-minified.html ../dist/index.html
 cp ../print-minified.html ../dist/print.html
+cp ../datasets-minified.html ../dist/datasets.html
 cp ../favicon.ico ../dist/
 
 # Link data directory

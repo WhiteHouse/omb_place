@@ -5,7 +5,7 @@ body {
     font-family: 'Whitney SSm A', 'Whitney SSm B', HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans L', sans-serif;
 }
 #content {
-    width: 6.5in;
+    width: 7.5in;
     margin: 0 auto;
     padding: 0;
 }
@@ -31,11 +31,20 @@ img#logo {
 #initiatives {
     width: 100%;
 }
+#initiatives h2 {
+    margin-top: 36px;
+}
 #initiatives h2 span, #initiatives h2 span>a {
     font-size: 20px;
     margin-bottom: 12px;
     margin-top: 36px;
-    font-family: 'Hoefler Text A', 'Hoefler Text B', Georgia, 'Times New Roman', 'DejaVu Serif', serif;;
+    font-family: 'Hoefler Text A', 'Hoefler Text B', Georgia, 'Times New Roman', 'DejaVu Serif', serif;
+}
+#initiatives h3 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    margin-top: 12px;
+    font-family: 'Hoefler Text A', 'Hoefler Text B', Georgia, 'Times New Roman', 'DejaVu Serif', serif;
 }
 #initiatives .report-segment p {
     font-size: 14px;
