@@ -182,7 +182,7 @@ function getDatasetDownloadLinks(dataset) {
 }
 
 function displayDataCredits(dataset) {
-    var dataset_string = "";
+    var dataset_string = '<a name="'+dataset.slug+'"></a>';
     if (dataset.hasOwnProperty("type") && dataset.type === "choropleth") {
         dataset_string += "<h2>" + getStyledChoroplethLabel(dataset, "report") + "</h2>";
     }
@@ -219,4 +219,12 @@ $.getJSON('data/datasets.json').done(function(datasets) {
 }).fail(function(e) {
     console.log("Error retrieving datasets catalog.  Please reload and try again.");
     console.log(e);
+});
+
+$(window).on("load", function() {
+    var hash_target = window.location.hash.substring(1);
+    if (hash_target) {
+        var el = $('a[name="'+hash_target+'"]');
+        if (el) { $(document).scrollTop(el.offset().top); }
+    }
 });
