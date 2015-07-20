@@ -41,6 +41,26 @@ function parseQueryParams() {
 }
 
 /********************************
+ * Generic helpers
+ */
+function toObject(keys, values) {
+    var result = {};
+    for (var i = 0; i < keys.length; i++) {
+        if (result.hasOwnProperty(keys[i])) {
+            if (result[keys[i]] instanceof Array) {
+                result[keys[i]].append(values[i]);
+            } else {
+                result[keys[i]] = [result[keys[i]], values[i]];
+            }
+        } else {
+            result[keys[i]] = values[i];
+
+        }
+    }
+    return result;
+}
+
+/********************************
  * Dataset information helpers
  */
 function isRequestedDataset(dataset) {
@@ -174,37 +194,73 @@ function getPolygonsInBoundsForDataset(dataset) {
 /********************************
  * Polygon counting/sorting functions
  */
-function countPolygonInitiatives(polys) {
+function countPolygonInitiatives(polys, by) {
     return Object.keys(polys).map(function (dataset) {
         if (polys.hasOwnProperty(dataset) && data_obj[dataset].category === "initiative") {
+            /* if (by === "state") {
+                var obj = toObject(map(getState, polys[dataset]), polys[dataset]);
+                var byState = {};
+                Object.keys(obj).forEach(function (state) {
+                    return byState[state] = obj[state].length;
+                });
+                return byState;
+            } */
             return polys[dataset].length;
         }
         return 0;
     }).reduce(function (prev, curr) {
+        /* if (by === "state") {
+            Object.keys(prev).forEach(function (state) {
+                prev[state] = prev[state] + curr[state];
+            });
+            return prev;
+        } */
         return prev + curr;
     });
 }
 
+function getState(polygon) {
+    var state = "";
+    if (polygon.hasOwnProperty("feature") && polygon.feature.hasOwnProperty("properties")) {
+        var props = polygon.feature.properties;
+        state = props.hasOwnProperty("state") ? props.state :
+            (props.hasOwnProperty("LocationDisplay") ?
+                props.LocationDisplay.substring(props.LocationDisplay.length - 3) : "ZZ");
+    }
+    return state;
+}
+
 function sortPolygonsByState(polygons) {
     var partitions = {};
-    var state, props;
+    var state;
     for (var poly in polygons) {
         if (polygons.hasOwnProperty(poly)) {
-            props = polygons[poly].feature.properties;
-            state = props.hasOwnProperty("state") ? props.state :
-                (props.hasOwnProperty("LocationDisplay") ?
-                    props.LocationDisplay.substring(props.LocationDisplay.length-3) : "ZZ");
+            state = getState(polygons[poly]);
             if (!partitions.hasOwnProperty(state)) { partitions[state] = []; }
             partitions[state].push(polygons[poly]);
         }
     }
+    var counts = Object.keys(partitions).reduce(function(previous, current) {
+        previous[current] = partitions[current].length;
+        return previous;
+    }, {});
+    //console.log(partitions);
+    //console.log(counts);
     var states = Object.keys(partitions).sort();
+    console.log(states);
     var result = [];
     for (var k = 0; k < states.length; k++) {
         state = states[k];
+        partitions[state] = partitions[state].sort(function(p1, p2) {
+            var p1l = p1.feature.properties.LocationDisplay;
+            var p2l = p2.feature.properties.LocationDisplay;
+            if (p1l > p2l) return 1;
+            if (p2l > p1l) return -1;
+            return 0;
+        });
         result = partitions[state].reduce( function(ary, i) {ary.push(i); return ary;}, result);
     }
-    return result;
+    return { countsByState: counts, sortedPolygons: result };
 }
 
 /********************************
@@ -398,13 +454,17 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure,
  * Summary display functions
  */
 function getSummarySegment(dataset, polygons, numPolygons, where) {
+    var polysAndCounts = sortPolygonsByState(polygons);
+    var polys = polysAndCounts.sortedPolygons;
+    console.log(polysAndCounts.countsByState);
     var popupString = "<div class=\""+where+"-segment\">" +
         (where == "report" ? "<h2>" : "") +
         getStyledChoroplethLabel(dataset, where) +
         (where == "report" ? '</h2><div class="initiative-locations">' : "");
-    for (var poly in polygons) {
-        if (polygons.hasOwnProperty(poly)) {
-            popupString += "<p><strong>" + numPolygons + "</strong> of " +
+    for (var poly in polys) {
+        if (polys.hasOwnProperty(poly)) {
+            popupString += "<p><strong>" + (where !== "report" ? numPolygons :
+                polysAndCounts.countsByState[getState(polys[poly])]) + "</strong> of " +
                 Math.round(getChoroplethVariable(dataset, polygons[poly].feature.properties))
                 + " programs in " +
                 getChoroplethVariableLabel(dataset, polygons[poly].feature.properties) + "</p>";
@@ -429,20 +489,22 @@ function getSummaryReportSegment(dataset, polygons, numPolygons) {
 function getBaselineSegment(dataset, polygons, where) {
     var popupString = "<div class=\""+where+"-segment\">";
     var poly;
+    var polysAndCounts = sortPolygonsByState(polygons);
+    var polys = polysAndCounts.sortedPolygons;
     if (dataset.type == "regions" || dataset.type === "points") {
         popupString += (where == "report" ? "<h2>" : "") +
             getStyledInitiativeLabel(dataset, where, true) +
             (where == "report" ? '</h2><div class="initiative-locations">' : "");
-        for (poly in polygons) {
-            if (polygons.hasOwnProperty(poly)) {
+        for (poly in polys) {
+            if (polys.hasOwnProperty(poly)) {
                 popupString += "<p>";
-                var disp = polygons[poly].feature.properties.LocationDisplay;
-                var city = polygons[poly].feature.properties.hasOwnProperty("city") ?
-                    polygons[poly].feature.properties.city : "";
-                var county = polygons[poly].feature.properties.hasOwnProperty("county") ?
-                    polygons[poly].feature.properties.county : "";
-                var state = polygons[poly].feature.properties.hasOwnProperty("state") ?
-                    polygons[poly].feature.properties.state : "";
+                var disp = polys[poly].feature.properties.LocationDisplay;
+                var city = polys[poly].feature.properties.hasOwnProperty("city") ?
+                    polys[poly].feature.properties.city : "";
+                var county = polys[poly].feature.properties.hasOwnProperty("county") ?
+                    polys[poly].feature.properties.county : "";
+                var state = polys[poly].feature.properties.hasOwnProperty("state") ?
+                    polys[poly].feature.properties.state : "";
                 var cityCountyState = (city.length > 0 ? city + ", " : "") +
                     (county.length > 0 ? county + ", " : "") + state;
                 var cityState = (city.length > 0 ? city + ", " : "") + state;
@@ -461,12 +523,12 @@ function getBaselineSegment(dataset, polygons, where) {
         popupString += (where == "report" ? "<h2>" : "") +
             getStyledChoroplethLabel(dataset, where) +
             (where == "report" ? '</h2><div class="initiative-locations">' : "");
-        for (poly in polygons) {
-            if (polygons.hasOwnProperty(poly)) {
+        for (poly in polys) {
+            if (polys.hasOwnProperty(poly)) {
                 popupString += "<p><strong>" +
-                    Math.round(getChoroplethVariable(dataset, polygons[poly].feature.properties)) +
+                    Math.round(getChoroplethVariable(dataset, polys[poly].feature.properties)) +
                     "%</strong> "
-                    + getChoroplethVariableLabel(dataset, polygons[poly].feature.properties) +
+                    + getChoroplethVariableLabel(dataset, polys[poly].feature.properties) +
                     "</p>";
             }
         }
@@ -527,15 +589,15 @@ function populateInitiativesReport() {
             switch (data_obj[datasetKey].category) {
                 case "summary":
                     reportString += getSummaryReportSegment(data_obj[datasetKey],
-                                                        polys[datasetKey], numPolys);
+                                            polys[datasetKey], numPolys);
                     break;
                 case "baseline":
                     reportString += getBaselineReportSegment(data_obj[datasetKey],
-                                                        polys[datasetKey]);
+                                            polys[datasetKey]);
                     break;
                 case "initiative":
                     reportString += getInitiativeReportSegment(data_obj[datasetKey],
-                                                        polys[datasetKey]);
+                                            polys[datasetKey]);
                     break;
                 default:
                     break;
@@ -620,7 +682,7 @@ function displayPopup(e) {
  */
 function addAllLayers() {
     for (var i = 0; i < numDatasets; i++) {
-        data_obj[layerOrdering[i]].layer_data.addTo(map);
+        addLayerToMap(data_obj[layerOrdering[i]]);
     }
 }
 
@@ -634,8 +696,9 @@ function removeAllLayers() {
 
 function reorderLayers() {
     for (var i = 0; i < numDatasets; i++) {
-        if (map.hasLayer(data_obj[layerOrdering[i]].layer_data)) {
-            data_obj[layerOrdering[i]].layer_data.bringToFront();
+        var layer = data_obj[layerOrdering[i]].layer_data;
+        if (map.hasLayer(layer)) {
+            layer.bringToFront();
         }
     }
 }
@@ -848,27 +911,84 @@ function load_map_data (data_format) {
         }
         var i;
         // Load each program and add it as an overlay layer to control
-        switch (data_format) {
-            case "geojson":
-                for (i = 0; i < numDatasets; i++) {
-                    k = layerOrdering[i];
-                    if (data_obj.hasOwnProperty(k)) {
-                        load_geojson_location_data(data_obj[k]);
-                    }
+        for (i = 0; i < numDatasets; i++) {
+            k = layerOrdering[i];
+            if (data_obj.hasOwnProperty(k)) {
+                populate_layer_control(data_obj[k], data_format);
+                if (isRequestedDataset(data_obj[k])) {
+                    addLayerToMap(data_obj[k]);
                 }
-                break;
-            case "topojson":
-                for (i = 0; i < numDatasets; i++) {
-                    k = layerOrdering[i];
-                    if (data_obj.hasOwnProperty(k)) {
-                        load_topojson_location_data(data_obj[k]);
-                    }
-                }
-                break;
-            default: // load nothing
-                break;
+                overlayCount++;
+            }
+        }
+        if (overlayCount === numDatasets) {
+            reorderLayers();
+            choropleths = getChoropleths();
+            if (!window.location.queryParams.report) {
+                // Add titles to Layers control
+                var baseLayersTitle = $("<div  class=\"leaflet-control-layers-section-name\"></div>")
+                    .html("<h4>Base Map Layers</h4>");
+                baseLayersDiv.before(baseLayersTitle);
+                var overlayLayersTitle = $("<div class=\"leaflet-control-layers-section-name\"></div>")
+                    .html("<h4>Overlay Layers</h4>")
+                    .append(buttonsDiv);
+                overlaysDiv.before(overlayLayersTitle);
+            }
         }
     }, function(e) { map.spin(false); console.log(e); });
+}
+
+function loadLayerData(dataset, add) {
+    add = (typeof add === "undefined") ? false : add;
+    if (dataset.hasOwnProperty("data_loaded") && !dataset.data_loaded) {
+        switch (dataset.data_format) {
+            case "topojson":
+                load_topojson_location_data(dataset, add);
+                break;
+            case "geojson":
+                load_geojson_location_data(dataset, add);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+function addLayerToMap(dataset) {
+    if (dataset.data_loaded) {
+        dataset.layer_data.addTo(map);
+    } else {
+        loadLayerData(dataset, true);
+    }
+}
+
+function populate_layer_control(dataset, data_format) {
+    var layerGroup = L.featureGroup();
+    dataset.data_format = data_format;
+    dataset.data_loaded = false;
+    createColorBoxCSS(dataset);
+    if (dataset.type === "regions" || dataset.type === "points") {
+        dataset.layer_data = layerGroup;
+        if (!window.location.queryParams.report) {
+            layerControl.addOverlay(dataset.layer_data,
+                getStyledInitiativeLabel(dataset, "legend"),
+                getLayerCategoryLabel(dataset.category));
+        }
+    } else if (dataset.type === "choropleth") {
+        if (dataset.category === "summary") {
+            map.summaryOverlays.push(dataset.slug);
+        }
+        if (dataset.category === "baseline") {
+            map.baselineChoropleths.push(dataset.slug);
+        }
+        createChoroplethTools(dataset);
+        dataset.layer_data = layerGroup;
+        if (!window.location.queryParams.report) {
+            layerControl.addOverlay(dataset.layer_data,
+                getStyledChoroplethLabel(dataset, "legend"),
+                getLayerCategoryLabel(dataset.category));
+        }
+    }
 }
 
 function create_topojson_layer(dataset) {
@@ -882,7 +1002,6 @@ function create_topojson_layer(dataset) {
             });
             return L.marker(latlng, {icon: smallIcon});
         };
-        createColorBoxCSS(dataset);
     }
     newLayer.on("mouseover", function(e) {
         var targets = {};
@@ -917,31 +1036,15 @@ function create_topojson_layer(dataset) {
     return newLayer;
 }
 
-function load_topojson_location_data (dataset) {
-    if (!dataset.hasOwnProperty("layer_data") || dataset.layer_data === undefined) {
+function load_topojson_location_data (dataset, add) {
+    if (dataset.hasOwnProperty("data_loaded") && !dataset.data_loaded) {
         map.spin(true);
         var layer;
         $.getJSON(dataset.topojson, function(data) {
-            var layerGroup = L.featureGroup();
             var newLayer = create_topojson_layer(dataset);
             newLayer.addData(data);
             newLayer.setStyle(dataset.style);
-            if (dataset.type === "regions" || dataset.type === "points") {
-                layerGroup.addLayer(newLayer);
-                dataset.layer_data = layerGroup;
-                if (!window.location.queryParams.report) {
-                    layerControl.addOverlay(dataset.layer_data,
-                        getStyledInitiativeLabel(dataset, "legend"),
-                        getLayerCategoryLabel(dataset.category));
-                }
-            } else if (dataset.type === "choropleth") {
-                if (dataset.category === "summary") {
-                    map.summaryOverlays.push(dataset.slug);
-                }
-                if (dataset.category === "baseline") {
-                    map.baselineChoropleths.push(dataset.slug);
-                }
-                createChoroplethTools(dataset);
+            if (dataset.type === "choropleth") {
                 for (layer in newLayer._layers) {
                     if (newLayer._layers.hasOwnProperty(layer)) {
                         var theLayer = newLayer._layers[layer];
@@ -949,36 +1052,15 @@ function load_topojson_location_data (dataset) {
                         addChoroplethRegionEventHandlers(theLayer);
                     }
                 }
-                layerGroup.addLayer(newLayer);
-                dataset.layer_data = layerGroup;
-                if (!window.location.queryParams.report) {
-                    layerControl.addOverlay(dataset.layer_data,
-                        getStyledChoroplethLabel(dataset, "legend"),
-                        getLayerCategoryLabel(dataset.category));
-                }
             }
-            if (isRequestedDataset(dataset)) {
-                dataset.layer_data.addTo(map);
-            }
-            overlayCount++;
-            if (overlayCount === numDatasets) {
-                reorderLayers();
-                choropleths = getChoropleths();
-                if (window.location.queryParams.report) {
-                    // Populate initiatives report
-                    var container = $("div#initiatives");
-                    var reportString = populateInitiativesReport();
-                    container.html(reportString);
-                } else {
-                    // Add titles to Layers control
-                    var baseLayersTitle = $("<div  class=\"leaflet-control-layers-section-name\"></div>")
-                        .html("<h4>Base Map Layers</h4>");
-                    baseLayersDiv.before(baseLayersTitle);
-                    var overlayLayersTitle = $("<div class=\"leaflet-control-layers-section-name\"></div>")
-                        .html("<h4>Overlay Layers</h4>")
-                        .append(buttonsDiv);
-                    overlaysDiv.before(overlayLayersTitle);
-                }
+            dataset.layer_data.addLayer(newLayer);
+            dataset.data_loaded = true;
+            if (add) { dataset.layer_data.addTo(map); }
+            if (window.location.queryParams.report) {
+                // Populate initiatives report
+                var container = $("div#initiatives");
+                var reportString = populateInitiativesReport();
+                container.html(reportString);
             }
             map.spin(false);
         }, function(e) { map.spin(false); console.log(e); });
@@ -988,41 +1070,32 @@ function load_topojson_location_data (dataset) {
 /********************************
  * Data loading functions: IE8 Support
  */
-function load_geojson_location_data (dataset) {
-    if (!dataset.hasOwnProperty("layer_data") || dataset.layer_data === undefined) {
+function load_geojson_location_data (dataset, add) {
+    if (dataset.hasOwnProperty("data_loaded") && !dataset.data_loaded) {
         map.spin(true);
         $.getJSON(dataset.geojson, function(data) {
-            var layerGroup = L.layerGroup();
             var newLayer;
             data.features.forEach(function(feature) {
                 newLayer = L.geoJson.css(feature);
                 newLayer.setStyle(data_obj[dataset]["style"]);
-                layerGroup.addLayer(newLayer);
+                if (dataset.type === "choropleth") {
+                    styleChoroplethRegion(dataset, theLayer);
+                    addChoroplethRegionEventHandlers(theLayer);
+                }
+                dataset.layer_data.addLayer(newLayer);
             });
-            dataset.layer_data = layerGroup;
-            layerControl.addOverlay(dataset.layer_data,
-                getStyledInitiativeLabel(dataset, "legend"),
-                getLayerCategoryLabel(dataset.category));
-            dataset.layer_data.addTo(map);
-            createColorBoxCSS(dataset);
-            overlayCount++;
-            if (overlayCount === numDatasets) {
-                reorderLayers();
-                choropleths = getChoropleths();
-                var baseLayersTitle = $("<div></div>")
-                    .html("<h4 class=\"leaflet-control-layers-section-name\">Base Map Layers</h4>");
-                baseLayersDiv.prepend(baseLayersTitle);
-                var overlayLayersTitle = $("<div></div>")
-                    .html("<h4 class=\"leaflet-control-layers-section-name\">Overlay Layers</h4>")
-                    .append(buttonsDiv);
-                overlaysDiv.prepend(overlayLayersTitle);
+            dataset.data_loaded = true;
+            if (add) { dataset.layer_data.addTo(map); }
+            if (window.location.queryParams.report) {
+                // Populate initiatives report
+                var container = $("div#initiatives");
+                var reportString = populateInitiativesReport();
+                container.html(reportString);
             }
             map.spin(false);
         }, function(e) { map.spin(false); console.log(e); });
     }
 }
-
-
 
 
 /********************************
@@ -1176,6 +1249,7 @@ map.on("overlayadd", function(e) {
     for (var i = 0; i < numDatasets; i++) {
         var dataset = layerOrdering[i];
         if (data_obj.hasOwnProperty(dataset) && e.layer === data_obj[dataset].layer_data) {
+            if (!data_obj[dataset].data_loaded) { loadLayerData(data_obj[dataset]); }
             if (!window.location.queryParams.report && data_obj[dataset].type === "choropleth") {
                 data_obj[dataset].choroplethLegend.update(e);
                 data_obj[dataset].choroplethLegend.addTo(map);
