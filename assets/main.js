@@ -1046,7 +1046,7 @@ var base_layers = {
 };
 
 // Set attribution data for base layers
-var attrib_tail = ' | powered by <a href="https://max.gov" target="_blank">MAX.gov</a>';
+var attrib_tail = ' | <a href="datasets.html" target="_blank">about the data</a> | powered by <a href="https://max.gov" target="_blank">MAX.gov</a>';
 for (var bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
     base_layers[bl].options.attribution += attrib_tail;
 } }
