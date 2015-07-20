@@ -1,8 +1,8 @@
 /********************************
  * Global variables/constants
  */
-var data_obj, numDatasets, layerOrdering, choropleths;
-var reverseGeocodeServiceUrl = "//nominatim.openstreetmap.org/reverse?format=json&accept-language=us-en";
+var data_obj, map_params, numDatasets, layerOrdering, choropleths;
+//var reverseGeocodeServiceUrl = "//nominatim.openstreetmap.org/reverse?format=json&accept-language=us-en";
 var overlayCount = 0;
 
 /********************************
@@ -38,26 +38,6 @@ function parseQueryParams() {
         queryParams[pair[0]] = results;
     }
     return queryParams;
-}
-
-/********************************
- * Generic helpers
- */
-function toObject(keys, values) {
-    var result = {};
-    for (var i = 0; i < keys.length; i++) {
-        if (result.hasOwnProperty(keys[i])) {
-            if (result[keys[i]] instanceof Array) {
-                result[keys[i]].append(values[i]);
-            } else {
-                result[keys[i]] = [result[keys[i]], values[i]];
-            }
-        } else {
-            result[keys[i]] = values[i];
-
-        }
-    }
-    return result;
 }
 
 /********************************
@@ -569,7 +549,7 @@ function fixBadAddressData(address) {
 }
 
 function getReverseGeolocationPromise(latlng) {
-    var serviceRequestUrl = reverseGeocodeServiceUrl+"&lat="+latlng.lat+
+    var serviceRequestUrl = map_params.reverse_geocode_service_url+"&lat="+latlng.lat+
         "&lon="+latlng.lng+"&zoom=12&addressdetails=1";
     return $.getJSON(serviceRequestUrl);
 }
@@ -758,7 +738,7 @@ function createChoroplethDisplay (dataset) {
         outerHTML: function() { return this.element.prop('outerHTML'); }
     };
     cd.reset = function() {
-        var hoverMessage = this.dataset.hover_instructions || "Hover over a region";
+        var hoverMessage = this.dataset.hover_instructions || map_params.default_hover_instructions;
         this.element.html("<strong>"+hoverMessage+"</strong>");
     };
     if (dataset.hasOwnProperty("colors")) {
@@ -895,16 +875,23 @@ function addChoroplethRegionEventHandlers(region) {
  * Data loading functions
  */
 function load_map_data (data_format) {
-    $.getJSON('data/datasets.json', function(datasets) {
-        data_obj = datasets;
+    $.getJSON('data/datasets.json').done(function(obj) {
+        map_params = {};
+        for (var k in obj) {
+            if (obj.hasOwnProperty(k) && k !== 'datasets') {
+                map_params[k] = obj[k];
+            }
+        }
+        data_obj = obj.datasets;
+        setupMapControls(map_params);
         numDatasets = datasetCount();
         layerOrdering = [];
-        for (var k in data_obj) {
+        for (k in data_obj) {
             if (data_obj.hasOwnProperty(k)) {
                 data_obj[k].slug = k;
             }
         }
-        for (var k in data_obj) {
+        for (k in data_obj) {
             if (data_obj.hasOwnProperty(k) && data_obj[k].hasOwnProperty("layerOrder")) {
                 layerOrdering[parseInt(data_obj[k]["layerOrder"],10)-1] = k;
             }
@@ -935,7 +922,7 @@ function load_map_data (data_format) {
                 overlaysDiv.before(overlayLayersTitle);
             }
         }
-    }, function(e) { map.spin(false); console.log(e); });
+    }).fail(function(e) { map.spin(false); console.log(e); });
 }
 
 function loadLayerData(dataset, add) {
@@ -1097,21 +1084,51 @@ function load_geojson_location_data (dataset, add) {
     }
 }
 
+/********************************
+ * Report view display functions
+ */
+function setupMapControls(p) {
+    // Set attribution data for base layers
+    for (var bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
+        base_layers[bl].options.attribution += p.attribution_tail;
+    } }
+
+    // Add disclaimer control
+    var disclaimer = '<p class="disclaimer-text">' + p.disclaimer_text
+        + ' Last updated ' + p.last_updated + '.</p>';
+    var disclaimerControl = L.control({position: "bottomright"});
+    disclaimerControl.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'leaflet-control-disclaimer');
+        $(this._div).html(disclaimer);
+        return this._div;
+    };
+    disclaimerControl.addTo(map);
+
+    // Add back attribution control
+    L.control.attribution({position: "bottomright"}).addTo(map);
+
+    // Add base layer to map
+    window.location.queryParams.base = typeof window.location.queryParams.base === "undefined" ?
+        p.default_base_layer : window.location.queryParams.base;
+    base_layers[window.location.queryParams.base].addTo(map);
+}
+
+
 
 /********************************
  * MAIN: Map creation code
  */
 // Set defaults for query parameters
 var defaultParams = {
-    "zoom": 3,
+    "zoom": 4,
     "centerLat": 44.87144275016589,
     "centerLon": -105.2490234375,
     "NElat": 67.57571741708057,
     "NElon": -34.365234375,
     "SWlat": 7.885147283424331,
     "SWlon": -176.1328125,
-    "report": false,
-    "base": "Thunderforest Transport"
+    "report": false //,
+    //"base": "Thunderforest Transport"
 };
 // Get and parse query parameters
 var queryParams = parseQueryParams();
@@ -1137,12 +1154,6 @@ var base_layers = {
     "Stamen Watercolor": stamenwc
 };
 
-// Set attribution data for base layers
-var attrib_tail = ' | <a href="datasets.html" target="_blank">about the data</a> | powered by <a href="https://max.gov" target="_blank">MAX.gov</a>';
-for (var bl in base_layers) { if (base_layers.hasOwnProperty(bl)) {
-    base_layers[bl].options.attribution += attrib_tail;
-} }
-
 // Create map
 var map = L.map('map', {
         click: displayPopup,
@@ -1157,23 +1168,6 @@ var map = L.map('map', {
 // Create lists of choropleth overlay layers (to be populated as data is loaded)
 map.summaryOverlays = [];
 map.baselineChoropleths = [];
-
-// Add disclaimer control
-var disclaimer = '<p class="disclaimer-text">This map is an experimental '
-    + 'view of Federal place-based initiatives. Check back for more data and '
-    + 'features. Source code available (public domain) and feedback welcome at '
-    + '<a href="http://github.com/BFELoB/map" target="_blank">http://github.com/BFELoB/map</a>. '
-    + 'Last updated 7/19/2015.</p>';
-var disclaimerControl = L.control({position: "bottomright"});
-disclaimerControl.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'leaflet-control-disclaimer');
-    $(this._div).html(disclaimer);
-    return this._div;
-};
-disclaimerControl.addTo(map);
-
-// Add back attribution control
-L.control.attribution({position: "bottomright"}).addTo(map);
 
 if (!window.location.queryParams.report) {
     // Create layers control and add base map to control
@@ -1200,9 +1194,6 @@ if (!window.location.queryParams.report) {
         .on("focus", setLayerControlHeight)
         .on("touchstart",setLayerControlHeight);
 }
-
-// Add base layer to map
-base_layers[window.location.queryParams.base].addTo(map);
 
 // Add the print report button
 if (!window.location.queryParams.report) {
@@ -1282,8 +1273,8 @@ if (!window.location.queryParams.report) {
     map.logo.addTo(map);
     new L.Control.zoomHome({
         zoomHomeTitle: "Reset map view",
-        homeCoordinates: [39.363415, -95.999397],
-        homeZoom: 5
+        homeCoordinates: [window.location.queryParams.centerLat, window.location.queryParams.centerLon],
+        homeZoom: window.location.queryParams.zoom
     }).addTo(map);
     new L.Control.ZoomBox().addTo(map);
 

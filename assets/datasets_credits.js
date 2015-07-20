@@ -1,3 +1,5 @@
+var data_obj, defaultCredits;
+
 /********************************
  * Color helper functions
  */
@@ -151,7 +153,7 @@ function getDatasetCredits(dataset) {
     if (dataset.hasOwnProperty("credits")) {
         credits_string += "<p>" + dataset.credits + "</p>";
     } else {
-        credits_string += "Produced from Federal agency data about place-based initiatives.";
+        credits_string += defaultCredits;
     }
     return credits_string;
 }
@@ -201,8 +203,9 @@ var data_obj, layerOrdering = [];
 /********************************
  * MAIN: Display Datasets
  */
-$.getJSON('data/datasets.json').done(function(datasets) {
-    data_obj = datasets;
+$.getJSON('data/datasets.json').done(function(obj) {
+    data_obj = obj.datasets;
+    defaultCredits = obj.default_dataset_credits;
     for (var k in data_obj) {
         if (data_obj.hasOwnProperty(k) && data_obj[k].hasOwnProperty("layerOrder")) {
             layerOrdering[parseInt(data_obj[k]["layerOrder"],10)-1] = k;
