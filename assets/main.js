@@ -1122,11 +1122,11 @@ function setupMapControls(p) {
 var defaultParams = {
     "zoom": 4,
     "centerLat": 44.87144275016589,
-    "centerLon": -105.2490234375,
+    "centerLon": -105.16113281249999,
     "NElat": 67.57571741708057,
-    "NElon": -34.365234375,
+    "NElon": -34.27734375,
     "SWlat": 7.885147283424331,
-    "SWlon": -176.1328125,
+    "SWlon": -176.044921875,
     "report": false //,
     //"base": "Thunderforest Transport"
 };
@@ -1163,7 +1163,8 @@ var map = L.map('map', {
     .setView([window.location.queryParams.centerLat, window.location.queryParams.centerLon],
         window.location.queryParams.zoom)
     .fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
-        [window.location.queryParams.NElat, window.location.queryParams.NElon]]);
+        [window.location.queryParams.NElat, window.location.queryParams.NElon]])
+    .setZoom(window.location.queryParams.zoom);
 
 // Create lists of choropleth overlay layers (to be populated as data is loaded)
 map.summaryOverlays = [];
