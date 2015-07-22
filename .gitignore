@@ -5,5 +5,7 @@
 assets/fonts/wh-fonts.css
 
 /* build and distribution files */
+/* Keep these for the release branch
 dist
 dist/*
+*/
