@@ -24,7 +24,7 @@ mkdir ../dist/sites/default/files/omb_place/assets/images
 cp ../index-minified.html ../dist/omb/place/index.html
 cp ../print-minified.html ../dist/omb/place/print.html
 cp ../datasets-minified.html ../dist/omb/place/datasets.html
-cp ../favicon.ico ../dist/
+# cp ../favicon.ico ../dist/
 
 # Link data directory
 ln -fhs ../data ../dist/sites/default/files/omb_place/data
