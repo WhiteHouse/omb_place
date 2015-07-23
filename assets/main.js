@@ -1093,6 +1093,47 @@ function setupMapControls(p) {
         base_layers[bl].options.attribution += p.attribution_tail;
     } }
 
+    // Add the print report button
+    if (!window.location.queryParams.report) {
+        window.spawnPrintView = function() {
+            var bounds = map.getBounds();
+            var SWlat = bounds.getSouthWest().lat;
+            var SWlon = bounds.getSouthWest().lng;
+            var NElat = bounds.getNorthEast().lat;
+            var NElon = bounds.getNorthEast().lng;
+            var activeBaseLayer;
+            for (var bl in base_layers) {
+                if (base_layers.hasOwnProperty(bl) && map.hasLayer(base_layers[bl])
+                    && !base_layers[bl].overlay) {
+                    activeBaseLayer = bl;
+                }
+            }
+            var activeOverlays = [];
+            for (var dataset in data_obj) {
+                if (data_obj.hasOwnProperty(dataset)
+                    && data_obj[dataset].hasOwnProperty("layer_data")
+                    && map.hasLayer(data_obj[dataset]["layer_data"])) {
+                    activeOverlays.push(dataset);
+                }
+            }
+            var queryString = "report&SWlat="+SWlat+"&SWlon="+SWlon+"&NElat="+
+                NElat+"&NElon="+NElon+"&base="+activeBaseLayer+"&datasets="+
+                activeOverlays.join(",");
+            var base_url = p.hasOwnProperty('print_url') ? p.print_url : "print.html";
+            var url = encodeURI(base_url + "?" + queryString);
+            window.open(url, "_blank");
+        }
+
+        map.printButton = L.control({"position":"topright"});
+        map.printButton.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'printbutton-div');
+            var pb = '<button id="printbutton" class="fa fa-print" onclick="spawnPrintView()"></button>';
+            $(this._div).html(pb);
+            return this._div;
+        };
+        map.printButton.addTo(map);
+    }
+
     // Add disclaimer control
     var disclaimer = '<p class="disclaimer-text">' + p.disclaimer_text
         + ' Last updated ' + p.last_updated + '.</p>';
@@ -1196,46 +1237,6 @@ if (!window.location.queryParams.report) {
         .on("touchstart",setLayerControlHeight);
 }
 
-// Add the print report button
-if (!window.location.queryParams.report) {
-    function spawnPrintView() {
-        var bounds = map.getBounds();
-        var SWlat = bounds.getSouthWest().lat;
-        var SWlon = bounds.getSouthWest().lng;
-        var NElat = bounds.getNorthEast().lat;
-        var NElon = bounds.getNorthEast().lng;
-        var activeBaseLayer;
-        for (var bl in base_layers) {
-            if (base_layers.hasOwnProperty(bl) && map.hasLayer(base_layers[bl])
-                && !base_layers[bl].overlay) {
-                activeBaseLayer = bl;
-            }
-        }
-        var activeOverlays = [];
-        for (var dataset in data_obj) {
-            if (data_obj.hasOwnProperty(dataset)
-                && data_obj[dataset].hasOwnProperty("layer_data")
-                && map.hasLayer(data_obj[dataset]["layer_data"])) {
-                activeOverlays.push(dataset);
-            }
-        }
-        var queryString = "report&SWlat="+SWlat+"&SWlon="+SWlon+"&NElat="+
-            NElat+"&NElon="+NElon+"&base="+activeBaseLayer+"&datasets="+
-            activeOverlays.join(",");
-        var url = encodeURI("print.html?" + queryString);
-        window.open(url, "_blank");
-    }
-
-    map.printButton = L.control({"position":"topright"});
-    map.printButton.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'printbutton-div');
-        var pb = '<button id="printbutton" class="fa fa-print" onclick="spawnPrintView()"></button>';
-        $(this._div).html(pb);
-        return this._div;
-    };
-    map.printButton.addTo(map);
-}
-
 // Add map event handlers
 map.on("overlayadd", function(e) {
     for (var i = 0; i < numDatasets; i++) {
@@ -1263,6 +1264,7 @@ map.on("overlayremove", function(e) {
 
 // Add logo, zoom, pan, scale and reset controls to the top left of map
 if (!window.location.queryParams.report) {
+    /*
     map.logo = L.control({"position":"topleft"});
     map.logo.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'logo-div');
@@ -1272,6 +1274,7 @@ if (!window.location.queryParams.report) {
         return this._div;
     };
     map.logo.addTo(map);
+    */
     new L.Control.zoomHome({
         zoomHomeTitle: "Reset map view",
         homeCoordinates: [window.location.queryParams.centerLat, window.location.queryParams.centerLon],

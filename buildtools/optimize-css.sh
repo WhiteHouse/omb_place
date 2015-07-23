@@ -8,7 +8,7 @@
 # Lives in {PROJECT ROOT}/buildtools/optimize-css.sh
 # Run from that directory (normally, called by build.sh in same directory)
 
-now=`date +"%Y%m%d_%H%M%S"`
+now=$1
 outpath="../dist/sites/default/files/omb_place/assets/"
 
 # Main - Modern Browsers
