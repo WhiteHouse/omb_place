@@ -902,9 +902,6 @@ function load_map_data (data_format) {
             k = layerOrdering[i];
             if (data_obj.hasOwnProperty(k)) {
                 populate_layer_control(data_obj[k], data_format);
-                if (isRequestedDataset(data_obj[k])) {
-                    addLayerToMap(data_obj[k]);
-                }
                 overlayCount++;
             }
         }
@@ -922,6 +919,16 @@ function load_map_data (data_format) {
                 overlaysDiv.before(overlayLayersTitle);
             }
         }
+        map.invalidateSize(false);
+        for (i = 0; i < numDatasets; i++) {
+            k = layerOrdering[i];
+            if (data_obj.hasOwnProperty(k)) {
+                if (isRequestedDataset(data_obj[k])) {
+                    addLayerToMap(data_obj[k]);
+                }
+            }
+        }
+        map.invalidateSize(false);
     }).fail(function(e) { map.spin(false); console.log(e); });
 }
 
@@ -1095,7 +1102,7 @@ function setupMapControls(p) {
 
     // Add the print report button
     if (!window.location.queryParams.report) {
-        window.spawnPrintView = function() {
+        window.spawnPrintView = function () {
             var bounds = map.getBounds();
             var SWlat = bounds.getSouthWest().lat;
             var SWlon = bounds.getSouthWest().lng;
@@ -1116,15 +1123,15 @@ function setupMapControls(p) {
                     activeOverlays.push(dataset);
                 }
             }
-            var queryString = "report&SWlat="+SWlat+"&SWlon="+SWlon+"&NElat="+
-                NElat+"&NElon="+NElon+"&base="+activeBaseLayer+"&datasets="+
+            var queryString = "report&SWlat=" + SWlat + "&SWlon=" + SWlon + "&NElat=" +
+                NElat + "&NElon=" + NElon + "&base=" + activeBaseLayer + "&datasets=" +
                 activeOverlays.join(",");
             var base_url = p.hasOwnProperty('print_url') ? p.print_url : "print.html";
             var url = encodeURI(base_url + "?" + queryString);
             window.open(url, "_blank");
-        }
+        };
 
-        map.printButton = L.control({"position":"topright"});
+        map.printButton = L.control({"position": "topright"});
         map.printButton.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'printbutton-div');
             var pb = '<button id="printbutton" class="fa fa-print" onclick="spawnPrintView()"></button>';
@@ -1153,8 +1160,6 @@ function setupMapControls(p) {
         p.default_base_layer : window.location.queryParams.base;
     base_layers[window.location.queryParams.base].addTo(map);
 }
-
-
 
 /********************************
  * MAIN: Map creation code
