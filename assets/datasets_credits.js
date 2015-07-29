@@ -148,12 +148,12 @@ function getDatasetDescription(dataset) {
     return description_string;
 }
 
-function getDatasetCredits(dataset) {
+function getDatasetCredits(dataset, defaultCredits) {
     var credits_string = "<h3>Data credits:</h3>";
     if (dataset.hasOwnProperty("credits") && dataset.credits && dataset.credits !== "") {
         credits_string += "<p>" + dataset.credits + "</p>";
     } else {
-        credits_string += "<p>" + map_params.default_dataset_credits + "</p>";
+        credits_string += "<p>" + defaultCredits + "</p>";
     }
     return credits_string;
 }
@@ -203,7 +203,7 @@ function displayDataCredits(dataset) {
     return dataset_string;
 }
 
-var data_obj, layerOrdering = [];
+var data_obj, defaultCredits, layerOrdering = [];
 
 /********************************
  * MAIN: Display Datasets
@@ -221,7 +221,7 @@ $.getJSON('data/datasets.json').done(function(obj) {
             var dataset = data_obj[layerOrdering[k]];
             dataset.slug = layerOrdering[k];
             createColorBoxCSS(dataset);
-            $("#initiatives").append($(displayDataCredits(dataset)));
+            $("#initiatives").append($(displayDataCredits(dataset, defaultCredits)));
         }
     }
 }).fail(function(e) {
