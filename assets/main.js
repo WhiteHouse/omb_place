@@ -572,8 +572,10 @@ function getReverseGeolocationPromise(latlng) {
  */
 function populateInitiativesReport(titleElement) {
     var datasetsList = window.location.queryParams.datasets;
+    var t;
+    if(titleElement instanceof $) { t = titleElement; } else { t = $(titleElement); }
     getReverseGeolocationPromise(map.getCenter()).done(function (data) {
-        var titleString = titleElement.html() + " for " + getPopupLocationString(data) + " and Surrounds";
+        var titleString = t.html() + " for " + getPopupLocationString(data) + " and Surrounds";
         var datasetsToInclude = [];
         var k, d;
         for (k = 0; k < datasetsList.length; k++) {
@@ -584,7 +586,7 @@ function populateInitiativesReport(titleElement) {
             }
         }
         titleString += " for Data Sets " + datasetsToInclude.join(", ");
-        titleElement.html(titleString);
+        t.html(titleString);
     }).error(function (err) {
         console.log("Reverse geolocation failed. Error:");
         console.log(err);
@@ -955,7 +957,7 @@ function load_map_data (data_format) {
             // Populate initiatives report
             var container = $("div#initiatives");
             var t = map_params.hasOwnProperty("titleElement") ?
-                $(map_params.titleElement) : "#content h1";
+                $(map_params.titleElement) : $("#content h1");
             var reportString = populateInitiativesReport(t);
             container.html(reportString);
         }
@@ -1114,12 +1116,6 @@ function load_geojson_location_data (dataset, add) {
             });
             dataset.data_loaded = true;
             if (add) { dataset.layer_data.addTo(map); }
-            if (window.location.queryParams.report) {
-                // Populate initiatives report
-                var container = $("div#initiatives");
-                var reportString = populateInitiativesReport();
-                container.html(reportString);
-            }
             map.spin(false);
         }, function(e) { map.spin(false); console.log(e); });
     }
