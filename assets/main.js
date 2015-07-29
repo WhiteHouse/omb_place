@@ -571,8 +571,7 @@ function getReverseGeolocationPromise(latlng) {
 /********************************
  * Report view display functions
  */
-function populateInitiativesReport(titleElement) {
-    var datasetsList = window.location.queryParams.datasets;
+function addLocationToReportTitle(titleElement) {
     var t;
     if(titleElement instanceof $) { t = titleElement; } else { t = $(titleElement); }
     getReverseGeolocationPromise(map.getCenter()).done(function (data) {
@@ -592,6 +591,10 @@ function populateInitiativesReport(titleElement) {
         console.log("Reverse geolocation failed. Error:");
         console.log(err);
     });
+}
+
+function populateInitiativesReport() {
+    var datasetsList = window.location.queryParams.datasets;
     var polys = getPolygonsInBoundsForDatasets(datasetsList);
     // var numPolys = countPolygonInitiatives(polys);
     var datasetKey = "";
@@ -954,6 +957,12 @@ function load_map_data (data_format) {
                 overlaysDiv.before(overlayLayersTitle);
             }
         }
+        if (window.location.queryParams.report) {
+            // Put location into title of report
+            var t = map_params.hasOwnProperty("titleElement") ?
+                $(map_params.titleElement) : $("#content h1");
+            addLocationToReportTitle(t);
+        }
         map.invalidateSize(false);
         for (i = 0; i < numDatasets; i++) {
             k = layerOrdering[i];
@@ -1088,9 +1097,7 @@ function load_topojson_location_data (dataset, add) {
             if (window.location.queryParams.report) {
                 // Populate initiatives report
                 var container = $("div#initiatives");
-                var t = map_params.hasOwnProperty("titleElement") ?
-                    $(map_params.titleElement) : $("#content h1");
-                var reportString = populateInitiativesReport(t);
+                var reportString = populateInitiativesReport();
                 container.html(reportString);
             }
             map.spin(false);
@@ -1120,9 +1127,7 @@ function load_geojson_location_data (dataset, add) {
             if (window.location.queryParams.report) {
                 // Populate initiatives report
                 var container = $("div#initiatives");
-                var t = map_params.hasOwnProperty("titleElement") ?
-                    $(map_params.titleElement) : $("#content h1");
-                var reportString = populateInitiativesReport(t);
+                var reportString = populateInitiativesReport();
                 container.html(reportString);
             }
             map.spin(false);
