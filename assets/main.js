@@ -954,14 +954,6 @@ function load_map_data (data_format) {
                 overlaysDiv.before(overlayLayersTitle);
             }
         }
-        if (window.location.queryParams.report) {
-            // Populate initiatives report
-            var container = $("div#initiatives");
-            var t = map_params.hasOwnProperty("titleElement") ?
-                $(map_params.titleElement) : $("#content h1");
-            var reportString = populateInitiativesReport(t);
-            container.html(reportString);
-        }
         map.invalidateSize(false);
         for (i = 0; i < numDatasets; i++) {
             k = layerOrdering[i];
@@ -1093,6 +1085,14 @@ function load_topojson_location_data (dataset, add) {
             dataset.layer_data.addLayer(newLayer);
             dataset.data_loaded = true;
             if (add) { dataset.layer_data.addTo(map); }
+            if (window.location.queryParams.report) {
+                // Populate initiatives report
+                var container = $("div#initiatives");
+                var t = map_params.hasOwnProperty("titleElement") ?
+                    $(map_params.titleElement) : $("#content h1");
+                var reportString = populateInitiativesReport(t);
+                container.html(reportString);
+            }
             map.spin(false);
         }, function(e) { map.spin(false); console.log(e); });
     }
@@ -1117,6 +1117,14 @@ function load_geojson_location_data (dataset, add) {
             });
             dataset.data_loaded = true;
             if (add) { dataset.layer_data.addTo(map); }
+            if (window.location.queryParams.report) {
+                // Populate initiatives report
+                var container = $("div#initiatives");
+                var t = map_params.hasOwnProperty("titleElement") ?
+                    $(map_params.titleElement) : $("#content h1");
+                var reportString = populateInitiativesReport(t);
+                container.html(reportString);
+            }
             map.spin(false);
         }, function(e) { map.spin(false); console.log(e); });
     }
