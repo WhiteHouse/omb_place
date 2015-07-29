@@ -37,8 +37,8 @@ function parseQueryParams() {
         }
         queryParams[pair[0]] = results;
     }
-    if (queryParams.hasOwnProperty("SWLat") &&
-            queryParams.hasOwnProperty("SWLon") &&
+    if (queryParams.hasOwnProperty("SWlat") &&
+            queryParams.hasOwnProperty("SWlon") &&
             queryParams.hasOwnProperty("NElat") &&
             queryParams.hasOwnProperty("NElon")) {
         queryParams.hasBoundingBox = true;
