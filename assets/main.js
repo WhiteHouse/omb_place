@@ -553,7 +553,7 @@ function fixBadAddressData(address) {
     if (city && (city === "LA") && state && (state === "California")) { city = "Los Angeles"; }
     if (city && (city === "SF") && state && (state === "California")) { city = "San Francisco"; }
     if (city && (city === "ABQ") && state && (state === "New Mexico")) { city = "Albuquerque"; }
-    if (city && (city === "PGH") && state && (state === "Pennsylvania")) { city = "Albuquerque"; }
+    if (city && (city === "PGH") && state && (state === "Pennsylvania")) { city = "Pittsburgh"; }
     // Display "City of ..." where appropriate
     if (city && ((city.slice(-4).toLowerCase() !== "city")
         || (city.slice(-8).toLowerCase() !== "township"))) { city = "City of " + city; }
