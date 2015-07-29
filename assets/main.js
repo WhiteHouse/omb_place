@@ -37,6 +37,19 @@ function parseQueryParams() {
         }
         queryParams[pair[0]] = results;
     }
+    if (queryParams.hasOwnProperty("SWLat") &&
+            queryParams.hasOwnProperty("SWLon") &&
+            queryParams.hasOwnProperty("NElat") &&
+            queryParams.hasOwnProperty("NElon")) {
+        queryParams.hasBoundingBox = true;
+    }
+    if (queryParams.hasOwnProperty("centerLat") &&
+            queryParams.hasOwnProperty("centerLon")) {
+        queryParams.hasCenter = true;
+    }
+    if (queryParams.hasOwnProperty("zoom")) {
+        queryParams.hasZoom = true;
+    }
     return queryParams;
 }
 
@@ -382,7 +395,7 @@ function getStyledChoroplethLabel(dataset, where) {
     styledLabel.css("font-weight", "bold");
     styledLabel.text(dataset.label);
     if (dataset && dataset.hasOwnProperty("colors")) {
-        var gradientBox = getChoroplethGradientBox(40, "px", 10, "px", dataset.colors, where);
+        var gradientBox = getChoroplethGradientBox(40, "px", 14, "px", dataset.colors, where);
         return gradientBox + styledLabel.prop("outerHTML");
     } else {
         console.log("Couldn't create gradient box for dataset "+dataset.slug+" -- no colors provided");
@@ -557,10 +570,27 @@ function getReverseGeolocationPromise(latlng) {
 /********************************
  * Report view display functions
  */
-function populateInitiativesReport() {
+function populateInitiativesReport(titleElement) {
     var datasetsList = window.location.queryParams.datasets;
+    getReverseGeolocationPromise(map.getCenter()).done(function (data) {
+        var titleString = titleElement.html() + " for " + getPopupLocationString(data) + " and Surrounds";
+        var datasetsToInclude = [];
+        var k, d;
+        for (k = 0; k < datasetsList.length; k++) {
+            d = datasetsList[k];
+            if (data_obj.hasOwnProperty(d) && data_obj[d].hasOwnProperty("label") &&
+                data_obj[d].hasOwnProperty("category") && data_obj[d].category !== "summary") {
+                datasetsToInclude.push(data_obj[d].label);
+            }
+        }
+        titleString += " for Data Sets " + datasetsToInclude.join(", ");
+        titleElement.html(titleString);
+    }).error(function (err) {
+        console.log("Reverse geolocation failed. Error:");
+        console.log(err);
+    });
     var polys = getPolygonsInBoundsForDatasets(datasetsList);
-    var numPolys = countPolygonInitiatives(polys);
+    // var numPolys = countPolygonInitiatives(polys);
     var datasetKey = "";
     var reportString = "";
     for (var k = 0; k < datasetsList.length; k++) {
@@ -568,8 +598,10 @@ function populateInitiativesReport() {
         if (data_obj.hasOwnProperty(datasetKey) && polys[datasetKey].length) {
             switch (data_obj[datasetKey].category) {
                 case "summary":
+                    /*
                     reportString += getSummaryReportSegment(data_obj[datasetKey],
                                             polys[datasetKey], numPolys);
+                    */
                     break;
                 case "baseline":
                     reportString += getBaselineReportSegment(data_obj[datasetKey],
@@ -919,6 +951,14 @@ function load_map_data (data_format) {
                 overlaysDiv.before(overlayLayersTitle);
             }
         }
+        if (window.location.queryParams.report) {
+            // Populate initiatives report
+            var container = $("div#initiatives");
+            var t = map_params.hasOwnProperty("titleElement") ?
+                $(map_params.titleElement) : "#content h1";
+            var reportString = populateInitiativesReport(t);
+            container.html(reportString);
+        }
         map.invalidateSize(false);
         for (i = 0; i < numDatasets; i++) {
             k = layerOrdering[i];
@@ -1050,12 +1090,6 @@ function load_topojson_location_data (dataset, add) {
             dataset.layer_data.addLayer(newLayer);
             dataset.data_loaded = true;
             if (add) { dataset.layer_data.addTo(map); }
-            if (window.location.queryParams.report) {
-                // Populate initiatives report
-                var container = $("div#initiatives");
-                var reportString = populateInitiativesReport();
-                container.html(reportString);
-            }
             map.spin(false);
         }, function(e) { map.spin(false); console.log(e); });
     }
@@ -1173,9 +1207,17 @@ var defaultParams = {
     "NElon": -34.27734375,
     "SWlat": 7.885147283424331,
     "SWlon": -176.044921875,
-    "report": false //,
+    "report": false,
+    "hasBoundingBox": false,
+    "hasCenter": false,
+    "hasZoom": false //,
     //"base": "Thunderforest Transport"
 };
+var pn = window.location.pathname;
+if (pn.substring(pn.length-5) === "print" ||
+        pn.substring(pn.length-10) === "print.html") {
+    defaultParams.report = true;
+}
 // Get and parse query parameters
 var queryParams = parseQueryParams();
 // Merge defaults to fill in gaps
@@ -1205,12 +1247,14 @@ var map = L.map('map', {
         click: displayPopup,
         scrollWheelZoom: false,
         zoomControl: false,
-        attributionControl: false }) // add attribution control after adding disclaimer control below
-    .setView([window.location.queryParams.centerLat, window.location.queryParams.centerLon],
-        window.location.queryParams.zoom)
-    .fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
-        [window.location.queryParams.NElat, window.location.queryParams.NElon]])
-    .setZoom(window.location.queryParams.zoom);
+        attributionControl: false }); // add attribution control after adding disclaimer control below
+if (queryParams.hasBoundingBox) {
+    map.fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
+        [window.location.queryParams.NElat, window.location.queryParams.NElon]]);
+} else {
+    map.setView([window.location.queryParams.centerLat, window.location.queryParams.centerLon],
+        window.location.queryParams.zoom);
+}
 
 // Create lists of choropleth overlay layers (to be populated as data is loaded)
 map.summaryOverlays = [];
@@ -1291,6 +1335,7 @@ if (!window.location.queryParams.report) {
         position: 'topleft'
     }).addTo(map);
 }
+
 L.control.scale({ position: "topleft" }).addTo(map);
 
 // Create a location search control and add to top right of map (non-report)

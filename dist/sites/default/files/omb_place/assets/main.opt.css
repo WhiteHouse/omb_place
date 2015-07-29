@@ -758,8 +758,8 @@ img#logo {
 
 /* Colorboxes */
 .colorbox {
-    width: 8px;
-    height: 8px;
+    width: 14px;
+    height: 14px;
     border: 2px dashed white;
     display: inline-block;
 }
@@ -868,9 +868,17 @@ button {
 }
 button.select-all-overlays {
     background-color: #2e8b57;
+    background-image: none;
+    text-shadow: none;
+    margin: 3px 0 3px 5px;
+    padding: 3px 5px;
 }
 button.unselect-all-overlays {
     background-color: #dc143c;
+    background-image: none;
+    text-shadow: none;
+    margin: 3px 0 3px 5px;
+    padding: 3px 5px;
 }
 
 /* Alterations to placement of Zoom controls */
