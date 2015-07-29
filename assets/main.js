@@ -577,22 +577,6 @@ function addLocationToReportTitle(titleElement) {
     getReverseGeolocationPromise(map.getCenter()).done(function (data) {
         var titleString = t.html() + " for " + getPopupLocationString(data) + " and Surrounds";
         t.html(titleString);
-        /*
-        var datasetsList = window.location.queryParams.datasets;
-        var datasetsToInclude = [];
-        var k, d;
-        for (k = 0; k < datasetsList.length; k++) {
-            d = datasetsList[k];
-            if (data_obj.hasOwnProperty(d) && data_obj[d].hasOwnProperty("label") &&
-                data_obj[d].hasOwnProperty("category") && data_obj[d].category !== "summary") {
-                datasetsToInclude.push(data_obj[d].label);
-            }
-        }
-        var datasetsString = '<p style="font-size: 0.8em;">Data Sets: <ul><li>'
-            + datasetsToInclude.join("</li><li>")
-            + "</li></ul></p>";
-        t.after(datasetsString);
-         */
     }).error(function (err) {
         console.log("Reverse geolocation failed. Error:");
         console.log(err);

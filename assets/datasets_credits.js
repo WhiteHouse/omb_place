@@ -216,12 +216,41 @@ $.getJSON('data/datasets.json').done(function(obj) {
             layerOrdering[parseInt(data_obj[k]["layerOrder"],10)-1] = k;
         }
     }
+    var dataset;
     for (k = 0; k < layerOrdering.length; k++) {
         if (layerOrdering[k]) {
-            var dataset = data_obj[layerOrdering[k]];
-            dataset.slug = layerOrdering[k];
-            createColorBoxCSS(dataset);
-            $("#initiatives").append($(displayDataCredits(dataset, defaultCredits)));
+            if (data_obj.hasOwnProperty(layerOrdering[k])
+                && data_obj[layerOrdering[k]].hasOwnProperty("category")
+                && data_obj[layerOrdering[k]].category === "summary") {
+                dataset = data_obj[layerOrdering[k]];
+                dataset.slug = layerOrdering[k];
+                createColorBoxCSS(dataset);
+                $("#summaries").append($(displayDataCredits(dataset, defaultCredits)));
+            }
+        }
+    }
+    for (k = 0; k < layerOrdering.length; k++) {
+        if (layerOrdering[k]) {
+            if (data_obj.hasOwnProperty(layerOrdering[k])
+                && data_obj[layerOrdering[k]].hasOwnProperty("category")
+                && data_obj[layerOrdering[k]].category === "baseline") {
+                dataset = data_obj[layerOrdering[k]];
+                dataset.slug = layerOrdering[k];
+                createColorBoxCSS(dataset);
+                $("#baselines").append($(displayDataCredits(dataset, defaultCredits)));
+            }
+        }
+    }
+    for (k = 0; k < layerOrdering.length; k++) {
+        if (layerOrdering[k]) {
+            if (data_obj.hasOwnProperty(layerOrdering[k])
+                && data_obj[layerOrdering[k]].hasOwnProperty("category")
+                && data_obj[layerOrdering[k]].category === "initiative") {
+                dataset = data_obj[layerOrdering[k]];
+                dataset.slug = layerOrdering[k];
+                createColorBoxCSS(dataset);
+                $("#initiatives").append($(displayDataCredits(dataset, defaultCredits)));
+            }
         }
     }
 }).fail(function(e) {
