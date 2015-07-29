@@ -134,15 +134,15 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure, 
  */
 function getDatasetDescription(dataset) {
     var description_string = "";
-    if (dataset.hasOwnProperty("description")) {
+    if (dataset.hasOwnProperty("description") && dataset.description && dataset.description !== "") {
         description_string += "<p>" + dataset.description + "</p>";
     }
-    if (dataset.hasOwnProperty("initiativeURL")) {
-        description_string += '<p>For more information about this data, please visit:<br/>' +
+    if (dataset.hasOwnProperty("initiativeURL") && dataset.initiativeURL && dataset.initiativeURL !== "") {
+        description_string += '<p>For more information about this initiative, please visit:<br/>' +
             '<a href="' + dataset.initiativeURL + '" target="_blank">'
             + dataset.initiativeURL + '</a></p>';
     }
-    if (description_string) {
+    if (description_string && description_string !== "") {
         description_string = "<h3>About this data:</h3>" + description_string;
     }
     return description_string;
@@ -150,34 +150,39 @@ function getDatasetDescription(dataset) {
 
 function getDatasetCredits(dataset) {
     var credits_string = "<h3>Data credits:</h3>";
-    if (dataset.hasOwnProperty("credits")) {
+    if (dataset.hasOwnProperty("credits") && dataset.credits && dataset.credits !== "") {
         credits_string += "<p>" + dataset.credits + "</p>";
     } else {
-        credits_string += defaultCredits;
+        credits_string += "<p>" + map_params.default_dataset_credits + "</p>";
     }
     return credits_string;
 }
 
 function getDatasetDownloadLinks(dataset) {
     var linkString = "";
-    var path_to_root = window.location.href.substring(0,
-        window.location.href.length
-        - window.location.search.length
-        - 'datasets.html'.length);
-    if (dataset.hasOwnProperty("geojson") || dataset.hasOwnProperty("topojson")) {
+    var path = window.location.pathname;
+    var path_to_root;
+    if (path.substring(path.length-'datasets.html'.length) === 'datasets.html') {
+        path_to_root = window.location.origin + path.substring(0,path.length-'datasets.html'.length);
+    } else {
+        path_to_root = window.location.origin
+    }
+    if ((dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "")
+            || (dataset.hasOwnProperty("topojson") && dataset.topojson && dataset.topojson !== "")) {
         linkString += "<h3>Download the data:</h3><ul>";
     }
-    if (dataset.hasOwnProperty("geojson")) {
+    if (dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "") {
         linkString += '<li>GeoJSON: ' +
             '<a href="' + path_to_root + dataset.geojson + '" target="_blank">'
             + path_to_root + dataset.geojson + '</a></li>';
     }
-    if (dataset.hasOwnProperty("topojson")) {
+    if (dataset.hasOwnProperty("topojson") && dataset.topojson && dataset.topojson !== "") {
         linkString += '<li>TopoJSON: ' +
             '<a href="' + path_to_root + dataset.topojson + '" target="_blank">'
             + path_to_root + dataset.topojson + '</a></li>';
     }
-    if (dataset.hasOwnProperty("geojson") || dataset.hasOwnProperty("topojson")) {
+    if ((dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "")
+        || (dataset.hasOwnProperty("topojson") && dataset.topojson && dataset.topojson !== "")) {
         linkString += "</ul>";
     }
     return linkString;
