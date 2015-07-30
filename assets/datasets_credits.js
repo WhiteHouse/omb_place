@@ -97,7 +97,7 @@ function getStyledChoroplethLabel(dataset, where) {
         var gradientBox = getChoroplethGradientBox(3, "em", 1, "em", dataset.colors, where);
         return gradientBox + styledLabel.prop("outerHTML");
     } else {
-        console.log("Couldn't create gradient box for dataset "+dataset+" -- no colors provided");
+        //console.log("Couldn't create gradient box for dataset "+dataset+" -- no colors provided");
         return styledLabel.prop("outerHTML");
     }
 }

@@ -6,7 +6,7 @@ var data_obj, map_params, numDatasets, layerOrdering, choropleths;
 var overlayCount = 0;
 
 /********************************
- * Handle query parameters
+ * Handle query parameters & path utilities
  */
 function parseQueryParams() {
     var queryParams = {};
@@ -51,6 +51,34 @@ function parseQueryParams() {
         queryParams.hasZoom = true;
     }
     return queryParams;
+}
+
+function getAboutDataPath(map_params) {
+    if (map_params.hasOwnProperty("about_data_url") && map_params.about_data_url) {
+        return map_params.about_data_url;
+    }
+    var hn = window.location.hostname;
+    if (hn.substring(hn.length-14) === "whitehouse.gov") {
+        return "/omb/place/datasets";
+    }
+    if (hn.substring(hn.length-7) === "max.gov") {
+        return "datasets.html";
+    }
+    return "datasets.html";
+}
+
+function getPrintViewPath(map_params) {
+    if (map_params.hasOwnProperty("print_url") && map_params.print_url) {
+        return map_params.print_url;
+    }
+    var hn = window.location.hostname;
+    if (hn.substring(hn.length-14) === "whitehouse.gov") {
+        return "/omb/place/print";
+    }
+    if (hn.substring(hn.length-7) === "max.gov") {
+        return "print.html";
+    }
+    return "print.html";
 }
 
 /********************************
@@ -240,7 +268,7 @@ function sortPolygonsByState(polygons) {
     //console.log(partitions);
     //console.log(counts);
     var states = Object.keys(partitions).sort();
-    console.log(states);
+    //console.log(states);
     var result = [];
     for (var k = 0; k < states.length; k++) {
         state = states[k];
@@ -398,7 +426,7 @@ function getStyledChoroplethLabel(dataset, where) {
         var gradientBox = getChoroplethGradientBox(40, "px", 14, "px", dataset.colors, where);
         return gradientBox + styledLabel.prop("outerHTML");
     } else {
-        console.log("Couldn't create gradient box for dataset "+dataset.slug+" -- no colors provided");
+        //console.log("Couldn't create gradient box for dataset "+dataset.slug+" -- no colors provided");
         return styledLabel.prop("outerHTML");
     }
 }
@@ -449,7 +477,7 @@ function getChoroplethGradientBox(width, width_measure, height, height_measure,
 function getSummarySegment(dataset, polygons, numPolygons, where) {
     var polysAndCounts = sortPolygonsByState(polygons);
     var polys = polysAndCounts.sortedPolygons;
-    console.log(polysAndCounts.countsByState);
+    //console.log(polysAndCounts.countsByState);
     var popupString = "<div class=\""+where+"-segment\">" +
         (where == "report" ? "<h2>" : "") +
         getStyledChoroplethLabel(dataset, where) +
@@ -850,10 +878,11 @@ function createChoroplethTools(dataset) {
         legendString += "</div>";
         this.display.update(e);
         legendString += this.display.outerHTML();
-        if (this.dataset.hasOwnProperty("legend_credits")) {
+        if (this.dataset.hasOwnProperty("legend_credits") && this.dataset.legend_credits) {
             var creditString = this.dataset.legend_credits;
             legendString += '<div class="choropleth-legend-data-credits">'+creditString
-                +' (<a href="datasets.html#'+this.dataset.slug+'" target="_blank">more</a>)</div>';
+                +' (<a href="'+getAboutDataPath(window.map_params)+'#'+this.dataset.slug
+                +'" target="_blank">more</a>)</div>';
         }
         $(this._div).html(legendString);
     };
@@ -1160,7 +1189,7 @@ function setupMapControls(p) {
             var queryString = "report&SWlat=" + SWlat + "&SWlon=" + SWlon + "&NElat=" +
                 NElat + "&NElon=" + NElon + "&base=" + activeBaseLayer + "&datasets=" +
                 activeOverlays.join(",");
-            var base_url = p.hasOwnProperty('print_url') ? p.print_url : "print.html";
+            var base_url = getPrintViewPath(p);
             var url = encodeURI(base_url + "?" + queryString);
             window.open(url, "_blank");
         };
