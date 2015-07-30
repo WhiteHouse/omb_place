@@ -153,7 +153,11 @@ function getDatasetCredits(dataset, defaultCredits) {
     if (dataset.hasOwnProperty("credits") && dataset.credits && dataset.credits !== "") {
         credits_string += "<p>" + dataset.credits + "</p>";
     } else {
-        credits_string += "<p>" + defaultCredits + "</p>";
+        if (defaultCredits && defaultCredits !== 'undefined') {
+            credits_string += "<p>" + defaultCredits + "</p>";
+        } else {
+            credits_string += "<p>Produced from Federal agency data about community-based initiatives.</p>";
+        }
     }
     return credits_string;
 }
@@ -210,7 +214,8 @@ var data_obj, defaultCredits, layerOrdering = [];
  */
 $.getJSON('data/datasets.json').done(function(obj) {
     data_obj = obj.datasets;
-    defaultCredits = obj.default_dataset_credits;
+    defaultCredits = (obj.hasOwnProperty("default_dataset_credits") && obj.default_dataset_credits) ?
+            obj.default_dataset_credits : "Produced from Federal agency data about community-based initiatives.";
     for (var k in data_obj) {
         if (data_obj.hasOwnProperty(k) && data_obj[k].hasOwnProperty("layerOrder")) {
             layerOrdering[parseInt(data_obj[k]["layerOrder"],10)-1] = k;
