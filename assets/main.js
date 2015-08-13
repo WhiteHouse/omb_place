@@ -8,7 +8,7 @@ var overlayCount = 0;
 /********************************
  * Handle query parameters & path utilities
  */
-function parseQueryParams() {
+function parseQueryParams(defaultGuessIsReport) {
     var queryParams = {};
     var query = decodeURIComponent(window.location.search.substring(1));
     if (query[query.length-1] == '/') {
@@ -50,33 +50,67 @@ function parseQueryParams() {
     if (queryParams.hasOwnProperty("zoom")) {
         queryParams.hasZoom = true;
     }
+    if (!queryParams.hasOwnProperty("hostname")) {
+        queryParams.hostname = window.location.hostname;
+    }
+    if (!queryParams.hasOwnProperty("rootpath")) {
+        var p = window.location.pathname;
+        var n = p.lastIndexOf('/');
+        if (p.length === n + 1) {
+            if ((queryParams.hasOwnProperty("report") && queryParams.report) ||
+                defaultGuessIsReport) {
+                var nn = p.slice(0, -1).lastIndexOf('/');
+                queryParams.rootpath = p.slice(0,nn+1);
+                queryParams.subpath = p.slice(nn+1);
+            } else {
+                queryParams.rootpath = p;
+                queryParams.subpath = "";
+            }
+        } else {
+            queryParams.rootpath = p.slice(0,n+1);
+            queryParams.subpath = p.slice(n+1);
+        }
+    }
+    if (!queryParams.hasOwnProperty("subpath")) {
+        queryParams.subpath = "";
+    }
     return queryParams;
 }
 
 function getAboutDataPath(map_params) {
+    if (window.location.hasOwnProperty("queryParams") &&
+        window.location.queryParams.hasOwnProperty("about_data_url")) {
+        return window.location.queryParams.about_data_url;
+    }
     if (map_params.hasOwnProperty("about_data_url") && map_params.about_data_url) {
         return map_params.about_data_url;
     }
-    var hn = window.location.hostname;
-    if (hn.substring(hn.length-14) === "whitehouse.gov") {
-        return "/omb/place/datasets";
-    }
-    if (hn.substring(hn.length-7) === "max.gov") {
-        return "datasets.html";
+    if (window.location.queryParams.hasOwnProperty("hostname") &&
+        window.location.queryParams.hasOwnProperty("rootpath") &&
+        window.location.queryParams.hasOwnProperty("subpath")) {
+        var hn = window.location.queryParams.hostname;
+        var rp = window.location.queryParams.rootpath;
+        var sp = window.location.queryParams.subpath;
+        return "//"+hn+rp+'datasets'+(sp.slice(-5) === '.html' ? '.html' : '');
     }
     return "datasets.html";
 }
 
 function getPrintViewPath(map_params) {
+    if (window.location.hasOwnProperty("queryParams") &&
+        window.location.queryParams.hasOwnProperty("print_url")) {
+        return window.location.queryParams.print_url;
+    }
     if (map_params.hasOwnProperty("print_url") && map_params.print_url) {
         return map_params.print_url;
     }
-    var hn = window.location.hostname;
-    if (hn.substring(hn.length-14) === "whitehouse.gov") {
-        return "/omb/place/print";
-    }
-    if (hn.substring(hn.length-7) === "max.gov") {
-        return "print.html";
+    if (window.location.queryParams.hasOwnProperty("hostname") &&
+        window.location.queryParams.hasOwnProperty("rootpath") &&
+        window.location.queryParams.hasOwnProperty("subpath")) {
+        var hn = window.location.queryParams.hostname;
+        var rp = window.location.queryParams.rootpath;
+        var sp = window.location.queryParams.subpath;
+        return "//"+hn+rp+'print'+(sp.slice(-5) === '.html' ? '.html' : '');
     }
     return "print.html";
 }
@@ -863,7 +897,7 @@ function createChoroplethTools(dataset) {
                 legendString += '<div class="choropleth-legend-element">'
                     +'<div class="colorbox colorbox-popup" style="background-color:'
                     +colors[i]+";border-color:"+colors[i]+";\"></div><span>"
-                    +(thresholds[i]+1)+"+</span></div>";
+                    +"&gt; "+(thresholds[i]+1)+"</span></div>";
             } else {
                 legendString += '<div class="choropleth-legend-element">'
                     +'<div class="colorbox colorbox-popup" style="background-color:'
@@ -874,7 +908,7 @@ function createChoroplethTools(dataset) {
         legendString += '<div class="choropleth-legend-element">'
             +'<div class="colorbox colorbox-popup" style="background-color:'
             +colors[colors.length-1]+";border-color:"+colors[colors.length-1]+";\"></div>"
-            +"<span>1 - "+(thresholds[thresholds.length-1])+"</span></div>";
+            +"<span>&lt; "+(thresholds[thresholds.length-1])+"</span></div>";
         legendString += "</div>";
         this.display.update(e);
         legendString += this.display.outerHTML();
@@ -966,6 +1000,13 @@ function load_map_data (data_format) {
             reorderLayers();
             choropleths = getChoropleths();
             if (!window.location.queryParams.report) {
+                // Add check all and uncheck all buttons to overlays selection
+                var overlaysDiv = $("div.leaflet-control-layers-overlays");
+                var baseLayersDiv = $("div.leaflet-control-layers-base");
+                var buttonsDiv = $("<div></div>").addClass("bulk-select-overlays");
+                var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
+                var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
+                buttonsDiv.html(selectAllButton+unselectAllButton);
                 // Add titles to Layers control
                 var baseLayersTitle = $("<div  class=\"leaflet-control-layers-section-name\"></div>")
                     .html("<h4>Base Map Layers</h4>");
@@ -974,6 +1015,14 @@ function load_map_data (data_format) {
                     .html("<h4>Overlay Layers</h4>")
                     .append(buttonsDiv);
                 overlaysDiv.before(overlayLayersTitle);
+                var titleSpan = "<div><h3 class=\"leaflet-control-layers-title\">"
+                    + "<span>What's on this map?</span></h3>"
+                    + "<p class=\"leaflet-control-layers-subtitle-info\">"
+                    + "<span class=\"fa fa-download\"></span><a href=\""
+                    + getAboutDataPath(map_params)
+                    + "\" target=\"_blank\">More about these initiatives and data sets</a>"
+                    + "</p></div>";
+                $("form.leaflet-control-layers-list").prepend($(titleSpan));
             }
         }
         if (window.location.queryParams.report) {
@@ -1244,11 +1293,12 @@ var defaultParams = {
 };
 var pn = window.location.pathname;
 if (pn.substring(pn.length-5) === "print" ||
-        pn.substring(pn.length-10) === "print.html") {
+    pn.substring(pn.length-6) === "print/" ||
+    pn.substring(pn.length-10) === "print.html") {
     defaultParams.report = true;
 }
 // Get and parse query parameters
-var queryParams = parseQueryParams();
+var queryParams = parseQueryParams(defaultParams.report);
 // Merge defaults to fill in gaps
 for (var prop in defaultParams) {
     if (defaultParams.hasOwnProperty(prop)) {
@@ -1299,17 +1349,9 @@ if (!window.location.queryParams.report) {
         base_layers, overlay_groups, { exclusiveGroups: [] });
     layerControl.addTo(map);
     // For accessibility
-    $("a.leaflet-control-layers-toggle").prop("title","Select Data Layers")
-        .append("<span>Select Data Layers</span>");
-    // Add check all and uncheck all buttons to overlays selection
-    var overlaysDiv = $("div.leaflet-control-layers-overlays");
-    var baseLayersDiv = $("div.leaflet-control-layers-base");
-    var buttonsDiv = $("<div></div>").addClass("bulk-select-overlays");
-    var selectAllButton = "<button class=\"select-all-overlays\" type=\"button\" onclick=\"addAllLayers()\">Select All</button>";
-    var unselectAllButton = "<button class=\"unselect-all-overlays\" type=\"button\" onclick=\"removeAllLayers()\">Unselect All</button>";
-    buttonsDiv.html(selectAllButton+unselectAllButton);
-    var titleSpan = "<div><h3 class=\"leaflet-control-layers-title\"><span>Select Data Layers</span></h3></div>";
-    $("form.leaflet-control-layers-list").prepend($(titleSpan));
+    $("a.leaflet-control-layers-toggle")
+        .prop("title","What's on this map? (Data layers legend and layer information)")
+        .append("<span>What's on this map?</span>");
     $(".leaflet-control-layers-toggle").on("mouseover", setLayerControlHeight)
         .on("focus", setLayerControlHeight)
         .on("touchstart",setLayerControlHeight);
@@ -1366,6 +1408,38 @@ if (!window.location.queryParams.report) {
 }
 
 L.control.scale({ position: "topleft" }).addTo(map);
+
+// Add top center location for map controls
+var $controlContainer = map._controlContainer,
+    nodes = $controlContainer.childNodes,
+    topCenter = false;
+
+for (var i = 0, len = nodes.length; i < len; i++) {
+    var klass = nodes[i].className;
+    if (/leaflet-top/.test(klass) && /leaflet-center/.test(klass)) {
+        topCenter = true;
+        break;
+    }
+}
+
+if (!topCenter) {
+    var tc = document.createElement('div');
+    tc.className += 'leaflet-top leaflet-center';
+    $controlContainer.appendChild(tc);
+    map._controlCorners.topcenter = tc;
+}
+
+// Add a title to the map
+map.titleControl = L.control({
+    position: 'topcenter'
+});
+map.titleControl.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'map-title-div');
+    var theHeader = '<h1>Map of Administration Community-based Initiatives</h1>';
+    $(this._div).html(theHeader);
+    return this._div;
+};
+map.titleControl.addTo(map);
 
 // Create a location search control and add to top right of map (non-report)
 if (!window.location.queryParams.report) {

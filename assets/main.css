@@ -60,6 +60,18 @@ img#logo {
     padding-left: 46px;
     line-height: 36px;
 }
+.leaflet-control-layers-subtitle-info {
+    margin-left: 45px;
+    margin-top: -3px;
+}
+.leaflet-control-layers-subtitle-info span.fa {
+    padding: 3px;
+    margin-right: 5px;
+    display: inline-block;
+    color: white;
+    background-color: #0078A8;
+    border-radius: 10px;
+}
 .leaflet-control-layers-section-name {
     background-color:rgb(229, 229, 229);
     border-bottom: 1px solid rgb(159, 159, 159);
@@ -181,7 +193,7 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     clear: both;
     display: block;
     float: left;
-    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-family: 'Whitney SSm A', 'Whitney SSm B', HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans L', sans-serif;
     font-size: 12px;
     line-height: 18px;
     background: rgba(255, 255, 255, 0.7);
@@ -228,7 +240,7 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     clear: none;
     display: block;
     float: right;
-    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-family: 'Whitney SSm A', 'Whitney SSm B', HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans L', sans-serif;
     font-size: 12px;
     line-height: 18px;
     background: rgba(255, 255, 255, 0.7);
@@ -294,7 +306,25 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     margin: 10px 10% 0;
 }
 .leaflet-top.leaflet-center {
-    margin: 10px auto 0;
+    margin: 0 auto;
+}
+
+/* Map Title control styles */
+.map-title-div {
+    background-color: rgba(255,255,255,0.7);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    color: #036;
+    max-width: 100%;
+    margin: 0 auto !important;
+}
+
+.map-title-div h1 {
+    font-size: 18px;
+    padding: 5px 8px;
+    margin: 0;
+    text-align: center;
+    font-family: 'Hoefler Text A', 'Hoefler Text B', Georgia, 'Times New Roman', 'DejaVu Serif', serif;
 }
 
 /* Disclaimer control styles */
