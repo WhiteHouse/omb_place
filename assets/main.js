@@ -167,14 +167,14 @@ function getPolygonsForPointInDataset(p, dataset) {
     if (dataset) {
         polygons = [];
         var result;
-        if (dataset.type !== 'points') {
+        if (dataset.type === 'points') {
             dataset.layer_data.eachLayer( function(l) {
-                result = leafletPip.pointInLayer(p, l);
+                result = getMarkersForPointInLayer(p, l);
                 Array.prototype.push.apply(polygons, result);
             });
         } else {
             dataset.layer_data.eachLayer( function(l) {
-                result = getMarkersForPointInLayer(p, l);
+                result = leafletPip.pointInLayer(p, l);
                 Array.prototype.push.apply(polygons, result);
             });
         }
@@ -188,6 +188,7 @@ function getMarkersForPointInLayer(p, layer, result, depth) {
     if (layer.hasOwnProperty("feature") && layer.feature.geometry.type === "Point") {
         var lll = layer._latlng;
         if (p == lll) {
+            console.log(p, lll);
             result.push(layer);
         }
     } else if (layer instanceof L.LayerGroup) {
