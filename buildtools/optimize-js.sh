@@ -6,7 +6,7 @@
 # Run from that directory (normally, called by build.sh in same directory)
 
 now=$1
-outpath="../dist/sites/default/files/omb_place/assets/"
+outpath=$2
 
 # Main
 

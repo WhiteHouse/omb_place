@@ -9,7 +9,7 @@
 # Run from that directory (normally, called by build.sh in same directory)
 
 now=$1
-outpath="../dist/sites/default/files/omb_place/assets/"
+outpath=$2
 
 # Main - Modern Browsers
 echo -e "\033[1m\033[36mOptimizing main stylesheets for modern browsers: dist/assets/main.min.css (dist/assets/main.min.css.gz)\033[0m\033[0m"

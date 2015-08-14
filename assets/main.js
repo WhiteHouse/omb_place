@@ -749,6 +749,66 @@ function displayPopup(e) {
 }
 
 /********************************
+ * Layer control tooltip function
+ */
+function addPopupActionsToLayersControlLayerTitles(data_obj, map_params) {
+    var layerSlugs = {};
+    for (var slug in data_obj) {
+        if (data_obj.hasOwnProperty(slug)) {
+            layerSlugs[data_obj[slug].label] = slug;
+        }
+    }
+    console.log(layerSlugs);
+    $(".leaflet-control-layers-group>label").each(function(n, el) {
+        var layerTitle = $(el).find("span>span")[0].innerHTML;
+        var slug = layerSlugs[layerTitle];
+        //console.log(layerTitle+" --> "+slug);
+        var labelElementId = slug+"-layer-control-label";
+        //console.log($(el).attr("id"));
+        if (typeof $(el).attr("id") === 'undefined' || $(el).attr("id") !== labelElementId) {
+            //console.log("No label id: creating tooltip div");
+            $(el).attr("id", labelElementId);
+            $(el).addClass("leaflet-control-layers-selector-label");
+            //console.log(el);
+            $(el).append(createDescriptionTooltip(data_obj[slug], map_params));
+            //console.log(el);
+            $(el).on("mouseover", function (e) {
+                var selector = 'div#' + slug + '-description-tooltip.layer-description-tooltip';
+                var layerControlLabelSelector = 'label#' + slug + "-layer-control-label";
+                //console.log("Showing: " + selector);
+                $(selector).show();
+                //console.log("Label: " + $(layerControlLabelSelector)[0].outerHTML + "\n"
+                //    + " | CSS top: " + $(layerControlLabelSelector).css("top")
+                //    + " | $().offset().top: " + $(layerControlLabelSelector).offset().top
+                //    + " | $().position().top: " + $(layerControlLabelSelector).position().top);
+            }).on("mouseout", function (e) {
+                //console.log("Hiding: " + 'div#' + slug + '-description-tooltip.layer-description-tooltip');
+                $('div#' + slug + '-description-tooltip.layer-description-tooltip').hide();
+            });
+            $('div#' + slug + '-description-tooltip.layer-description-tooltip').hide();
+        }
+        console.log("Final label element:");
+        console.log(el);
+    });
+}
+
+function createDescriptionTooltip(dataset, p) {
+    var el = $('#' + dataset.slug + "-layer-control-label");
+    var tooltip = $("<div></div>");
+    tooltip.attr("id", dataset.slug + "-description-tooltip");
+    tooltip.addClass("layer-description-tooltip");
+    console.log(tooltip);
+    var tooltipContents = '<h3>' + dataset.label + '</h3><p>' + dataset.description
+        + '</p><p class="layer-description-tooltip-more-link"><a href="'
+        + getAboutDataPath(p) + '#'+dataset.slug+'" target="_blank">Find out more or '
+        + 'download this dataset</a></p>';
+    console.log(tooltipContents);
+    tooltip.html(tooltipContents);
+    console.log(tooltip);
+    return tooltip;
+}
+
+/********************************
  * Layer management functions
  */
 function addAllLayers() {
@@ -1040,6 +1100,10 @@ function load_map_data (data_format) {
                     addLayerToMap(data_obj[k]);
                 }
             }
+        }
+        if (!window.location.queryParams.report) {
+            // Add popup actions to layers control layer titles
+            addPopupActionsToLayersControlLayerTitles(data_obj, map_params);
         }
         map.invalidateSize(false);
     }).fail(function(e) { map.spin(false); console.log(e); });
@@ -1450,4 +1514,11 @@ if (!window.location.queryParams.report) {
         showMarker: false,
         retainZoomLevel: false
     }).addTo(map);
+}
+
+
+if (!window.location.queryParams.report) {
+    $(".leaflet-control-layers-toggle").on("mouseover", function(e) {
+        addPopupActionsToLayersControlLayerTitles(data_obj, map_params);
+    });
 }
