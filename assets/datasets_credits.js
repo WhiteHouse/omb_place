@@ -171,9 +171,15 @@ function getDatasetDownloadLinks(dataset) {
     } else {
         path_to_root = window.location.origin
     }
-    if ((dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "")
+    if ((dataset.hasOwnProperty("csv") && dataset.csv && dataset.csv !== "")
+            || (dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "")
             || (dataset.hasOwnProperty("topojson") && dataset.topojson && dataset.topojson !== "")) {
         linkString += "<h3>Download the data:</h3><ul>";
+    }
+    if (dataset.hasOwnProperty("csv") && dataset.csv && dataset.csv !== "") {
+        linkString += '<li>CSV (Tabular Text): ' +
+            '<a href="' + path_to_root + dataset.csv + '" target="_blank">'
+            + path_to_root + dataset.csv + '</a></li>';
     }
     if (dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "") {
         linkString += '<li>GeoJSON: ' +

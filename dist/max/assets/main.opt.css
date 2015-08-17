@@ -1092,7 +1092,7 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     border-bottom-right-radius: 10px;
     border: solid 1px rgba(255, 255, 255, 0.9);
     background: rgba(32,32,32,0.9);
-    box-shadow: rgba(0, 0, 0, 0.6) 0px 1px 5px 0px;
+    box-shadow: rgba(0, 0, 0, 0.6) 0 1px 5px 0;
     color: white;
     font-size: 0.8em;
     padding: 5px;
