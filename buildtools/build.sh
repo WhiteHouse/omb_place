@@ -61,16 +61,29 @@ cp ../favicon.ico ../dist/gh/favicon.ico
 
 # Copy data directory and update datasets json pathing.
 cp -r ../data ../dist/wh/sites/default/files/omb_place/data
+perl -pi -e "s/(<a href=\\\")[A-Za-z\-\.\/]+(\\\" target=\\\"\_blank\\\">about the data<\/a>)/\1\/omb\/place\/datasets\2/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
+perl -pi -e "s/(\"print_url\"\:\s*\")[^\"]+\"/\1\/omb\/place\/print\"/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
+perl -pi -e "s/(\"about_data_url\"\:\s*\")[^\"]+\"/\1\/omb\/place\/datasets\"/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
+perl -pi -e "s/geojson\//\/sites\/default\/files\/omb_place\/data\/geojson\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 perl -pi -e "s/geojson\//\/sites\/default\/files\/omb_place\/data\/geojson\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 perl -pi -e "s/topojson\//\/sites\/default\/files\/omb_place\/data\/topojson\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
+perl -pi -e "s/csv\//\/sites\/default\/files\/omb_place\/data\/csv\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 
 cp -r ../data ../dist/max/data
+perl -pi -e "s/(<a href=\\\")[A-Za-z\-\.\/]+(\\\" target=\\\"\_blank\\\">about the data<\/a>)/\1datasets.html\2/g" ../dist/max/data/datasets.json
+perl -pi -e "s/(\"print_url\"\:\s*\")[^\"]+\"/\1print.html\"/g" ../dist/max/data/datasets.json
+perl -pi -e "s/(\"about_data_url\"\:\s*\")[^\"]+\"/\1datasets.html\"/g" ../dist/max/data/datasets.json
 perl -pi -e "s/geojson\//data\/geojson\//g" ../dist/max/data/datasets.json
 perl -pi -e "s/topojson\//data\/topojson\//g" ../dist/max/data/datasets.json
+perl -pi -e "s/csv\//data\/csv\//g" ../dist/max/data/datasets.json
 
 cp -r ../data ../dist/gh/data
+perl -pi -e "s/(<a href=\\\")[A-Za-z\-\.\/]+(\\\" target=\\\"\_blank\\\">about the data<\/a>)/\1datasets.html\2/g" ../dist/gh/data/datasets.json
+perl -pi -e "s/(\"print_url\"\:\s*\")[^\"]+\"/\1print.html\"/g" ../dist/gh/data/datasets.json
+perl -pi -e "s/(\"about_data_url\"\:\s*\")[^\"]++\"/\1datasets.html\"/g" ../dist/gh/data/datasets.json
 perl -pi -e "s/geojson\//data\/geojson\//g" ../dist/gh/data/datasets.json
 perl -pi -e "s/topojson\//data\/topojson\//g" ../dist/gh/data/datasets.json
+perl -pi -e "s/csv\//data\/csv\//g" ../dist/gh/data/datasets.json
 
 # Copy image and font assets
 cp -r ../assets/leaflet-0.7.3/css/images ../dist/wh/sites/default/files/omb_place/assets/

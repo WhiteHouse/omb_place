@@ -774,7 +774,7 @@ function addPopupActionsToLayersControlLayerTitles(data_obj, map_params) {
             //console.log(el);
             $(el).on("mouseover", function (e) {
                 var selector = 'div#' + slug + '-description-tooltip.layer-description-tooltip';
-                var layerControlLabelSelector = 'label#' + slug + "-layer-control-label";
+                //var layerControlLabelSelector = 'label#' + slug + "-layer-control-label";
                 //console.log("Showing: " + selector);
                 $(selector).show();
                 //console.log("Label: " + $(layerControlLabelSelector)[0].outerHTML + "\n"
@@ -1277,6 +1277,31 @@ function setupMapControls(p) {
         base_layers[bl].options.attribution += p.attribution_tail;
     } }
 
+    // Add a title to the map
+    if (p.hasOwnProperty("map_title") && p.map_title
+            && !window.location.queryParams.report) {
+        map.titleControl = L.control({
+            position: 'topcenter'
+        });
+        map.titleControl.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'map-title-div');
+            var theHeader = '<h1>'+p.map_title+'</h1>';
+            $(this._div).html(theHeader);
+            return this._div;
+        };
+        map.titleControl.addTo(map);
+    }
+
+    // Create a location search control and add to top right of map (non-report)
+    if (!window.location.queryParams.report) {
+        new L.Control.GeoSearch({
+            provider: new L.GeoSearch.Provider.OpenStreetMap(),
+            position: 'topcenter',
+            showMarker: false,
+            retainZoomLevel: false
+        }).addTo(map);
+    }
+
     // Add the print report button
     if (!window.location.queryParams.report) {
         window.spawnPrintView = function () {
@@ -1494,31 +1519,14 @@ if (!topCenter) {
     map._controlCorners.topcenter = tc;
 }
 
-// Add a title to the map
-map.titleControl = L.control({
-    position: 'topcenter'
+if (!window.location.queryParams.report) {
+    // Add popup actions to layers control layer titles
+    addPopupActionsToLayersControlLayerTitles(data_obj, map_params);
+}
+
+$("a.leaflet-control-layers-toggle").on("mouseover", function(e) {
+    if (!window.location.queryParams.report) {
+        // Add popup actions to layers control layer titles
+        addPopupActionsToLayersControlLayerTitles(window.data_obj, window.map_params);
+    }
 });
-map.titleControl.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'map-title-div');
-    var theHeader = '<h1>Map of Administration Community-based Initiatives</h1>';
-    $(this._div).html(theHeader);
-    return this._div;
-};
-map.titleControl.addTo(map);
-
-// Create a location search control and add to top right of map (non-report)
-if (!window.location.queryParams.report) {
-    new L.Control.GeoSearch({
-        provider: new L.GeoSearch.Provider.OpenStreetMap(),
-        position: 'topcenter',
-        showMarker: false,
-        retainZoomLevel: false
-    }).addTo(map);
-}
-
-
-if (!window.location.queryParams.report) {
-    $(".leaflet-control-layers-toggle").on("mouseover", function(e) {
-        addPopupActionsToLayersControlLayerTitles(data_obj, map_params);
-    });
-}
