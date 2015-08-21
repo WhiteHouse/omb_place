@@ -1340,7 +1340,19 @@ function setupMapControls(p) {
             $(this._div).html(pb);
             return this._div;
         };
-        map.printButton.addTo(map);
+        map.printButton.zoomTrigger = 9;
+        map.printButton.onMap = false;
+        map.printButton.zoomHandler = function(e) {
+            if (map.getZoom() >= map.printButton.zoomTrigger && !map.printButton.onMap) {
+                map.printButton.addTo(map);
+                map.printButton.onMap = true;
+            } else if (map.getZoom() < map.printButton.zoomTrigger && map.printButton.onMap) {
+                map.printButton.removeFrom(map);
+                map.printButton.onMap = false;
+            }
+        };
+        map.on('zoomend', map.printButton.zoomHandler);
+        map.printButton.zoomHandler({});
     }
 
     // Add disclaimer control
