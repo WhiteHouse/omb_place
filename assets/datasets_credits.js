@@ -167,9 +167,9 @@ function getDatasetDownloadLinks(dataset) {
     var path = window.location.pathname;
     var path_to_root;
     if (path.substring(path.length-'datasets.html'.length) === 'datasets.html') {
-        path_to_root = window.location.origin + path.substring(0,path.length-'datasets.html'.length);
+        path_to_root = path.substring(0,path.length-'datasets.html'.length);
     } else {
-        path_to_root = window.location.origin
+        path_to_root = "";
     }
     if ((dataset.hasOwnProperty("csv") && dataset.csv && dataset.csv !== "")
             || (dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "")
@@ -178,20 +178,24 @@ function getDatasetDownloadLinks(dataset) {
     }
     if (dataset.hasOwnProperty("csv") && dataset.csv && dataset.csv !== "") {
         linkString += '<li>CSV (Tabular Text): ' +
-            '<a href="' + path_to_root + dataset.csv + '" target="_blank">'
-            + path_to_root + dataset.csv + '</a></li>';
+            '<a href="' + dataset.csv + '" target="_blank">' + window.location.origin
+            + (dataset.csv.substring(0,1) === "/" ? "" : path_to_root)
+            + dataset.csv + '</a></li>';
     }
     if (dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "") {
         linkString += '<li>GeoJSON: ' +
-            '<a href="' + path_to_root + dataset.geojson + '" target="_blank">'
-            + path_to_root + dataset.geojson + '</a></li>';
+            '<a href="' + dataset.geojson + '" target="_blank">' + window.location.origin
+            + (dataset.geojson.substring(0,1) === "/" ? "" : path_to_root)
+            + dataset.geojson + '</a></li>';
     }
     if (dataset.hasOwnProperty("topojson") && dataset.topojson && dataset.topojson !== "") {
         linkString += '<li>TopoJSON: ' +
-            '<a href="' + path_to_root + dataset.topojson + '" target="_blank">'
-            + path_to_root + dataset.topojson + '</a></li>';
+            '<a href="' + dataset.topojson + '" target="_blank">' + window.location.origin
+            + (dataset.topojson.substring(0,1) === "/" ? "" : path_to_root)
+            + dataset.topojson + '</a></li>';
     }
-    if ((dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "")
+    if ((dataset.hasOwnProperty("csv") && dataset.csv && dataset.csv !== "")
+        || (dataset.hasOwnProperty("geojson") && dataset.geojson && dataset.geojson !== "")
         || (dataset.hasOwnProperty("topojson") && dataset.topojson && dataset.topojson !== "")) {
         linkString += "</ul>";
     }
