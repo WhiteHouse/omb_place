@@ -152,12 +152,12 @@ button.unselect-all-overlays {
 }
 
 /* Alterations to placement of Zoom controls */
-#zoomcontrols {
-    clear: none;
+div#zoomcontrols {
+    max-width: 38px;
     float: left;
 }
-#zoomcontrols>.leaflet-control {
-    clear:both;
+.has-leaflet-pan-control .leaflet-control-zoom {
+    left: inherit;
 }
 
 /* Alterations to the Locate Control */

@@ -188,7 +188,7 @@ function getMarkersForPointInLayer(p, layer, result, depth) {
     if (layer.hasOwnProperty("feature") && layer.feature.geometry.type === "Point") {
         var lll = layer._latlng;
         if (p == lll) {
-            console.log(p, lll);
+            // console.log(p, lll);
             result.push(layer);
         }
     } else if (layer instanceof L.LayerGroup) {
@@ -758,7 +758,7 @@ function addPopupActionsToLayersControlLayerTitles(data_obj, map_params) {
             layerSlugs[data_obj[slug].label] = slug;
         }
     }
-    console.log(layerSlugs);
+    //console.log(layerSlugs);
     $(".leaflet-control-layers-group>label").each(function(n, el) {
         var layerTitle = $(el).find("span>span")[0].innerHTML;
         var slug = layerSlugs[layerTitle];
@@ -787,8 +787,8 @@ function addPopupActionsToLayersControlLayerTitles(data_obj, map_params) {
             });
             $('div#' + slug + '-description-tooltip.layer-description-tooltip').hide();
         }
-        console.log("Final label element:");
-        console.log(el);
+        //console.log("Final label element:");
+        //console.log(el);
     });
 }
 
@@ -797,14 +797,14 @@ function createDescriptionTooltip(dataset, p) {
     var tooltip = $("<div></div>");
     tooltip.attr("id", dataset.slug + "-description-tooltip");
     tooltip.addClass("layer-description-tooltip");
-    console.log(tooltip);
+    //console.log(tooltip);
     var tooltipContents = '<h3>' + dataset.label + '</h3><p>' + dataset.description
         + '</p><p class="layer-description-tooltip-more-link"><a href="'
         + getAboutDataPath(p) + '#'+dataset.slug+'" target="_blank">Find out more or '
         + 'download this dataset</a></p>';
-    console.log(tooltipContents);
+    //console.log(tooltipContents);
     tooltip.html(tooltipContents);
-    console.log(tooltip);
+    //console.log(tooltip);
     return tooltip;
 }
 
@@ -1415,7 +1415,8 @@ var base_layers = {
 var map = L.map('map', {
         click: displayPopup,
         scrollWheelZoom: false,
-        zoomControl: false,
+        zoomControl: true,
+        defaultExtentControl: true,
         attributionControl: false }); // add attribution control after adding disclaimer control below
 if (queryParams.hasBoundingBox) {
     map.fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
@@ -1484,13 +1485,24 @@ if (!window.location.queryParams.report) {
         return this._div;
     };
     map.logo.addTo(map);
-    */
     new L.Control.zoomHome({
         zoomHomeTitle: "Reset map view",
         homeCoordinates: [window.location.queryParams.centerLat, window.location.queryParams.centerLon],
         homeZoom: window.location.queryParams.zoom
     }).addTo(map);
+     */
     new L.Control.ZoomBox().addTo(map);
+
+    // Move zoom controls into a single div container
+    var zoomControl = $("div.leaflet-control-zoom.leaflet-bar.leaflet-control");
+    var defaultExtentControl = $("div.leaflet-control-defaultextent.leaflet-bar.leaflet-control");
+    var zoomBoxControl = $("div.leaflet-zoom-box-control.leaflet-bar.leaflet-control");
+    var zoomControlContainer = $("<div></div>").prop("id", "zoomcontrols");
+    zoomControlContainer
+        .append(defaultExtentControl)
+        .append(zoomControl)
+        .append(zoomBoxControl);
+    $("div.leaflet-top.leaflet-left").prepend(zoomControlContainer);
 
     new L.Control.Pan({
         position: 'topleft'
@@ -1498,6 +1510,8 @@ if (!window.location.queryParams.report) {
 }
 
 L.control.scale({ position: "topleft" }).addTo(map);
+
+
 
 // Add top center location for map controls
 var $controlContainer = map._controlContainer,

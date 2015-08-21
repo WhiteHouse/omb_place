@@ -1,0 +1,30 @@
+.leaflet-control-defaultextent {
+
+}
+
+.leaflet-control-defaultextent-toggle {
+  text-indent: -9999px;
+  white-space: nowrap;
+  /* Change by Ryan Harvey: modified image path to fit deployment pattern
+  background-image: url('leaflet.defaultextent.png');
+  */
+  background-image: url('images/leaflet.defaultextent.png');
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+/* CSS for high-resolution devices */
+@media only screen and (-Webkit-min-device-pixel-ratio: 1.5),
+only screen and (-moz-min-device-pixel-ratio: 1.5),
+only screen and (-o-min-device-pixel-ratio: 3/2),
+only screen and (min-device-pixel-ratio: 1.5) {
+    .leaflet-control-defaultextent-toggle {
+        /* Change by Ryan Harvey: modified image path to fit deployment pattern
+        background-image: url('leaflet.defaultextent@2X.png');
+        */
+        background-image: url('images/leaflet.defaultextent@2X.png');
+        background-size: 26px 26px;
+        background-repeat: no-repeat;
+    }
+}
