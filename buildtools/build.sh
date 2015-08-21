@@ -65,7 +65,6 @@ perl -pi -e "s/(<a href=\\\")[A-Za-z\-\.\/]+(\\\" target=\\\"\_blank\\\">about t
 perl -pi -e "s/(\"print_url\"\:\s*\")[^\"]+\"/\1\/omb\/place\/print\"/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 perl -pi -e "s/(\"about_data_url\"\:\s*\")[^\"]+\"/\1\/omb\/place\/datasets\"/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 perl -pi -e "s/geojson\//\/sites\/default\/files\/omb_place\/data\/geojson\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
-perl -pi -e "s/geojson\//\/sites\/default\/files\/omb_place\/data\/geojson\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 perl -pi -e "s/topojson\//\/sites\/default\/files\/omb_place\/data\/topojson\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 perl -pi -e "s/csv\//\/sites\/default\/files\/omb_place\/data\/csv\//g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
 

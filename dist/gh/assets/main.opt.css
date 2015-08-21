@@ -739,8 +739,35 @@ Version: 1.0
 }
 .leaflet-zoom-box-crosshair {
     cursor: crosshair !important;
-}.leaflet-control-zoomhome a {
-    font: bold 18px "Lucida Console",Monaco,monospace;
+}.leaflet-control-defaultextent {
+
+}
+
+.leaflet-control-defaultextent-toggle {
+  text-indent: -9999px;
+  white-space: nowrap;
+  /* Change by Ryan Harvey: modified image path to fit deployment pattern
+  background-image: url('leaflet.defaultextent.png');
+  */
+  background-image: url('images/leaflet.defaultextent.png');
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+/* CSS for high-resolution devices */
+@media only screen and (-Webkit-min-device-pixel-ratio: 1.5),
+only screen and (-moz-min-device-pixel-ratio: 1.5),
+only screen and (-o-min-device-pixel-ratio: 3/2),
+only screen and (min-device-pixel-ratio: 1.5) {
+    .leaflet-control-defaultextent-toggle {
+        /* Change by Ryan Harvey: modified image path to fit deployment pattern
+        background-image: url('leaflet.defaultextent@2X.png');
+        */
+        background-image: url('images/leaflet.defaultextent@2X.png');
+        background-size: 26px 26px;
+        background-repeat: no-repeat;
+    }
 }
 .leaflet-control-layers-group-name{font-weight:700;margin-bottom:.2em;display:block}.leaflet-control-layers-group{margin-bottom:.5em}.leaflet-control-layers-group label{padding-left:.5em}body {
     padding: 0;
@@ -896,12 +923,12 @@ button.unselect-all-overlays {
 }
 
 /* Alterations to placement of Zoom controls */
-#zoomcontrols {
-    clear: none;
+div#zoomcontrols {
+    max-width: 38px;
     float: left;
 }
-#zoomcontrols>.leaflet-control {
-    clear:both;
+.has-leaflet-pan-control .leaflet-control-zoom {
+    left: inherit;
 }
 
 /* Alterations to the Locate Control */
