@@ -1125,12 +1125,14 @@ div.leaflet-control-locate a.leaflet-bar-part-single span.fa {
     padding: 5px;
 }
 .layer-description-tooltip h3 {
+    color: white;
     font-size: 1.1em;
     font-weight: bold;
     margin: 0;
     margin-bottom: 0.3em;
 }
 .layer-description-tooltip p {
+    color: white;
     margin: 0;
     margin-bottom: 0.3em;
 }
