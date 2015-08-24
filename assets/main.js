@@ -1427,8 +1427,8 @@ var base_layers = {
 var map = L.map('map', {
         click: displayPopup,
         scrollWheelZoom: false,
-        zoomControl: true,
-        defaultExtentControl: true,
+        zoomControl: !window.location.queryParams.report,
+        defaultExtentControl: !window.location.queryParams.report,
         attributionControl: false }); // add attribution control after adding disclaimer control below
 if (queryParams.hasBoundingBox) {
     map.fitBounds([[window.location.queryParams.SWlat, window.location.queryParams.SWlon],
