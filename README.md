@@ -15,6 +15,11 @@ $ ./build.sh
 ```
 To view the results, you can check out one of the three builds available in the `dist` folder.  If you’re starting from scratch, the `gh` build, setup for GitHub Pages-based deployment, is easy to work with on your local development machine.
 
+If you only want to build one deployment target, or only want to build assets or data files, you can do that by adding the arguments `--target=<mytarget>` and `--task=<mytask>`.  For more on that, try the following:
+```
+$ ./build.sh --help
+```
+
 ## About the data
 Most of the data on the map is from community-led initiatives around the country. We’ve also added summary layers, which allow you to hover over a state or county to see what initiatives are in that location.  This map also includes background statistical and demographic information, such as US Census data on counties of persistent poverty, and data from [a recent Harvard University study](http://www.equality-of-opportunity.org/) which reports upward economic mobility data by county ([Where is the Land of Opportunity? The Geography of Intergenerational Mobility in the United States. Chetty et al. Quarterly Journal of Economics. 2014](http://www.equality-of-opportunity.org/images/mobility_geo.pdf)).
 
