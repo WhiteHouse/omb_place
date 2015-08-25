@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Script usage
-USAGE="Build script for data visualization web project
+USAGE="Build script for Map of Adminstration Community-based Initiatives
 
 Usage:
   $ ./build.sh [--task=taskname] [--target=targetname]
+
+To see this help message:
+  $ ./build.sh --help
 
 Command-line arguments accepted include:
 
@@ -18,6 +21,9 @@ target
                 wh : builds for target location on whitehouse.gov
                max : builds for target location on max.gov
                 gh : builds for target as GitHub Pages site
+
+help
+  no values needed. displays this help message.
 "
 
 # Get timestamp
@@ -33,6 +39,11 @@ while [ $# -gt 0 ]; do
     --target=*)
       targetname="${1#*=}"
       echo "Deployment target specified: $targetname"
+      ;;
+    --help)
+      echo "
+$USAGE"
+      exit
       ;;
     *)
       echo "Invalid argument specified: $1
