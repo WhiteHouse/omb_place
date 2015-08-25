@@ -26,7 +26,7 @@ Data and map parameters are contained in the `datasets.json` file in the top-lev
 **Code**: If you’re a front-end coder and want to fix bugs or add features, we welcome your help!  All contributions to the project are dedicated to the public domain.
 
 Here’s a short list of features (small and big) we’d love to get to in the near future:
-* Ability to pin and un-pin the layers control pane.
+* Ability to pin and un-pin the layers control pane.  (See [this JSFiddle](http://jsfiddle.net/ryanbharvey/zAFND/3291/) for a pin button.)
 * Addition of a customizable fly-out pane on the left that allows for storytelling about the data we’re mapping.
 * Addition of story views that combine information, map controls and collections of specific data layers to provide a perspective-based view of the data on the map.
 * New layers from available public data (Census, labor & job-related, economic, etc.)
