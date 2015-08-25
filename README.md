@@ -26,7 +26,7 @@ Most of the data on the map is from community-led initiatives around the country
 Data and map parameters are contained in the `datasets.json` file in the top-level `data` folder.  To add a new data set, you can simply add a new entry to the `datasets` object in that file, and put the data files in the appropriate locations, and it should show up and get added to the map.
 
 ## Contributing to this project
-**Feedback**: Your feedback is critical to the continuous process of updating and improving the map. We will work to address any comments you provide. Please provide any feedback to us using by clicking on “issues.”
+**Feedback**: Your feedback is critical to the continuous process of updating and improving the map. We'll work to address any comments you provide. Please provide your feedback to us by clicking on “Issues.”
 
 **Code**: If you’re a front-end coder and want to fix bugs or add features, we welcome your help!  All contributions to the project are dedicated to the public domain.
 
