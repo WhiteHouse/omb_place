@@ -124,7 +124,7 @@
 			url: '//{s}.tile.thunderforest.com/{variant}/{z}/{x}/{y}.png',
 			options: {
 				attribution:
-					'&copy; <a href="http://www.opencyclemap.org">OpenCycleMap</a>, {attribution.OpenStreetMap}',
+					'&copy; <a href="http://www.thunderforest.com">Thunderforest</a>, {attribution.OpenStreetMap}',
 				variant: 'cycle'
 			},
 			variants: {
