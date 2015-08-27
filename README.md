@@ -8,7 +8,14 @@ The map is a self-contained front-end application and can be served entirely sta
 
 The map code uses the [Leaflet web mapping library](http://leafletjs.com/) (and a number of plugins, see “Dependencies” below) and [jQuery](https://jquery.org), but not much else.  Data actually loaded in the map is in [TopoJSON](https://github.com/mbostock/topojson/wiki) format, but [GeoJSON](http://geojson.org/) and CSV format files of the data are included and used to provide a data download option for users.
 
-Build scripts (bash-based shell scripts that use some node packages for minification of JavaScript and CSS) are provided in the `buildtools` folder.  Once you’ve made your changes, you can go to that folder and run the main build script:
+Build scripts (bash-based shell scripts that use some node packages for minification of JavaScript and CSS) are provided in the `buildtools` folder.  There are a few dependencies you'll need for the script to run.  You can install those (once you have `node` and `npm` available) with the following commands:
+```
+$ npm install -g uglify-js
+$ npm install -g clean-css
+$ npm install -g enhance-css
+```
+
+Once you’ve made your code changes, you can go to that folder and run the main build script:
 ```
 $ cd buildtools
 $ ./build.sh
