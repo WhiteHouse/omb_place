@@ -113,23 +113,18 @@ else
 fi
 
 # Create dist directory & deploy target directories
-mkdir ../dist
+mkdir -p ../dist
 
 if [ $wh ]; then
-    mkdir ../dist/wh
-    mkdir ../dist/wh/omb
-    mkdir ../dist/wh/sites
-    mkdir ../dist/wh/sites/default
-    mkdir ../dist/wh/sites/default/files
-    mkdir ../dist/wh/sites/default/files/omb_place
+    mkdir -p ../dist/wh/sites/default/files/omb_place
 fi
 
 if [ $max ]; then
-    mkdir ../dist/max
+    mkdir -p ../dist/max
 fi
 
 if [ $gh ]; then
-    mkdir ../dist/gh
+    mkdir -p ../dist/gh
 fi
 
 if [ $build_assets ]; then
