@@ -152,34 +152,29 @@ function datasetCount() {
 /********************************
  * Point in polygon functions
  */
-function getPolygonsForPoint(p) {
-    var polygons = {};
+function getLocationsForPoint(p) {
+    var locations = {};
     for (var dataset in data_obj) {
         if (data_obj.hasOwnProperty(dataset)) {
-            polygons[dataset] = getPolygonsForPointInDataset(p, data_obj[dataset]);
+            locations[dataset] = getLocationsForPointInDataset(p, data_obj[dataset]);
         }
     }
-    return polygons;
+    return locations;
 }
 
-function getPolygonsForPointInDataset(p, dataset) {
-    var polygons = [];
+function getLocationsForPointInDataset(p, dataset) {
+    var locations = [];
     if (dataset) {
-        polygons = [];
+        locations = [];
         var result;
-        if (dataset.type === 'points') {
-            dataset.layer_data.eachLayer( function(l) {
-                result = getMarkersForPointInLayer(p, l);
-                Array.prototype.push.apply(polygons, result);
-            });
-        } else {
-            dataset.layer_data.eachLayer( function(l) {
-                result = leafletPip.pointInLayer(p, l);
-                Array.prototype.push.apply(polygons, result);
-            });
-        }
+        dataset.layer_data.eachLayer( function(l) {
+            result = leafletPip.pointInLayer(p, l);
+            Array.prototype.push.apply(locations, result);
+            result = getMarkersForPointInLayer(p, l);
+            Array.prototype.push.apply(locations, result);
+        });
     }
-    return polygons;
+    return locations;
 }
 
 function getMarkersForPointInLayer(p, layer, result, depth) {
@@ -202,47 +197,47 @@ function getMarkersForPointInLayer(p, layer, result, depth) {
 /********************************
  * Layer in map bounds functions
  */
-function getPolygonsInBoundsForDatasets(datasets) {
+function getLocationsInBoundsForDatasets(datasets) {
     var polygons = {};
     var dataset;
     for (var k = 0; k < datasets.length; k++) {
         dataset = datasets[k];
         if (data_obj.hasOwnProperty(dataset)) {
-            polygons[dataset] = getPolygonsInBoundsForDataset(data_obj[dataset]);
+            polygons[dataset] = getLocationsInBoundsForDataset(data_obj[dataset]);
         }
     }
     return polygons;
 }
 
-function getPolygonsWithinBounds(layer, result, depth) {
+function getLocationsWithinBounds(layer, result, depth, bounds) {
     result = typeof result == 'undefined' ? [] : result;
     depth = typeof depth == 'undefined' ? 0 : depth;
+    bounds = typeof bounds == 'undefined' ? map.getBounds() : bounds;
     if (layer.hasOwnProperty("feature")) {
-        var mB = map.getBounds();
-        var lB;
+        var layerBounds;
         if (layer.feature.geometry.type === "Point") {
-            lB = layer._latlng;
-            if (mB.contains(lB)) {
+            layerBounds = layer._latlng;
+            if (bounds.contains(layerBounds)) {
                 result.push(layer);
             }
         } else {
-            lB = layer.getBounds();
-            if (mB.contains(lB) || mB.intersects(lB)) {
+            layerBounds = layer.getBounds();
+            if (bounds.contains(layerBounds) || bounds.intersects(layerBounds)) {
                 result.push(layer);
             }
         }
     } else if (layer instanceof L.LayerGroup) {
         layer.eachLayer(function(l) {
-            result.concat(getPolygonsWithinBounds(l, result, depth+1));
+            result.concat(getLocationsWithinBounds(l, result, depth+1));
         });
     }
     return result;
 }
 
-function getPolygonsInBoundsForDataset(dataset) {
+function getLocationsInBoundsForDataset(dataset) {
     var polygons = [];
     if (dataset && dataset.hasOwnProperty("layer_data")) {
-        polygons = getPolygonsWithinBounds(dataset.layer_data);
+        polygons = getLocationsWithinBounds(dataset.layer_data);
     }
     return polygons;
 }
@@ -250,7 +245,7 @@ function getPolygonsInBoundsForDataset(dataset) {
 /********************************
  * Polygon counting/sorting functions
  */
-function countPolygonInitiatives(polys, by) {
+function countLocationInitiatives(polys, by) {
     return Object.keys(polys).map(function (dataset) {
         if (polys.hasOwnProperty(dataset) && data_obj[dataset].category === "initiative") {
             /* if (by === "state") {
@@ -648,27 +643,27 @@ function addLocationToReportTitle(titleElement) {
 
 function populateInitiativesReport() {
     var datasetsList = window.location.queryParams.datasets;
-    var polys = getPolygonsInBoundsForDatasets(datasetsList);
-    // var numPolys = countPolygonInitiatives(polys);
+    var locations = getLocationsInBoundsForDatasets(datasetsList);
+    // var numLocations = countLocationInitiatives(locations);
     var datasetKey = "";
     var reportString = "";
     for (var k = 0; k < datasetsList.length; k++) {
         datasetKey = datasetsList[k];
-        if (data_obj.hasOwnProperty(datasetKey) && polys[datasetKey].length) {
+        if (data_obj.hasOwnProperty(datasetKey) && locations[datasetKey].length) {
             switch (data_obj[datasetKey].category) {
                 case "summary":
                     /*
                     reportString += getSummaryReportSegment(data_obj[datasetKey],
-                                            polys[datasetKey], numPolys);
+                                            locations[datasetKey], numLocations);
                     */
                     break;
                 case "baseline":
                     reportString += getBaselineReportSegment(data_obj[datasetKey],
-                                            polys[datasetKey]);
+                                            locations[datasetKey]);
                     break;
                 case "initiative":
                     reportString += getInitiativeReportSegment(data_obj[datasetKey],
-                                            polys[datasetKey]);
+                                            locations[datasetKey]);
                     break;
                 default:
                     break;
@@ -681,21 +676,21 @@ function populateInitiativesReport() {
 /********************************
  * Popup display functions
  */
-function getPopupSegmentsForPolygons(polys) {
+function getPopupSegmentsForLocations(locations) {
     var popupString = "";
-    var numPolys = countPolygonInitiatives(polys);
+    var numPolys = countLocationInitiatives(locations);
     for (var i = 0; i < numDatasets; i++) {
         var dataset = layerOrdering[i];
-        if (polys.hasOwnProperty(dataset) && polys[dataset].length) {
+        if (locations.hasOwnProperty(dataset) && locations[dataset].length) {
             switch (data_obj[dataset].category) {
                 case "initiative":
-                    popupString += getInitiativePopupSegment(data_obj[dataset], polys[dataset]);
+                    popupString += getInitiativePopupSegment(data_obj[dataset], locations[dataset]);
                     break;
                 case "summary":
-                    popupString += getSummaryPopupSegment(data_obj[dataset], polys[dataset], numPolys);
+                    popupString += getSummaryPopupSegment(data_obj[dataset], locations[dataset], numPolys);
                     break;
                 case "baseline":
-                    popupString += getBaselinePopupSegment(data_obj[dataset], polys[dataset]);
+                    popupString += getBaselinePopupSegment(data_obj[dataset], locations[dataset]);
                     break;
                 default:
                     break;
@@ -738,8 +733,8 @@ function displayPopup(e) {
             console.log(err);
         });
         var popup = L.popup().setLatLng(e.latlng);
-        var polys = getPolygonsForPoint(e.latlng);
-        var popupString = getPopupSegmentsForPolygons(polys);
+        var locations = getLocationsForPoint(e.latlng);
+        var popupString = getPopupSegmentsForLocations(locations);
         if (!popupString) {
             popupString = "No layers found.";
         }
@@ -994,11 +989,11 @@ function addChoroplethRegionEventHandlers(region) {
     region.on("mouseover", function(e) {
         var targets = {};
         getSummaryOverlays().map( function(summary) {
-            var poly = getPolygonsForPointInDataset(e.latlng, data_obj[summary]);
+            var poly = getLocationsForPointInDataset(e.latlng, data_obj[summary]);
             if (poly.length) { targets[summary] = poly[0]; }
         });
         getBaselineChoropleths().map( function(choro) {
-            var poly = getPolygonsForPointInDataset(e.latlng, data_obj[choro]);
+            var poly = getLocationsForPointInDataset(e.latlng, data_obj[choro]);
             if (poly.length) { targets[choro] = poly[0]; }
         });
         for (var overlay in targets) {
@@ -1177,11 +1172,11 @@ function create_topojson_layer(dataset) {
     newLayer.on("mouseover", function(e) {
         var targets = {};
         getSummaryOverlays().map( function(summary) {
-            var poly = getPolygonsForPointInDataset(e.latlng, data_obj[summary]);
+            var poly = getLocationsForPointInDataset(e.latlng, data_obj[summary]);
             if (poly.length) { targets[summary] = poly[0]; }
         });
         getBaselineChoropleths().map( function(choro) {
-            var poly = getPolygonsForPointInDataset(e.latlng, data_obj[choro]);
+            var poly = getLocationsForPointInDataset(e.latlng, data_obj[choro]);
             if (poly.length) { targets[choro] = poly[0]; }
         });
         for (var overlay in targets) {
