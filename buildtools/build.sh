@@ -299,7 +299,7 @@ Building data..."
   if [ $wh ]; then
     echo "  Building data for deployment target whitehouse.gov..."
     # Copy data directory and update datasets json pathing.
-    cp -r ../data ../dist/wh/sites/default/files/omb_place/data
+    cp -r ../data ../dist/wh/sites/default/files/omb_place/.
     perl -pi -e "s/(<a href=\\\")[A-Za-z\-\.\/]+(\\\" target=\\\"\_blank\\\">about the data<\/a>)/\1\/omb\/place\/datasets\2/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
     perl -pi -e "s/(\"print_url\"\:\s*\")[^\"]+\"/\1\/omb\/place\/print\"/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
     perl -pi -e "s/(\"about_data_url\"\:\s*\")[^\"]+\"/\1\/omb\/place\/datasets\"/g" ../dist/wh/sites/default/files/omb_place/data/datasets.json
@@ -311,7 +311,7 @@ Building data..."
   if [ $max ]; then
     echo "  Buidling data for deployment target max.gov..."
     # Copy data directory and update datasets json pathing.
-    cp -r ../data ../dist/max/data
+    cp -r ../data ../dist/max/.
     perl -pi -e "s/(<a href=\\\")[A-Za-z\-\.\/]+(\\\" target=\\\"\_blank\\\">about the data<\/a>)/\1datasets.html\2/g" ../dist/max/data/datasets.json
     perl -pi -e "s/(\"print_url\"\:\s*\")[^\"]+\"/\1print.html\"/g" ../dist/max/data/datasets.json
     perl -pi -e "s/(\"about_data_url\"\:\s*\")[^\"]+\"/\1datasets.html\"/g" ../dist/max/data/datasets.json
@@ -323,7 +323,7 @@ Building data..."
   if [ $gh ]; then
     echo "  Building data for deployment target GitHub Pages..."
     # Copy data directory and update datasets json pathing.
-    cp -r ../data ../dist/gh/data
+    cp -r ../data ../dist/gh/.
     perl -pi -e "s/(<a href=\\\")[A-Za-z\-\.\/]+(\\\" target=\\\"\_blank\\\">about the data<\/a>)/\1datasets.html\2/g" ../dist/gh/data/datasets.json
     perl -pi -e "s/(\"print_url\"\:\s*\")[^\"]+\"/\1print.html\"/g" ../dist/gh/data/datasets.json
     perl -pi -e "s/(\"about_data_url\"\:\s*\")[^\"]++\"/\1datasets.html\"/g" ../dist/gh/data/datasets.json
