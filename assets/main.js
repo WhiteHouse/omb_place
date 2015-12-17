@@ -771,7 +771,11 @@ function addPopupActionsToLayersControlLayerTitles(data_obj, map_params) {
                 var selector = 'div#' + slug + '-description-tooltip.layer-description-tooltip';
                 //var layerControlLabelSelector = 'label#' + slug + "-layer-control-label";
                 //console.log("Showing: " + selector);
-                $(selector).show();
+                $(selector).show(1, function() {
+                    if (!$(selector).data('height-adjusted')) {
+                        adjustLayerTooltipDisplay($(selector));
+                    }
+                });
                 //console.log("Label: " + $(layerControlLabelSelector)[0].outerHTML + "\n"
                 //    + " | CSS top: " + $(layerControlLabelSelector).css("top")
                 //    + " | $().offset().top: " + $(layerControlLabelSelector).offset().top
@@ -801,6 +805,23 @@ function createDescriptionTooltip(dataset, p) {
     tooltip.html(tooltipContents);
     //console.log(tooltip);
     return tooltip;
+}
+
+function adjustLayerTooltipDisplay(el) {
+    if (tooltipIsNearTheBottomEdge(el)) {
+        el.css('top', (-el.height() - parseInt(el.css('top'))) + 'px');
+        console.log(el.css('top'));
+        el.data('height-adjusted', true);
+    }
+}
+
+function tooltipIsNearTheBottomEdge(el) {
+    var w_height = $(window).height();
+    var el_offset = el.offset();
+    if (el_offset.top + el.height() > w_height) {
+        return true;
+    }
+    return false;
 }
 
 /********************************
