@@ -1183,11 +1183,8 @@ function create_topojson_layer(dataset) {
     if (dataset.type === "regions" || dataset.type === "points") {
         newLayer.setStyle(dataset.style);
         newLayer.options.pointToLayer = function(feature, latlng) {
-            var smallIcon = L.VectorMarkers.icon({
-                icon: 'circle',
-                markerColor: dataset.style.color
-            });
-            return L.marker(latlng, {icon: smallIcon});
+            smallIcon = CustomMarkers.getMarker('default', dataset.style.color);
+            return L.marker(latlng,{icon: smallIcon});
         };
     }
     newLayer.on("mouseover", function(e) {
