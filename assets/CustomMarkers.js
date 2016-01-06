@@ -16,6 +16,8 @@ var CustomMarkers = {
             } else {
                 return this.getReplaceDefaultColor(color, '#4dea51');
             }
+        } else {
+            return this.getCustomMarker(name);
         }
     },
     getReplaceDefaultColor: function(newcolor, defaultcolor) {
@@ -30,5 +32,17 @@ var CustomMarkers = {
         }
         return this.marker_array.color[newcolor];
     },
+
+    getCustomMarker: function(name) {
+        if (!this.marker_array[name]) {
+            this.marker_array[name] = new L.Icon({
+                iconUrl: 'http://austinmoffa.github.io/gh/assets/images/icons/' + name  + '.svg',
+                iconAnchor: [10, 40], //assuming our icons are set internally as 20x40
+                className: 'leaflet-' + name + '-custom-marker',
+            });
+        }
+
+        return this.marker_array[name];
+    }
 
 };
