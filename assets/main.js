@@ -810,7 +810,6 @@ function createDescriptionTooltip(dataset, p) {
 function adjustLayerTooltipDisplay(el) {
     if (tooltipIsNearTheBottomEdge(el)) {
         el.css('top', (-el.height() - parseInt(el.css('top'))) + 'px');
-        console.log(el.css('top'));
         el.data('height-adjusted', true);
     }
 }
